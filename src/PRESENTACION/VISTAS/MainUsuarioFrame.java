@@ -65,6 +65,7 @@ public class MainUsuarioFrame extends JFrame {
         JButton btnReservar = new JButton("Reservar Plaza");
         JButton btnMisReservas = new JButton("Mis Reservas");
         JButton btnGrafico = new JButton("Gráfico");
+        JButton btnEliminarCuenta = new JButton("Eliminar cuenta");
         JButton btnCerrarSesion = new JButton("Cerrar Sesión");
 
         btnEstado.addActionListener(e -> mostrarVista("ESTADO"));
@@ -72,6 +73,7 @@ public class MainUsuarioFrame extends JFrame {
         btnReservar.addActionListener(e -> mostrarVista("RESERVAR"));
         btnMisReservas.addActionListener(e -> mostrarVista("MIS_RESERVAS"));
         btnGrafico.addActionListener(e -> mostrarVista("GRAFICO"));
+        btnEliminarCuenta.addActionListener(e -> eliminarCuenta());
         btnCerrarSesion.addActionListener(e -> cerrarSesion());
 
         sidebar.add(lblLogo);
@@ -86,7 +88,8 @@ public class MainUsuarioFrame extends JFrame {
         sidebar.add(Box.createVerticalStrut(10));
         sidebar.add(btnGrafico);
         sidebar.add(Box.createVerticalGlue());
-        sidebar.add(new JLabel(" "));
+        sidebar.add(btnEliminarCuenta);
+        sidebar.add(Box.createVerticalStrut(10));
         sidebar.add(btnCerrarSesion);
 
         return sidebar;
@@ -146,6 +149,28 @@ public class MainUsuarioFrame extends JFrame {
         );
 
         if (opcion == JOptionPane.YES_OPTION) {
+            dispose();
+            new LoginFrame().setVisible(true);
+        }
+    }
+
+    private void eliminarCuenta() {
+        int opcion = JOptionPane.showConfirmDialog(
+                this,
+                "¿Seguro que quieres eliminar tu cuenta?",
+                "Eliminar cuenta",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE
+        );
+
+        if (opcion == JOptionPane.YES_OPTION) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "La cuenta se eliminará próximamente de la base de datos.",
+                    "Cuenta eliminada",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+
             dispose();
             new LoginFrame().setVisible(true);
         }

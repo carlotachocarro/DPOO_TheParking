@@ -113,9 +113,7 @@ public class LoginFrame extends JFrame {
         btnRegistro.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         btnEntrar.addActionListener(e -> iniciarSesion());
-        btnRegistro.addActionListener(e ->
-                JOptionPane.showMessageDialog(this, "Aquí abriremos la pantalla de registro.")
-        );
+        btnRegistro.addActionListener(e -> abrirRegistro());
 
         formulario.add(lblTitulo);
         formulario.add(Box.createVerticalStrut(40));
@@ -153,6 +151,11 @@ public class LoginFrame extends JFrame {
         dispose();
         new MainUsuarioFrame("usuario1").setVisible(true);
 
+    }
+
+    private void abrirRegistro() {
+        dispose();
+        new RegistroFrame().setVisible(true);
     }
 
 }
