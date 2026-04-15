@@ -1,6 +1,5 @@
 import javax.swing.SwingUtilities;
-import PRESENTACION.VISTAS.LoginFrame;
-import PRESENTACION.VISTAS.MainUsuarioFrame;
+import Presentacion.Vistas.LoginFrame;
 
 public class Main {
 
