@@ -1,0 +1,9 @@
+{
+  "nombreBaseDatos" : "nombre",
+  "puertoConexion": "port",
+  "ip": "ip",
+  "nombreAdmin": "Admin",
+  "contrasenaAdmin": "admin",
+  "cantidadPlazasDisponibles": 5,
+  "tipo":"coche"
+}
