@@ -150,7 +150,7 @@ public class MainUsuarioFrame extends JFrame {
 
         if (opcion == JOptionPane.YES_OPTION) {
             dispose();
-            new LoginFrame().setVisible(true);
+            new AuthFrame().setVisible(true);
         }
     }
 
@@ -172,7 +172,7 @@ public class MainUsuarioFrame extends JFrame {
             );
 
             dispose();
-            new LoginFrame().setVisible(true);
+            new AuthFrame().setVisible(true);
         }
     }
 }
