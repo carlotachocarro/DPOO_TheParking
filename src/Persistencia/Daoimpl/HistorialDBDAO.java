@@ -1,4 +1,4 @@
 package Persistencia.Daoimpl;
 
-public class UsuarioDAOImpl {
+public class HistorialDBDAO {
 }

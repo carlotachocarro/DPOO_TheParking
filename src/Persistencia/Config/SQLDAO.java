@@ -1,4 +1,4 @@
 package Persistencia.Config;
 
-public class ConexionSQL {
+public class SQLDAO {
 }

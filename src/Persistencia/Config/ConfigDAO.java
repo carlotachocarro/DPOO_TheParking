@@ -1,4 +1,4 @@
 package Persistencia.Config;
 
-public class Configuracion {
+public interface ConfigDAO {
 }
