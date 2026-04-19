@@ -1,21 +1,26 @@
 package Persistencia.Config;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class ConfigJSONDAO {
-    private static String FILE_PATH ;
+    private static String FILE_PATH = "src/CONFIG/config.json"; ;
+
+    private JsonObject config;
 
     public ConfigJSONDAO() {
-        this.FILE_PATH = "src/CONFIG/config.json";
+        try (FileReader reader = new FileReader(FILE_PATH)) {
+            Gson gson = new Gson();
+            config = gson.fromJson(reader, JsonObject.class);
+        } catch (IOException e) {
+            System.out.println(e);
+        }
     }
 
 
@@ -28,13 +33,16 @@ public class ConfigJSONDAO {
 
                 FileWriter writer = new FileWriter(file);
                 writer.write("{\n" +
-                        "  \"nombreBaseDatos\": \"nombre\",\n" +
-                        "  \"puertoConexion\": \"port\",\n" +
-                        "  \"ip\": \"ip\",\n" +
+                        "  \"database\":{"+
+                        "  \"dbName\": \"nombre\",\n" +
+                        "  \"dbPort\": \"port\",\n" +
+                        "  \"dbIp\": \"ip\",\n" +
+                        "  \"dbHost\": \"name\" \n"+
+                        "  \"dbPassword\": \"name\" \n"+
+                        "}, \n"+
                         "  \"nombreAdmin\": \"Admin\",\n" +
                         "  \"contrasenaAdmin\": \"admin\",\n" +
-                        "  \"cantidadPlazasDisponibles\": 5,\n" +
-                        "  \"tipo\": \"coche\"\n" +
+                        "  \"tiempoEntradaVehiculos\": 5,\n" +
                         "}");
                 writer.close();
             }
@@ -43,39 +51,23 @@ public class ConfigJSONDAO {
         }
     }
 
-
-
-    public String[]  leerTodaConfigJSON(){
-        FileReader reader = null;
-        List<String> resultList = new ArrayList<>();
-        ///  no deberia lanzar ninguna excepcion
-        try {
-            reader = new FileReader(FILE_PATH);
-        } catch (FileNotFoundException e) {
-
-        }
-        Gson gson = new Gson();
-        List<Map<String,Object>> providers = gson.fromJson(reader,new TypeToken<List<Map<String,Object>>>(){}.getType());
-        ArrayList<String> res = new ArrayList<String>();
-        StringBuilder result = new StringBuilder();
-        result.append("nombreBaseDatos");
-        result.append("-");
-        result.append("puertoConexion");
-        result.append("-");
-        result.append("ip");
-        result.append("-");
-        result.append("contrasenia");
-        result.append("-");
-        result.append("cantidadPlazasDisponibles");
-        result.append("-");
-        result.append("tipo");
-        result.append("-");
-
-        res.add(result.toString());
-
-        return resultList.toArray(new String[0]);
+    public String getDBHost(){
+        return config.getAsJsonObject("database").get("dbHost").getAsString();
     }
 
+    public int getDBPuerto() {
+        return config.getAsJsonObject("database").get("dbPort").getAsInt();
+    }
 
+    public String getDBNombre(){
+        return config.getAsJsonObject("database").get("dbName").getAsString();
+    }
 
+    public String getDBIp(){
+        return config.getAsJsonObject("database").get("dbIp").getAsString();
+    }
+
+    public String getDBContraseña(){
+        return config.getAsJsonObject("database").get("dbPassword").getAsString();
+    }
 }
