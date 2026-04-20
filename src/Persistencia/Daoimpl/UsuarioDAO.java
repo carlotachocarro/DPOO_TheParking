@@ -1,5 +1,7 @@
 package Persistencia.Daoimpl;
 
+import Negocio.Entidades.Usuario;
+
 public interface UsuarioDAO {
     public boolean registrarUsuario(String Nombre, String eMail, String contraseña);
 
@@ -7,7 +9,9 @@ public interface UsuarioDAO {
 
     public boolean checkUsuario(String nombre, String mail);
 
+    public Usuario getUsuario(String nombre, String mail);
 
+    public String getUsuarioId(String nombre, String mail);
 
 
 
