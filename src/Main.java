@@ -1,3 +1,5 @@
+import Persistencia.Daoimpl.UsuarioDBDAO;
+
 import javax.swing.SwingUtilities;
 import Presentacion.Vistas.AuthFrame;
 

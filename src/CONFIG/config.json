@@ -1,8 +1,12 @@
 {
-  "nombreBaseDatos" : "nombre",
-  "puertoConexion": "port",
-  "ip": "ip",
-  "nombreAdmin": "Admin",
+  "database" : {
+    "dbHost": "root",
+    "dbPort" : "3306",
+    "dbName" : "ls_parking",
+    "dbIp" : "127.0.0.1",
+    "dbPassword" : ""
+  },
+  "nombreAdmin": "admin",
   "contrasenaAdmin": "admin",
   "cantidadPlazasDisponibles": 5,
   "tipo":"coche"
