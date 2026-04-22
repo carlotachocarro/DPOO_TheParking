@@ -2,6 +2,7 @@ package Presentacion.Vistas;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
 
 public class RegistroPanel extends JPanel {
 
@@ -63,7 +64,7 @@ public class RegistroPanel extends JPanel {
         btnVolverLogin.setForeground(new Color(52, 152, 219));
         btnVolverLogin.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        btnRegistrarse.addActionListener(e -> registrarUsuario());
+       // btnRegistrarse.addActionListener(e -> registrarUsuario());
         btnVolverLogin.addActionListener(e -> frame.mostrarLogin());
 
         add(lblTitulo);
@@ -119,4 +120,39 @@ public class RegistroPanel extends JPanel {
 
         frame.mostrarLogin();
     }
+
+
+    public void limpiarCampos() {
+        txtPassword.setText("");
+        txtConfirmarPassword.setText("");
+    }
+    public void limpiarEmail(){
+        txtCorreo.setText("");
+    }
+
+    public void focoEnPassword() {
+        txtPassword.requestFocus();
+    }
+
+
+    public void addRegistroListener(ActionListener listener) {
+        btnRegistrarse.addActionListener(listener);
+    }
+
+    public String getNombreUsuario() {
+        return txtNombreUsuario.getText().trim();
+    }
+
+    public String getCorreo() {
+        return txtCorreo.getText().trim();
+    }
+
+    public String getPassword() {
+        return new String(txtPassword.getPassword()).trim();
+    }
+
+    public String getConfirmarPassword() {
+        return new String(txtConfirmarPassword.getPassword()).trim();
+    }
+
 }

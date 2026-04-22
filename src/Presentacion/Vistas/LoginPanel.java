@@ -2,6 +2,7 @@ package Presentacion.Vistas;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
 
 public class LoginPanel extends JPanel {
 
@@ -53,7 +54,7 @@ public class LoginPanel extends JPanel {
         btnRegistro.setForeground(new Color(52, 152, 219));
         btnRegistro.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        btnEntrar.addActionListener(e -> iniciarSesion());
+        //btnEntrar.addActionListener(e -> iniciarSesion());
         btnRegistro.addActionListener(e -> frame.mostrarRegistro());
 
         add(lblTitulo);
@@ -73,21 +74,30 @@ public class LoginPanel extends JPanel {
         add(new JLabel("¿No tienes cuenta?"));
         add(btnRegistro);
     }
-
-    private void iniciarSesion() {
+    /*
+    public void iniciarSesion() {
         String usuarioCorreo = txtUsuarioCorreo.getText().trim();
         String password = new String(txtPassword.getPassword()).trim();
 
         if (usuarioCorreo.isEmpty() || password.isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                    "Debes rellenar usuario/correo y contraseña.",
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Debes rellenar usuario/correo y contraseña.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         Window ventana = SwingUtilities.getWindowAncestor(this);
         ventana.dispose();
         new MainUsuarioFrame("usuario1").setVisible(true);
+
+    }*/
+    public void addLoginListener(ActionListener listener) {
+        btnEntrar.addActionListener(listener);
+    }
+
+    public String getUsuarioCorreo() {
+        return txtUsuarioCorreo.getText().trim();
+    }
+
+    public String getPassword() {
+        return new String(txtPassword.getPassword()).trim();
     }
 }

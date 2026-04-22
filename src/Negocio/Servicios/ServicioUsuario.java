@@ -3,13 +3,15 @@ package Negocio.Servicios;
 import Negocio.Entidades.Usuario;
 import Persistencia.Daoimpl.Singleton;
 import Persistencia.Daoimpl.UsuarioDAO;
+import Persistencia.Daoimpl.UsuarioDBDAO;
 
 import java.security.MessageDigest;
 public class ServicioUsuario {
-    private UsuarioDAO usuariDAO;
+    private UsuarioDBDAO usuariDAO;
+    private  Usuario usuario;
 
     public  ServicioUsuario() {
-
+        usuariDAO = new UsuarioDBDAO();
     }
 
     public int registrarUsua(String nombreUser, String correrElectro, String contra,String repContra) {
@@ -18,9 +20,11 @@ public class ServicioUsuario {
             if (contra.equals(repContra)){
                 if (comprbarMIT(contra)){
                     encryptedPassword  = encriptarContrasena(contra);// funcion para encriptar la contrasenya
-
-                    if (usuariDAO.registrarUsuario(nombreUser,correrElectro,encryptedPassword)){
-                        return 3;// es valido todo correo, longitud, caracteresm, reg base de datos
+                    if (!usuariDAO.checkUsuario(nombreUser,correrElectro)) {
+                        if (usuariDAO.registrarUsuario(nombreUser,correrElectro,encryptedPassword)){
+                            return 4;// es valido todo correo, longitud, caracteresm, reg base de datos
+                        }
+                        return 3;
                     }
                     return 2;// es Valido correo, longitud , caracteres, no se ha registrado en la base de datps
                 }
@@ -94,8 +98,6 @@ public class ServicioUsuario {
         String regex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
         return email.matches(regex);
     }
-
-}
 /**
  * Usuario se registra
  *         ↓
@@ -111,3 +113,25 @@ public class ServicioUsuario {
  *         ↓
  * Usuario pasa a "VERIFICADO"
  */
+
+
+    public boolean inicioSession(String nombre,String contra) {
+
+        String correoElectro = null;
+        if (validarCorreoElectro(nombre) == true){
+            correoElectro = nombre;
+            nombre = null;
+        }
+        String encryptedPassword;
+        encryptedPassword= encriptarContrasena(contra);
+        usuario = usuariDAO.getUsuario(nombre,correoElectro);
+
+        if (usuariDAO.checkUsuario(nombre,correoElectro)) {
+            if (usuario.getContraseña().equals(encryptedPassword)){
+                return true;
+            }
+        }
+        return false;
+    }
+}
+

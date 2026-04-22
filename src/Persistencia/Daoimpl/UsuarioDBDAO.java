@@ -50,6 +50,7 @@ public class UsuarioDBDAO implements UsuarioDAO{
         try {
             return rs.next();
         } catch (SQLException e){
+            System.out.println(e);
             e.printStackTrace();
             return false;
         }
