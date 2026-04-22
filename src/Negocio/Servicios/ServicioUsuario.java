@@ -124,7 +124,7 @@ public class ServicioUsuario {
         }
         String encryptedPassword;
         encryptedPassword= encriptarContrasena(contra);
-        usuario = usuariDAO.getUsuario(nombre,correoElectro);
+        usuario = usuariDAO.getUsuario( nombre,correoElectro);
 
         if (usuariDAO.checkUsuario(nombre,correoElectro)) {
             if (usuario.getContraseña().equals(encryptedPassword)){

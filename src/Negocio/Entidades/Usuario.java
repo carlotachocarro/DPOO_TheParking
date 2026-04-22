@@ -3,12 +3,10 @@ package Negocio.Entidades;
 public class Usuario {
     private String nombre;
     private String correoElectronico;
-    private String contraseña;
 
-    public Usuario( String nombre, String correoElectronico, String contrasenia) {
+    public Usuario( String nombre, String correoElectronico) {
         this.nombre = nombre;
         this.correoElectronico = correoElectronico;
-        this.contraseña = contrasenia;
     }
 
     public String getNombre() {
@@ -20,9 +18,6 @@ public class Usuario {
         return correoElectronico;
     }
 
-    public String getContraseña() {
-        return contraseña;
-    }
 
 
 

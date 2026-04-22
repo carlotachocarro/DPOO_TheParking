@@ -70,12 +70,54 @@ public class UsuarioDBDAO implements UsuarioDAO{
         ResultSet rs = SQL_CRUD.Select(query, values, types);
         try{
             if (rs.next()){
-                user = new Usuario(rs.getString("nombre"), rs.getString("mail"), rs.getString("contraseña"));
+                user = new Usuario(rs.getString("nombre"), rs.getString("mail"));
             }
         } catch (SQLException e){
             System.out.println(e);
         }
         return user;
+    }
+
+    public Usuario getUsuarioById(String id){
+        String query = "SELECT * FROM usuario WHERE id_usuario=?";
+        Usuario user =null;
+        ArrayList<String> values = new ArrayList<>();
+        ArrayList<String> types = new ArrayList<>();
+
+        values.add(id);
+        types.add("int");
+
+        ResultSet rs = SQL_CRUD.Select(query, values, types);
+        try{
+            if (rs.next()){
+                user = new Usuario(rs.getString("nombre"), rs.getString("mail"));
+            }
+        } catch (SQLException e){
+            System.out.println(e);
+        }
+        return user;
+    }
+
+    public String getUsuarioContraseña(String nombre, String mail){
+        String query = "SELECT * FROM usuario WHERE nombre = ? OR mail = ?";
+        String password = "";
+        ArrayList<String> values = new ArrayList<>();
+        ArrayList<String> types = new ArrayList<>();
+
+        values.add(nombre);
+        values.add(mail);
+        types.add("String");
+        types.add("String");
+
+        ResultSet rs = SQL_CRUD.Select(query, values, types);
+        try{
+            if (rs.next()){
+                password = rs.getString("contraseña");
+            }
+        } catch (SQLException e){
+            System.out.println(e);
+        }
+        return password;
     }
 
     public String getUsuarioId(String nombre, String mail){

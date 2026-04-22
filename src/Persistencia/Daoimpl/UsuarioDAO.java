@@ -11,6 +11,11 @@ public interface UsuarioDAO {
 
     public Usuario getUsuario(String nombre, String mail);
 
+    public Usuario getUsuarioById(String id);
+
+    public String getUsuarioContraseña(String nombre, String mail);
+
+
     public String getUsuarioId(String nombre, String mail);
 
 
