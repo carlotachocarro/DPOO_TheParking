@@ -127,7 +127,7 @@ public class ServicioUsuario {
         usuario = usuariDAO.getUsuario( nombre,correoElectro);
 
         if (usuariDAO.checkUsuario(nombre,correoElectro)) {
-            if (usuario.getContraseña().equals(encryptedPassword)){
+            if (usuariDAO.getUsuarioContraseña(nombre,correoElectro).equals(encryptedPassword)){
                 return true;
             }
         }
