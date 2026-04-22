@@ -34,7 +34,8 @@ public class ControladorInicioSesion implements ActionListener {
         }
         boolean loginCorrecto = servicioUsuario.inicioSession(usuarioCorreo,password);
         if (!loginCorrecto) {
-            JOptionPane.showMessageDialog(null, "Credenciales incorrectas", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Contrasenya o usuario incorrecto", "Error", JOptionPane.ERROR_MESSAGE);
+            vista.limpiarCampos();
             return;
         }
         Window ventana = SwingUtilities.getWindowAncestor(vista);
