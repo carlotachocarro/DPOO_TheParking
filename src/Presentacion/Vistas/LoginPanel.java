@@ -89,6 +89,11 @@ public class LoginPanel extends JPanel {
         new MainUsuarioFrame("usuario1").setVisible(true);
 
     }*/
+
+    public void limpiarCampos() {
+        txtPassword.setText("");
+        txtUsuarioCorreo.setText("");
+    }
     public void addLoginListener(ActionListener listener) {
         btnEntrar.addActionListener(listener);
     }
