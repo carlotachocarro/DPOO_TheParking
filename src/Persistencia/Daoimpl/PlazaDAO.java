@@ -13,11 +13,12 @@ public interface PlazaDAO {
 
     public Usuario getPlazaUsuario(String id);
 
-    public ArrayList<Plaza> getPlazaLibre(String tipo);
 
-    public boolean setOcupadoLibre(boolean estado);
+    public boolean ocuparPlaza(String id_plaza ,boolean ocupacion, String matricula, String nombreUsuario);
 
-    public boolean setReserva(boolean estado);
+    public boolean ocuparPlazaSimul(String id_plaza ,boolean ocupacion, String matricula);
 
-    public boolean setSimul(boolean estado);
+    public boolean reservarPlaza(String id_plaza ,boolean reserva);
+
+    public boolean simularPlaza(String id_plaza ,boolean simul);
 }

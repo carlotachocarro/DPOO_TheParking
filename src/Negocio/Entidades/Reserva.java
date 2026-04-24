@@ -3,30 +3,35 @@ package Negocio.Entidades;
 import java.util.Date;
 
 public class Reserva {
-    private int idReserva;
-    private int idVehiculo;
+    private String idReserva;
+    private String matricula;
     private String idCliente;
-    private Date date;
 
-    public Reserva(int idReserva, int idVehiculo, String idCliente , Date date) {
+    private String idPlaza;
+    private String date;
+
+    public Reserva(String idReserva, String matricula, String idCliente , String idPlaza, String date) {
         this.idReserva = idReserva;
-        this.idVehiculo = idVehiculo;
+        this.matricula = matricula;
         this.idCliente = idCliente;
+        this.idPlaza = idPlaza;
         this.date=date;
 
     }
-   public Date getDate() {
+   public String getDate() {
         return date;
    }
-    public int getIdReserva() {
+    public String getIdReserva() {
         return idReserva;
     }
 
-    public int getIdVehiculo() {
-        return idVehiculo;
+    public String getMatricula() {
+        return matricula;
     }
     public String getIdCliente() {
         return idCliente;
     }
+
+    public String getIdPlaza(){return idPlaza;}
 
 }
