@@ -68,6 +68,8 @@ public class Plaza {
     public void setUser(Usuario user) {
         this.user = user;
     }
+
+    public String getMatricula(){return this.matricula;}
 }
 
 
