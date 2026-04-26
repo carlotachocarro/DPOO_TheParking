@@ -8,6 +8,7 @@ import Persistencia.Daoimpl.UsuarioDBDAO;
 import Negocio.Entidades.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ServicioReserva {
     private ReservaDBDAO reservaDBDAO;
@@ -42,12 +43,44 @@ public class ServicioReserva {
         return texto.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
     }
 
-
-    public ArrayList<Plaza> buscarPlazasDeParking (){
+    /*
+    vista.cargarPlazasDisponibles(List.of(
+                                "1 - Planta 1 - Coche - Libre",
+                                "B-02 - Planta 2 - Coche - Libre",
+                                "B-04 - Planta 2 - Coche - Libre",
+                                "C-01 - Planta 3 - Coche - Libre"));
+    * */
+    public List<String> buscarPlazasDeParking (){
 
         ArrayList<Plaza> plazas = plazaDBDAO.getPlazas();
+        List<String> resultado = new ArrayList<>();
 
-        return plazas;
+        for( Plaza plaza : plazas){
+            resultado.add(formatearPlazaParaVista(plaza));
+        }
+
+
+        return resultado;
     }
+
+
+    private String formatearPlazaParaVista(Plaza plaza) {
+
+        String estado;
+
+        if (plaza.getEstado_reserva()) {
+            estado = "Reservada";
+        } else if (plaza.getEstado_ocupado()) {
+            estado = "Ocupada";
+        } else {
+            estado = "Libre";
+        }
+
+        return plaza.getCodigoPlaza()
+                + " - Planta " + plaza.getPlanta()
+                + " - " + plaza.getTipoVehiculo()
+                + " - " + estado;
+    }
+
 
 }

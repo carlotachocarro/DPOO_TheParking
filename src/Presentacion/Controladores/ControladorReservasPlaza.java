@@ -6,6 +6,7 @@ import Presentacion.Vistas.Panels.ReservasPlazaPanel;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ControladorReservasPlaza implements ActionListener {
@@ -57,11 +58,8 @@ public class ControladorReservasPlaza implements ActionListener {
 
             case "BUSCAR":
 
-                vista.cargarPlazasDisponibles(List.of(
-                                "1 - Planta 1 - Coche - Libre",
-                                "B-02 - Planta 2 - Coche - Libre",
-                                "B-04 - Planta 2 - Coche - Libre",
-                                "C-01 - Planta 3 - Coche - Libre"));
+
+                vista.cargarPlazasDisponibles(servicioReserva.buscarPlazasDeParking());
 
                 break;
         }
