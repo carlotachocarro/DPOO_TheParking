@@ -148,6 +148,7 @@ public class RegistroPanel extends JPanel {
     }
 
     public String getPassword() {
+
         return new String(txtPassword.getPassword()).trim();
     }
 

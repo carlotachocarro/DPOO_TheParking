@@ -1,5 +1,6 @@
 package Presentacion.Vistas;
 
+import Presentacion.Controladores.ControladorReservasPlaza;
 import Presentacion.Controladores.ControllerMenuPrincipalAdmin;
 import Presentacion.Vistas.Panels.EstadoParkingPanel;
 import Presentacion.Vistas.Panels.EntradaSalidaPanel;
@@ -41,8 +42,12 @@ public class MainUsuarioFrame extends JFrame {
         contentPanel = new JPanel(cardLayout);
 
         contentPanel.add(new EstadoParkingPanel(controller), "ESTADO");
+        ReservasPlazaPanel reservasPanel = new ReservasPlazaPanel();
+        new ControladorReservasPlaza(reservasPanel,nombreUsuario);
+        // Añadir ESA MISMA al CardLayout
+
         contentPanel.add(new EntradaSalidaPanel(), "ENTRADA_SALIDA");
-        contentPanel.add(new ReservasPlazaPanel(), "RESERVAR");
+        contentPanel.add(reservasPanel, "RESERVAR");
         contentPanel.add(new MisReservasPanel(), "MIS_RESERVAS");
         contentPanel.add(new GraficoOcupacionPanel(), "GRAFICO");
 

@@ -6,9 +6,9 @@ public class Reserva {
     private String idReserva;
     private String matricula;
     private String idCliente;
-
     private String idPlaza;
     private String date;
+
 
     public Reserva(String idReserva, String matricula, String idCliente , String idPlaza, String date) {
         this.idReserva = idReserva;
