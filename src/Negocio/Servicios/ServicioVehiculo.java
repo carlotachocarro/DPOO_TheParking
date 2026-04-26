@@ -159,4 +159,5 @@ public class ServicioVehiculo {
     public int disponibilidadPorTipo(String tipo){
         return plazaDBDAO.getPlazasLibres(tipo).size();
     }
+
 }
