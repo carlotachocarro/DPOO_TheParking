@@ -1,14 +1,13 @@
 package Negocio.Entidades;
 
 public class Plaza {
+
     private String tipoVheiculo;
     private int planta;
     private String codigoPlaza;
-
+    private String matricula;
     private boolean estado_ocupado;
-
     private boolean estado_reserva;
-
     private boolean simulado;
 
     private Usuario user;
@@ -23,6 +22,7 @@ public class Plaza {
         this.simulado = sim;
         this.user = u;
     }
+
 
 
     public String getTipoVehiculo() {

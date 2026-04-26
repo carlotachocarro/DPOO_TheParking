@@ -32,7 +32,7 @@ public class ReservaDBDAO {
     }
 
     public ArrayList<Reserva> getReservas(){
-        String query = "SELECT * FROM reserva WHERE ";
+        String query = "SELECT * FROM reserva";
         ArrayList<String> values = new ArrayList<>();
         ArrayList<String> types = new ArrayList<>();
 

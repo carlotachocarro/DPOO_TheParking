@@ -2,6 +2,7 @@ package Presentacion.Vistas.Panels;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
 import java.util.List;
 
 public class ReservasPlazaPanel extends JPanel{
@@ -11,6 +12,7 @@ public class ReservasPlazaPanel extends JPanel{
     private JList<String> listaPlazas;
     private JButton btnConfirmarReserva;
     private JLabel lblResultado;
+    private JButton btnBuscar;
 
     public ReservasPlazaPanel() {
         setLayout(new BorderLayout(16, 16));
@@ -136,6 +138,35 @@ public class ReservasPlazaPanel extends JPanel{
                 "B-04 - Planta 2 - Coche - Libre",
                 "C-01 - Planta 3 - Coche - Libre"
         ));
+    }
+
+
+
+    public void setConfirmarListener(ActionListener listener) {
+        btnConfirmarReserva.addActionListener(listener);
+    }
+
+    public String getPlazaSeleccionada() {
+        return listaPlazas.getSelectedValue();
+    }
+
+
+    public String getMatricula() {
+        return txtMatricula.getText().trim();
+    }
+
+    public String getTipoVehiculo() {
+        return (String) comboTipoVehiculo.getSelectedItem();
+    }
+
+    public void mostrarResultado(String texto) {
+        lblResultado.setText(texto);
+    }
+
+    public void setBuscarListener(ActionListener listener) {
+        for (ActionListener al : ((JButton)((JPanel)crearPanelBusqueda()).getComponent(6)).getActionListeners()) {
+            ((JButton)((JPanel)crearPanelBusqueda()).getComponent(6)).removeActionListener(al);
+        }
     }
 
 

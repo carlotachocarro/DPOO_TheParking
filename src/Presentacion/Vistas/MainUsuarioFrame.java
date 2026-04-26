@@ -1,5 +1,6 @@
 package Presentacion.Vistas;
 
+import Presentacion.Controladores.ControllerMenuPrincipalAdmin;
 import Presentacion.Vistas.Panels.EstadoParkingPanel;
 import Presentacion.Vistas.Panels.EntradaSalidaPanel;
 import Presentacion.Vistas.Panels.MisReservasPanel;
@@ -14,9 +15,11 @@ public class MainUsuarioFrame extends JFrame {
     private CardLayout cardLayout;
     private JPanel contentPanel;
     private final String nombreUsuario;
+    private ControllerMenuPrincipalAdmin controller;
 
-    public MainUsuarioFrame(String nombreUsuario) {
+    public MainUsuarioFrame(String nombreUsuario,ControllerMenuPrincipalAdmin  controller) {
         this.nombreUsuario = nombreUsuario;
+        this.controller = controller;
         configurarVentana();
         inicializarComponentes();
     }
@@ -37,7 +40,7 @@ public class MainUsuarioFrame extends JFrame {
         cardLayout = new CardLayout();
         contentPanel = new JPanel(cardLayout);
 
-        contentPanel.add(new EstadoParkingPanel(), "ESTADO");
+        contentPanel.add(new EstadoParkingPanel(controller), "ESTADO");
         contentPanel.add(new EntradaSalidaPanel(), "ENTRADA_SALIDA");
         contentPanel.add(new ReservasPlazaPanel(), "RESERVAR");
         contentPanel.add(new MisReservasPanel(), "MIS_RESERVAS");

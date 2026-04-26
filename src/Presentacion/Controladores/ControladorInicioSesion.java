@@ -38,9 +38,10 @@ public class ControladorInicioSesion implements ActionListener {
             vista.limpiarCampos();
             return;
         }
+        ControllerMenuPrincipalAdmin controller = new ControllerMenuPrincipalAdmin();
         Window ventana = SwingUtilities.getWindowAncestor(vista);
         ventana.dispose();
-        new MainUsuarioFrame(usuarioCorreo).setVisible(true);
+        new MainUsuarioFrame(usuarioCorreo,controller).setVisible(true);
 
     }
 }

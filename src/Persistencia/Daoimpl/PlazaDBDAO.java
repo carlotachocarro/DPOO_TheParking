@@ -66,9 +66,9 @@ public class PlazaDBDAO {
                 int userId = res.getInt("id_usuario");
                 if (userId != 0){
                     UsuarioDBDAO u = new UsuarioDBDAO();
-                    plazas.add(new Plaza(tipo_plaza,planta,id, ocu, rese, sim, u.getUsuarioById(userId+"")));
+                    plazas.add(new Plaza(tipo_plaza,planta,id,ocu, rese, sim, u.getUsuarioById(userId+"")));
                 } else {
-                    plazas.add(new Plaza(tipo_plaza,planta,id, ocu, rese, sim, null));
+                    plazas.add(new Plaza(tipo_plaza,planta,id,ocu, rese, sim, null));
                 }
 
             } catch (Exception e){

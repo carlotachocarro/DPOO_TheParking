@@ -65,10 +65,10 @@ public class ControladorRegistroUsuario implements ActionListener {
                 break;
             case 4 :
                 //JOptionPane.showMessageDialog(null, "Usuario registrado correctamente");
-
+                ControllerMenuPrincipalAdmin controller = new ControllerMenuPrincipalAdmin();
                 Window ventana = SwingUtilities.getWindowAncestor(vista);
                 ventana.dispose();
-                new MainUsuarioFrame(nombre).setVisible(true);
+                new MainUsuarioFrame(nombre,controller).setVisible(true);
 
                 break;
         }

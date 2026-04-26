@@ -2,6 +2,8 @@ package Presentacion.Vistas;
 
 import Presentacion.Controladores.ControladorInicioSesion;
 import Presentacion.Controladores.ControladorRegistroUsuario;
+import Presentacion.Controladores.ControllerMenuPrincipalAdmin;
+import Presentacion.Vistas.Panels.EstadoParkingPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -88,8 +90,13 @@ public class AuthFrame extends JFrame {
         LoginPanel loginPanel = new LoginPanel(this);
         RegistroPanel registroPanel = new RegistroPanel(this);
 
+        ControllerMenuPrincipalAdmin controller = new ControllerMenuPrincipalAdmin();
+        EstadoParkingPanel panel = new EstadoParkingPanel(controller);
+
+
         new ControladorInicioSesion(loginPanel);
         new ControladorRegistroUsuario(registroPanel);
+
 
         panelCards.add(loginPanel, LOGIN);
         panelCards.add(registroPanel, REGISTRO);

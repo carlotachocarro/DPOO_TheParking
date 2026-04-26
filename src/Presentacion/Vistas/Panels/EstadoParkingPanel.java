@@ -1,14 +1,22 @@
 package Presentacion.Vistas.Panels;
 
+import Negocio.Entidades.Plaza;
+import Presentacion.Controladores.ControllerMenuPrincipalAdmin;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.util.ArrayList;
 
 public class EstadoParkingPanel extends JPanel{
     private JTable tabla;
     private DefaultTableModel modeloTabla;
 
-    public EstadoParkingPanel() {
+    private ControllerMenuPrincipalAdmin controller;
+
+    public EstadoParkingPanel(ControllerMenuPrincipalAdmin controller) {
+        this.controller = controller;
+
         setLayout(new BorderLayout(15, 15));
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         setBackground(new Color(245, 247, 250));
@@ -17,7 +25,7 @@ public class EstadoParkingPanel extends JPanel{
         add(crearZonaCentral(), BorderLayout.CENTER);
         add(crearPie(), BorderLayout.SOUTH);
 
-        cargarDatosPrueba();
+        mostrarPlazas();
     }
 
     private JPanel crearCabecera() {
@@ -116,14 +124,39 @@ public class EstadoParkingPanel extends JPanel{
         pie.add(lblPie);
         return pie;
     }
-
-    private void cargarDatosPrueba() {
+    private void mostrarPlazas(){
         //TEMPORAL: Modificar cuando se conecte con negocio/controlador
         //Pasaríamos a: actualizarTabla(List<Plaza> plazas)
+        String info= controller.actualizarEstadoParking();
+        if (info == null || info.isEmpty()) {
+            modeloTabla.setRowCount(0); // limpiar tabla
+            return;
+        }
+        // Limpiar tabla antes de rellenar
+        modeloTabla.setRowCount(0);
+
+        String[] lineas = info.split("\n");
+
+        for (String linea : lineas) {
+            if (linea.trim().isEmpty()) continue;
+
+            String[] datos = linea.split("-");
+
+            // OJO: el primer elemento será "" por el "-" inicial
+            modeloTabla.addRow(new Object[]{
+                    datos[1], // codigoPlaza
+                    datos[2], // planta
+                    datos[3], // estado ocupado
+                    // aquí podrías meter estado reserva si quieres añadir columna
+                    datos[4]  // matrícula
+            });
+        }
+         /*
         modeloTabla.addRow(new Object[]{"A-01", "P1", "Libre", "Disponible", "4268 BBD"});
         modeloTabla.addRow(new Object[]{"A-02", "P1", "Ocupada", "Disponible", "4832 BCN"});
         modeloTabla.addRow(new Object[]{"A-03", "P1", "Libre", "Reservada", "1234 XYZ"});
         modeloTabla.addRow(new Object[]{"B-01", "P2", "Libre", "Disponible", "0719 LXK"});
-        modeloTabla.addRow(new Object[]{"B-02", "P2", "Ocupada", "Disponible", "9921 GHI"});
+        modeloTabla.addRow(new Object[]{"B-02", "P2", "Ocupada", "Disponible", "9921 GHI"});*/
     }
+
 }
