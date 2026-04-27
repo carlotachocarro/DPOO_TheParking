@@ -26,7 +26,16 @@ public class ServicioPlaza {
         StringBuilder info = new StringBuilder();
 
         for (Plaza plaza : plazas) {
-            String matricula = "Libre";
+            String matricula = "*";
+            String estadoPlaza = "Libre";
+            String Reserva = "Disponible";
+
+            if (plaza.getEstado_reserva()){
+                Reserva = "Reservado";
+            }
+            if (plaza.getEstado_ocupado()){
+                estadoPlaza = "Ocupado";
+            }
 
             if (plaza.getEstado_reserva()) {
                 for (Reserva reserva : reservas) {
@@ -38,12 +47,40 @@ public class ServicioPlaza {
             }
 
             info.append("-").append(plaza.getCodigoPlaza()).append("-").append(plaza.getPlanta())
-                    .append("-").append(plaza.getEstado_ocupado())
+                    .append("-").append(estadoPlaza)
+                    .append("-").append(Reserva)
                     .append("-").append(matricula)
                     .append("\n");
         }
 
         return info.toString();
+    }
+
+    public String Actualizar_PlazasMenu(){
+        ArrayList<Plaza> plazas = PLAZA_DAO.getPlazas();
+        int plazaLibre=0;
+        int PlazaReserva=0;
+        int PlazaOcupado=0;
+        int TotalPlazas=0;
+
+        for (Plaza plaza : plazas) {
+            TotalPlazas++;
+            if (plaza.getEstado_reserva()) {
+                PlazaReserva++;
+            }
+
+            if (plaza.getEstado_ocupado()) {
+                PlazaOcupado++;
+            }
+            else {
+                plazaLibre++;
+            }
+
+        }
+
+        String info = plazaLibre+","+PlazaReserva+","+PlazaOcupado+","+TotalPlazas;
+        return info;
+
     }
 
     public void saberReserva(ServicioReserva reserva) {

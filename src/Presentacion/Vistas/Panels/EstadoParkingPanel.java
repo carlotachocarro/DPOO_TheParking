@@ -66,10 +66,17 @@ public class EstadoParkingPanel extends JPanel{
         JPanel stats = new JPanel(new GridLayout(1, 4, 15, 15));
         stats.setOpaque(false);
 
-        stats.add(crearCard("Total plazas", "48"));
-        stats.add(crearCard("Libres", "21"));
-        stats.add(crearCard("Ocupadas", "19"));
-        stats.add(crearCard("Reservadas", "8"));
+        String infCantidadDePlazas =controller.actualuzarPlazasLibres();
+        String[] partes = infCantidadDePlazas.split(",");
+        int libres = Integer.parseInt(partes[0]);
+        int ocupadas = Integer.parseInt(partes[2]);
+        int reservadas = Integer.parseInt(partes[1]);
+        int TotalPlazas = Integer.parseInt(partes[3]);
+
+        stats.add(crearCard("Total plazas",TotalPlazas+""));
+        stats.add(crearCard("Libres", libres+""));
+        stats.add(crearCard("Ocupadas", ocupadas+""));
+        stats.add(crearCard("Reservadas",reservadas+""));
 
         return stats;
     }
@@ -147,8 +154,9 @@ public class EstadoParkingPanel extends JPanel{
                     datos[1], // codigoPlaza
                     datos[2], // planta
                     datos[3], // estado ocupado
+                    datos[4],
                     // aquí podrías meter estado reserva si quieres añadir columna
-                    datos[4]  // matrícula
+                    datos[5]  // matrícula
             });
         }
          /*

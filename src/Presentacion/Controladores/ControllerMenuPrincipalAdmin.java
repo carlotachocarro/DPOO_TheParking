@@ -21,6 +21,13 @@ public class ControllerMenuPrincipalAdmin {
         this.servicioReserva = new ServicioReserva();
     }
 
+    public String actualuzarPlazasLibres(){
+       String Value =servicioPlaza.Actualizar_PlazasMenu();
+
+        return Value;
+    }
+
+
     public String actualizarEstadoParking() {
          return servicioPlaza.saberTodaslasPlazas();
     }

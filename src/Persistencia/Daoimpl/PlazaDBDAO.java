@@ -165,7 +165,7 @@ public class PlazaDBDAO {
         if (ocupacion){
             UsuarioDBDAO u = new UsuarioDBDAO();
             String idUser = u.getUsuarioId(nombreUsuario, "");
-            query = "UPDATE plaza_parking SET estado_actual = 1, matricula = ?, id_usuario = ? WHERE id_plaza = ?";
+            query = "UPDATE plaza_parking SET estado_actual = 1,estado_reserva = 1,matricula = ?, id_usuario = ? WHERE id_plaza = ?";
             values.add(matricula);
             values.add(idUser);
             values.add(id_plaza);
