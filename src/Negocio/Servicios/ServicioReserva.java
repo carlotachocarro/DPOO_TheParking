@@ -28,13 +28,21 @@ public class ServicioReserva {
         String idUsuario;
 
         if (esCorreoElectronico(usuario)){
-             idUsuario = usuarioDBDAO.getUsuarioId(usuario,null);
-        }else{
              idUsuario = usuarioDBDAO.getUsuarioId(null,usuario);
+        }else{
+             idUsuario = usuarioDBDAO.getUsuarioId(usuario,null);
         }
 
-        if(reservaDBDAO.nuevaReserva( id_plaza,idUsuario,matricula)){
-            return true;
+
+        if (plazaDBDAO.ocuparPlaza(id_plaza,true,matricula,usuario)){
+            if(reservaDBDAO.nuevaReserva( id_plaza,idUsuario,matricula)){
+                // vamos poner que esta ocupada la plaza
+
+
+                return true;
+            }
+
+
         }
         return false;
     }
@@ -50,16 +58,17 @@ public class ServicioReserva {
                                 "B-04 - Planta 2 - Coche - Libre",
                                 "C-01 - Planta 3 - Coche - Libre"));
     * */
-    public List<String> buscarPlazasDeParking (){
+    public List<String> buscarPlazasDeParking (String tipoVehiculo){
 
-        ArrayList<Plaza> plazas = plazaDBDAO.getPlazas();
+        ArrayList<Plaza> plazas = plazaDBDAO.getPlazasLibres(tipoVehiculo);
         List<String> resultado = new ArrayList<>();
 
         for( Plaza plaza : plazas){
-            resultado.add(formatearPlazaParaVista(plaza));
+
+                resultado.add(formatearPlazaParaVista(plaza));
+
+
         }
-
-
         return resultado;
     }
 

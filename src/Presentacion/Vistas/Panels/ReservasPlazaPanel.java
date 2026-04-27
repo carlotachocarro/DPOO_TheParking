@@ -143,7 +143,11 @@
 
 
         public void cargarPlazasDisponibles(List<String> plazasLibres) {
-            btnConfirmarReserva.setEnabled(true);
+            if (plazasLibres != null && !plazasLibres.isEmpty()) {
+                btnConfirmarReserva.setEnabled(true);
+            } else {
+                btnConfirmarReserva.setEnabled(false);
+            }
             setPlazasDisponibles(plazasLibres);
         }
 
@@ -162,6 +166,9 @@
             return listaPlazas;
         }
 
+        public String getComboTipoVehiculo(){
+            return (String) comboTipoVehiculo.getSelectedItem();
+        }
 
         public void limpiarCampos() {
             txtMatricula.setText("");

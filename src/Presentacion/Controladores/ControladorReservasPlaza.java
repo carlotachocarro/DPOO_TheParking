@@ -59,7 +59,7 @@ public class ControladorReservasPlaza implements ActionListener {
             case "BUSCAR":
 
 
-                vista.cargarPlazasDisponibles(servicioReserva.buscarPlazasDeParking());
+                vista.cargarPlazasDisponibles(servicioReserva.buscarPlazasDeParking(vista.getComboTipoVehiculo()));
 
                 break;
         }
