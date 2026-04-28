@@ -2,6 +2,7 @@ package Presentacion.Vistas;
 
 import Presentacion.Controladores.ControladorReservasPlaza;
 import Presentacion.Controladores.ControllerMenuPrincipalAdmin;
+import Presentacion.Vistas.Dialogs.NotificacionesDialog;
 import Presentacion.Vistas.Panels.EstadoParkingPanel;
 import Presentacion.Vistas.Panels.EntradaSalidaPanel;
 import Presentacion.Vistas.Panels.MisReservasPanel;
@@ -10,6 +11,7 @@ import Presentacion.Vistas.Panels.ReservasPlazaPanel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
 
 public class MainUsuarioFrame extends JFrame {
 
@@ -55,6 +57,17 @@ public class MainUsuarioFrame extends JFrame {
         mostrarVista("ESTADO");
 
     }
+
+//    private void mostrarAvisosPendientes() {
+//        SwingUtilities.invokeLater(() -> {
+//            List<NotificacionesDialog.AvisoReservaCancelada> avisos =
+//                    controller.obtenerAvisosPendientes(nombreUsuario);
+//            if (!avisos.isEmpty()) {
+//                new NotificacionesDialog(this, avisos).setVisible(true);
+//                controller.marcarAvisosComoLeidos(nombreUsuario);
+//            }
+//        });
+//    }
 
     private JPanel crearSidebar() {
         JPanel sidebar = new JPanel();
