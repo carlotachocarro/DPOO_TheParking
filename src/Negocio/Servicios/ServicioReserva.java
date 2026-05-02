@@ -14,13 +14,16 @@ public class ServicioReserva {
     private ReservaDBDAO reservaDBDAO;
     private UsuarioDBDAO usuarioDBDAO;
     private PlazaDBDAO plazaDBDAO;
+    private ServicioPlaza servicioPlaza;
 
 
-    public ServicioReserva() {
+    public ServicioReserva(ServicioPlaza servicioPlaza) {
 
         this.reservaDBDAO = new ReservaDBDAO();
         this.usuarioDBDAO = new UsuarioDBDAO();
         this.plazaDBDAO = new PlazaDBDAO();
+        this.servicioPlaza = servicioPlaza;
+
     }
 
 
@@ -36,21 +39,17 @@ public class ServicioReserva {
 
         if (plazaDBDAO.ocuparPlaza(id_plaza,true,matricula,usuario)){
             if(reservaDBDAO.nuevaReserva( id_plaza,idUsuario,matricula)){
-                // vamos poner que esta ocupada la plaza
-
+                // vamos poner que esta ocupada la plaza actualizar el main
+                servicioPlaza.notifyObservers();
 
                 return true;
             }
-
-
         }
         return false;
     }
-
     public boolean esCorreoElectronico(String texto) {
         return texto.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
     }
-
     /*
     vista.cargarPlazasDisponibles(List.of(
                                 "1 - Planta 1 - Coche - Libre",
@@ -64,10 +63,7 @@ public class ServicioReserva {
         List<String> resultado = new ArrayList<>();
 
         for( Plaza plaza : plazas){
-
                 resultado.add(formatearPlazaParaVista(plaza));
-
-
         }
         return resultado;
     }

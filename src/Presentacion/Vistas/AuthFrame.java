@@ -94,6 +94,8 @@ public class AuthFrame extends JFrame {
         new ControladorInicioSesion(loginPanel);
         new ControladorRegistroUsuario(registroPanel);
 
+
+
         panelCards.add(loginPanel, LOGIN);
         panelCards.add(registroPanel, REGISTRO);
 

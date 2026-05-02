@@ -6,7 +6,11 @@ import Persistencia.Daoimpl.UsuarioDAO;
 import Persistencia.Daoimpl.UsuarioDBDAO;
 
 import java.security.MessageDigest;
+
+import static java.lang.foreign.MemorySegment.NULL;
+
 public class ServicioUsuario {
+
     private UsuarioDBDAO usuariDAO;
     private  Usuario usuario;
 
@@ -133,5 +137,30 @@ public class ServicioUsuario {
         }
         return false;
     }
+
+    public void registrarAdmin(){
+        String encryptedPassword  = encriptarContrasena("admin");
+        if (!usuariDAO.checkUsuario("admin","admin")) {
+            if (usuariDAO.registrarUsuario("admin","admin",encryptedPassword)){
+
+            }
+
+        }
+
+    }
+
+
+    public void eliminarCuenta(String name){
+
+
+        if (usuariDAO.eliminarUsuario(name,null)){
+            // Si lo hemos podido eliminar de la base de datos , Aqui dentro tendremos que elimnar los datos de la ram
+
+
+        }
+    }
+
 }
+
+
 

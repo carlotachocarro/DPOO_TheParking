@@ -5,12 +5,14 @@ import Negocio.Entidades.Reserva;
 import Persistencia.Daoimpl.PlazaDBDAO;
 import Persistencia.Daoimpl.ReservaDBDAO;
 import Presentacion.Controladores.ControllerMenuPrincipalAdmin;
-
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ArrayList;
 
 public class ServicioPlaza {
     private PlazaDBDAO PLAZA_DAO;
     private ReservaDBDAO RESERVA_DAO;
+    private List<ParkingObserver> observers = new ArrayList<>();
 
     public ServicioPlaza() {
         this.PLAZA_DAO = new PlazaDBDAO();
@@ -82,6 +84,29 @@ public class ServicioPlaza {
         return info;
 
     }
+
+
+    public void addObserver(ParkingObserver o) {
+        observers.add(o);
+    }
+    public void removeObserver(ParkingObserver o) {
+        observers.remove(o);
+    }
+
+    public void notifyObservers() {
+
+        String estado = saberTodaslasPlazas();
+        String resumen = Actualizar_PlazasMenu();
+
+
+        for (ParkingObserver o : observers) {
+            o.onParkingChange(estado, resumen);
+        }
+    }
+
+
+
+
 
     public void saberReserva(ServicioReserva reserva) {
 

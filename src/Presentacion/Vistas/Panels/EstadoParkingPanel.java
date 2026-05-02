@@ -1,5 +1,6 @@
 package Presentacion.Vistas.Panels;
 
+import Negocio.Servicios.ParkingObserver;
 import Presentacion.Controladores.ControllerMenuPrincipalAdmin;
 
 import javax.swing.*;
@@ -11,7 +12,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.EventObject;
 
-public class EstadoParkingPanel extends JPanel {
+public class EstadoParkingPanel extends JPanel implements ParkingObserver {
 
     public enum Modo {
         USUARIO,        // Vista usuario: Estado parking (sin acciones)
@@ -42,11 +43,16 @@ public class EstadoParkingPanel extends JPanel {
         void onClickFila(String codigoPlaza); // para abrir DetallePlazaDialog en admin
     }
 
+
+
     public EstadoParkingPanel(ControllerMenuPrincipalAdmin controller) {
+
         this(controller, Modo.USUARIO);
+       // controller.getServicioPlaza().addObserver(this);
     }
 
     public EstadoParkingPanel(ControllerMenuPrincipalAdmin controller, Modo modo) {
+
         this.controller = controller;
         this.modo = modo;
 
@@ -57,9 +63,12 @@ public class EstadoParkingPanel extends JPanel {
         add(crearCabecera(), BorderLayout.NORTH);
         add(crearZonaCentral(), BorderLayout.CENTER);
         add(crearPie(), BorderLayout.SOUTH);
-
+        controller.getServicioPlaza().addObserver(this);
         mostrarPlazas();
+
+        System.out.println("Panel servicio: " + controller.getServicioPlaza());
     }
+
 
     public void setAccionFilaListener(AccionFilaListener listener) {
         this.accionFilaListener = listener;
@@ -339,5 +348,41 @@ public class EstadoParkingPanel extends JPanel {
         b.setForeground(Color.WHITE);
         b.setFocusPainted(false);
         b.setBorder(BorderFactory.createEmptyBorder(4, 10, 4, 10));
+    }
+
+    @Override
+    public void onParkingChange(String estado, String resumen) {
+
+        SwingUtilities.invokeLater(() -> {
+
+            // actualizar contadores
+            String[] datos = resumen.split(",");
+            lblLibres.setText(datos[0]);
+            lblReservadas.setText(datos[1]);
+            lblOcupadas.setText(datos[2]);
+            lblTotal.setText(datos[3]);
+
+            modeloTabla.setRowCount(0);
+            if (estado == null || estado.isEmpty()) return;
+
+            String[] lineas = estado.split("\n");
+            for (String linea : lineas) {
+                if (linea.trim().isEmpty()) continue;
+                String[] dato = linea.split("-");
+
+                String codigo = dato[1];
+                String planta = dato[2];
+                String esta = dato[3];
+                String reserva = dato[4];
+                String matricula = dato.length > 5 ? dato[5] : "";
+
+                if (modo == Modo.ADMIN_GESTION) {
+                    modeloTabla.addRow(new Object[]{codigo, planta, esta, reserva, "ACCIONES"});
+                } else {
+                    modeloTabla.addRow(new Object[]{codigo, planta, esta, reserva, matricula});
+                }
+            }
+            modeloTabla.fireTableDataChanged(); //  importante
+        });
     }
 }

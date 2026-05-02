@@ -70,4 +70,6 @@ public class ConfigJSONDAO {
     public String getDBContraseña(){
         return config.getAsJsonObject("database").get("dbPassword").getAsString();
     }
+
+    public String getDBNombreAdmin(){return config.getAsJsonObject("database").get("contrasenaAdmin").getAsString();}
 }

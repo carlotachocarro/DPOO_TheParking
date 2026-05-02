@@ -1,5 +1,6 @@
 package Presentacion.Controladores;
 
+import Negocio.Servicios.ServicioPlaza;
 import Negocio.Servicios.ServicioReserva;
 import Presentacion.Vistas.Panels.ReservasPlazaPanel;
 
@@ -15,11 +16,15 @@ public class ControladorReservasPlaza implements ActionListener {
     private ServicioReserva servicioReserva;
 
     private String nombreUsuario;
+    private ServicioPlaza servicioPlaza;
 
-    public ControladorReservasPlaza(ReservasPlazaPanel vista,String nombreUsuario) {
+    public ControladorReservasPlaza(ReservasPlazaPanel vista,String nombreUsuario,ServicioPlaza servicioPlaza) {
         this.nombreUsuario = nombreUsuario;
         this.vista = vista;
-        this.servicioReserva = new ServicioReserva();
+        this.servicioPlaza = new ServicioPlaza();
+        this.servicioReserva = new ServicioReserva(servicioPlaza);
+
+
         this.vista.addRegistroListener(this);
 
     }

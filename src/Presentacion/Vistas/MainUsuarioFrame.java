@@ -1,5 +1,7 @@
 package Presentacion.Vistas;
 
+import Negocio.Servicios.ParkingObserver;
+import Negocio.Servicios.ServicioPlaza;
 import Presentacion.Controladores.ControladorReservasPlaza;
 import Presentacion.Controladores.ControllerMenuPrincipalAdmin;
 import Presentacion.Vistas.Dialogs.NotificacionesDialog;
@@ -44,10 +46,14 @@ public class MainUsuarioFrame extends JFrame {
         contentPanel = new JPanel(cardLayout);
 
         contentPanel.add(new EstadoParkingPanel(controller), "ESTADO");
-        ReservasPlazaPanel reservasPanel = new ReservasPlazaPanel();
-        new ControladorReservasPlaza(reservasPanel,nombreUsuario);
         // Añadir ESA MISMA al CardLayout
+        ReservasPlazaPanel reservasPanel = new ReservasPlazaPanel();
 
+        new ControladorReservasPlaza(
+                reservasPanel,
+                nombreUsuario,
+                controller.getServicioPlaza()
+        );
         contentPanel.add(new EntradaSalidaPanel(), "ENTRADA_SALIDA");
         contentPanel.add(reservasPanel, "RESERVAR");
         contentPanel.add(new MisReservasPanel(), "MIS_RESERVAS");
@@ -195,5 +201,8 @@ public class MainUsuarioFrame extends JFrame {
             dispose();
             new AuthFrame().setVisible(true);
         }
+    }
+    public String  getNombreUsuario() {
+        return nombreUsuario;
     }
 }

@@ -2,6 +2,7 @@ package Presentacion.Controladores;
 
 import Negocio.Servicios.ServicioUsuario;
 import Presentacion.Vistas.LoginPanel;
+import Presentacion.Vistas.MainAdminFrame;
 import Presentacion.Vistas.MainUsuarioFrame;
 
 import javax.swing.*;
@@ -19,6 +20,7 @@ public class ControladorInicioSesion implements ActionListener {
         this.vista = vista;
         this.servicioUsuario = new ServicioUsuario();
         this.vista.addLoginListener(this);
+        servicioUsuario.registrarAdmin();
     }
 
     @Override
@@ -28,20 +30,28 @@ public class ControladorInicioSesion implements ActionListener {
         String password = vista.getPassword();
 
         if (usuarioCorreo.isEmpty() || password.isEmpty()) {
-            JOptionPane.showMessageDialog(null,
-                    "Debes rellenar usuario/correo y contraseña", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Debes rellenar usuario/correo y contraseña", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
+
         boolean loginCorrecto = servicioUsuario.inicioSession(usuarioCorreo,password);
         if (!loginCorrecto) {
             JOptionPane.showMessageDialog(null, "Contrasenya o usuario incorrecto", "Error", JOptionPane.ERROR_MESSAGE);
             vista.limpiarCampos();
             return;
         }
+
         ControllerMenuPrincipalAdmin controller = new ControllerMenuPrincipalAdmin();
         Window ventana = SwingUtilities.getWindowAncestor(vista);
         ventana.dispose();
-        new MainUsuarioFrame(usuarioCorreo,controller).setVisible(true);
+
+
+        if (usuarioCorreo.equalsIgnoreCase("admin")) {
+            new MainAdminFrame(controller).setVisible(true);
+        }else {
+            new MainUsuarioFrame(usuarioCorreo,controller).setVisible(true);
+        }
+
 
     }
 }
