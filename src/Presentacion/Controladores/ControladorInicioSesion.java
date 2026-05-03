@@ -2,56 +2,65 @@ package Presentacion.Controladores;
 
 import Negocio.Servicios.ServicioUsuario;
 import Presentacion.Vistas.LoginPanel;
-import Presentacion.Vistas.MainAdminFrame;
-import Presentacion.Vistas.MainUsuarioFrame;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class ControladorInicioSesion implements ActionListener {
 
+    private final LoginPanel vista;
+    private final ServicioUsuario servicioUsuario;
+    private final ControladorAplicacion app;
 
-    private LoginPanel vista;
-    private ServicioUsuario servicioUsuario;
-
-    public ControladorInicioSesion(LoginPanel vista) {
+    public ControladorInicioSesion(LoginPanel vista, ControladorAplicacion app) {
         this.vista = vista;
+        this.app = app;
         this.servicioUsuario = new ServicioUsuario();
+
         this.vista.addLoginListener(this);
+        this.vista.addIrARegistroListener(e -> app.mostrarRegistro());
+
         servicioUsuario.registrarAdmin();
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        iniciarSesion();
+    }
 
+    private void iniciarSesion() {
         String usuarioCorreo = vista.getUsuarioCorreo();
         String password = vista.getPassword();
 
         if (usuarioCorreo.isEmpty() || password.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Debes rellenar usuario/correo y contraseña", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(
+                    vista,
+                    "Debes rellenar usuario/correo y contraseña",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
             return;
         }
 
-        boolean loginCorrecto = servicioUsuario.inicioSession(usuarioCorreo,password);
+        boolean loginCorrecto = servicioUsuario.inicioSession(usuarioCorreo, password);
+
         if (!loginCorrecto) {
-            JOptionPane.showMessageDialog(null, "Contrasenya o usuario incorrecto", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(
+                    vista,
+                    "Contraseña o usuario incorrecto",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
             vista.limpiarCampos();
+            vista.focoEnUsuarioCorreo();
             return;
         }
-
-        ControllerMenuPrincipalAdmin controller = new ControllerMenuPrincipalAdmin();
-        Window ventana = SwingUtilities.getWindowAncestor(vista);
-        ventana.dispose();
-
 
         if (usuarioCorreo.equalsIgnoreCase("admin")) {
-            new MainAdminFrame(controller).setVisible(true);
-        }else {
-            new MainUsuarioFrame(usuarioCorreo,controller).setVisible(true);
+            app.abrirMenuAdmin();
+        } else {
+            app.abrirMenuUsuario(usuarioCorreo);
         }
-
-
     }
 }

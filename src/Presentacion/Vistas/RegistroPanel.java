@@ -12,10 +12,8 @@ public class RegistroPanel extends JPanel {
     private JPasswordField txtConfirmarPassword;
     private JButton btnRegistrarse;
     private JButton btnVolverLogin;
-    private AuthFrame frame;
 
-    public RegistroPanel(AuthFrame frame) {
-        this.frame = frame;
+    public RegistroPanel() {
         inicializar();
     }
 
@@ -64,9 +62,6 @@ public class RegistroPanel extends JPanel {
         btnVolverLogin.setForeground(new Color(52, 152, 219));
         btnVolverLogin.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-       // btnRegistrarse.addActionListener(e -> registrarUsuario());
-        btnVolverLogin.addActionListener(e -> frame.mostrarLogin());
-
         add(lblTitulo);
         add(Box.createVerticalStrut(30));
         add(lblSubtitulo);
@@ -93,50 +88,35 @@ public class RegistroPanel extends JPanel {
         add(btnVolverLogin);
     }
 
-    private void registrarUsuario() {
-        String nombreUsuario = txtNombreUsuario.getText().trim();
-        String correo = txtCorreo.getText().trim();
-        String password = new String(txtPassword.getPassword()).trim();
-        String confirmarPassword = new String(txtConfirmarPassword.getPassword()).trim();
-
-        if (nombreUsuario.isEmpty() || correo.isEmpty() || password.isEmpty() || confirmarPassword.isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                    "Debes rellenar todos los campos.",
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        if (!password.equals(confirmarPassword)) {
-            JOptionPane.showMessageDialog(this,
-                    "Las contraseñas no coinciden.",
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        JOptionPane.showMessageDialog(this,
-                "Usuario registrado correctamente.");
-
-        frame.mostrarLogin();
-    }
-
-
     public void limpiarCampos() {
+        txtNombreUsuario.setText("");
+        txtCorreo.setText("");
         txtPassword.setText("");
         txtConfirmarPassword.setText("");
     }
-    public void limpiarEmail(){
+
+    public void limpiarEmail() {
         txtCorreo.setText("");
     }
 
-    public void focoEnPassword() {
-        txtPassword.requestFocus();
+    public void focoEnNombreUsuario() {
+        txtNombreUsuario.requestFocusInWindow();
     }
 
+    public void focoEnCorreo() {
+        txtCorreo.requestFocusInWindow();
+    }
+
+    public void focoEnPassword() {
+        txtPassword.requestFocusInWindow();
+    }
 
     public void addRegistroListener(ActionListener listener) {
         btnRegistrarse.addActionListener(listener);
+    }
+
+    public void addIrALoginListener(ActionListener listener) {
+        btnVolverLogin.addActionListener(listener);
     }
 
     public String getNombreUsuario() {
@@ -148,12 +128,10 @@ public class RegistroPanel extends JPanel {
     }
 
     public String getPassword() {
-
         return new String(txtPassword.getPassword()).trim();
     }
 
     public String getConfirmarPassword() {
         return new String(txtConfirmarPassword.getPassword()).trim();
     }
-
 }
