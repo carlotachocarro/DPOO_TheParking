@@ -40,7 +40,6 @@ public class DetallePlazaDialog extends BaseDialog {
         this.correoUsuarioReserva = correoUsuarioReserva;
 
         JPanel contenido = new JPanel(new BorderLayout());
-        contenido.add(crearSeparador(), BorderLayout.NORTH);
         contenido.add(crearCentro(), BorderLayout.CENTER);
         if (esReservada()) {
             contenido.add(crearBotonCancelar(), BorderLayout.SOUTH);
@@ -62,7 +61,7 @@ public class DetallePlazaDialog extends BaseDialog {
     private JPanel crearCentro() {
         JPanel centro = new JPanel();
         centro.setLayout(new BoxLayout(centro, BoxLayout.Y_AXIS));
-        centro.setBackground(Color.WHITE);
+        centro.setBackground(DialogStyles.BG_CONTENT);
         centro.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         // Badge código
@@ -85,19 +84,19 @@ public class DetallePlazaDialog extends BaseDialog {
 
     private JPanel crearBadgeCodigo() {
         JPanel badge = new JPanel(new BorderLayout());
-        badge.setBackground(new Color(245, 247, 250));
+        badge.setBackground(DialogStyles.BG_CARD);
         badge.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(52, 152, 219), 2),
+                BorderFactory.createLineBorder(DialogStyles.ACCENT_BLUE, 2),
                 BorderFactory.createEmptyBorder(15, 20, 15, 20)
         ));
 
         JLabel lblTitulo = new JLabel("Código de plaza");
-        lblTitulo.setForeground(Color.GRAY);
-        lblTitulo.setFont(new Font("Inter", Font.PLAIN, 12));
+        lblTitulo.setForeground(DialogStyles.TEXT_MUTED);
+        lblTitulo.setFont(DialogStyles.FONT_BADGE_TITLE);
 
         JLabel lblCodigo = new JLabel(codigoPlaza);
-        lblCodigo.setFont(new Font("SpaceGrotesk", Font.BOLD, 28));
-        lblCodigo.setForeground(new Color(52, 152, 219));
+        lblCodigo.setFont(DialogStyles.FONT_PLAZA_HERO);
+        lblCodigo.setForeground(DialogStyles.ACCENT_BLUE);
 
         JPanel textos = new JPanel();
         textos.setOpaque(false);
@@ -131,13 +130,13 @@ public class DetallePlazaDialog extends BaseDialog {
         Color fondoEstado = "Libre".equalsIgnoreCase(estado)
                 ? new Color(232, 245, 233) : new Color(253, 232, 232);
         Color textoEstado = "Libre".equalsIgnoreCase(estado)
-                ? new Color(46, 125, 50) : new Color(198, 40, 40);
+                ? DialogStyles.SUCCESS : DialogStyles.DANGER;
         grid.add(crearCelda("Estado", estado, fondoEstado, textoEstado));
 
         Color fondoReserva = esReservada()
-                ? new Color(255, 248, 225) : new Color(232, 245, 253);
+                ? DialogStyles.WARNING_SURFACE : new Color(232, 245, 253);
         Color textoReserva = esReservada()
-                ? new Color(180, 140, 0) : new Color(52, 152, 219);
+                ? DialogStyles.WARNING_TEXT_DIM : DialogStyles.ACCENT_BLUE;
         grid.add(crearCelda("Reserva", reserva, fondoReserva, textoReserva));
 
         return grid;
@@ -146,16 +145,16 @@ public class DetallePlazaDialog extends BaseDialog {
     private JPanel crearCelda(String titulo, String valor, Color fondo, Color colorValor) {
         JPanel celda = new JPanel();
         celda.setLayout(new BoxLayout(celda, BoxLayout.Y_AXIS));
-        celda.setBackground(fondo != null ? fondo : new Color(245, 247, 250));
+        celda.setBackground(fondo != null ? fondo : DialogStyles.BG_CARD);
         celda.setBorder(BorderFactory.createEmptyBorder(12, 15, 12, 15));
 
         JLabel lblTit = new JLabel(titulo);
-        lblTit.setForeground(Color.GRAY);
-        lblTit.setFont(new Font("Inter", Font.PLAIN, 12));
+        lblTit.setForeground(DialogStyles.TEXT_MUTED);
+        lblTit.setFont(DialogStyles.FONT_BADGE_TITLE);
         lblTit.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JLabel lblVal = new JLabel(valor != null ? valor : "-");
-        lblVal.setFont(new Font("SpaceGrotesk", Font.BOLD, 16));
+        lblVal.setFont(DialogStyles.FONT_EMPHASIS);
         if (colorValor != null) lblVal.setForeground(colorValor);
         lblVal.setAlignmentX(Component.LEFT_ALIGNMENT);
 
@@ -170,17 +169,17 @@ public class DetallePlazaDialog extends BaseDialog {
         JPanel panel = new JPanel(new BorderLayout(10, 5));
         panel.setOpaque(false);
 
-        JLabel lblSeccion = new JLabel("RESERVADA POR:");
-        lblSeccion.setFont(new Font("Inter", Font.BOLD, 11));
-        lblSeccion.setForeground(Color.GRAY);
+        JLabel lblSeccion = new JLabel("Reservada por:");
+        lblSeccion.setFont(DialogStyles.FONT_SECTION);
+        lblSeccion.setForeground(DialogStyles.TEXT_MUTED);
 
         // Avatar circular simple con iniciales
         String iniciales = obtenerIniciales(nombreUsuarioReserva);
         JLabel lblAvatar = new JLabel(iniciales, SwingConstants.CENTER);
         lblAvatar.setOpaque(true);
         lblAvatar.setBackground(new Color(220, 230, 240));
-        lblAvatar.setForeground(new Color(52, 152, 219));
-        lblAvatar.setFont(new Font("Inter", Font.BOLD, 12));
+        lblAvatar.setForeground(DialogStyles.ACCENT_BLUE);
+        lblAvatar.setFont(DialogStyles.FONT_BODY_SMALL.deriveFont(Font.BOLD));
         lblAvatar.setPreferredSize(new Dimension(36, 36));
         lblAvatar.setBorder(BorderFactory.createLineBorder(new Color(180, 200, 220)));
 
@@ -191,14 +190,14 @@ public class DetallePlazaDialog extends BaseDialog {
         lblNombre.setFont(new Font("Inter", Font.BOLD, 13));
         JLabel lblCorreo = new JLabel(correoUsuarioReserva != null ? correoUsuarioReserva : "");
         lblCorreo.setFont(new Font("Inter", Font.PLAIN, 12));
-        lblCorreo.setForeground(Color.GRAY);
+        lblCorreo.setForeground(DialogStyles.TEXT_MUTED);
         datosUsuario.add(lblNombre);
         datosUsuario.add(lblCorreo);
 
         JLabel lblMatricula = new JLabel(matriculaReserva != null ? matriculaReserva : "");
         lblMatricula.setFont(new Font("Inter", Font.BOLD, 13));
         lblMatricula.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(200, 200, 200)),
+                BorderFactory.createLineBorder(DialogStyles.BORDER_FIELD),
                 BorderFactory.createEmptyBorder(6, 12, 6, 12)
         ));
 
@@ -228,15 +227,11 @@ public class DetallePlazaDialog extends BaseDialog {
 
     private JPanel crearBotonCancelar() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 15));
-        panel.setBackground(Color.WHITE);
+        panel.setBackground(DialogStyles.BG_CONTENT);
         panel.setBorder(BorderFactory.createEmptyBorder(0, 20, 10, 20));
 
-        JButton btn = new JButton("Cancelar reserva");
-        btn.setBackground(new Color(198, 40, 40));
-        btn.setForeground(Color.WHITE);
-        btn.setFocusPainted(false);
-        btn.setBorder(BorderFactory.createEmptyBorder(10, 30, 10, 30));
-        btn.setFont(new Font("Inter", Font.BOLD, 13));
+        JButton btn = DialogStyles.botonPrimario("Cancelar Reserva", DialogStyles.DANGER, Color.WHITE);
+        btn.setBorder(BorderFactory.createEmptyBorder(11, 32, 11, 32));
         btn.addActionListener(e -> {
             int opcion = JOptionPane.showConfirmDialog(this,
                     "¿Cancelar la reserva de la plaza " + codigoPlaza + "?\n" +

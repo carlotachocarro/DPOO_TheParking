@@ -9,23 +9,36 @@ public abstract class BaseDialog extends JDialog {
         super(parent, titulo, ModalityType.APPLICATION_MODAL);
         setLayout(new BorderLayout());
         setResizable(false);
-        add(crearCabecera(titulo), BorderLayout.NORTH);
+        getContentPane().setBackground(DialogStyles.BG_CONTENT);
+
+        JPanel encabezado = new JPanel(new BorderLayout());
+        encabezado.setOpaque(false);
+        encabezado.add(crearCabecera(titulo), BorderLayout.NORTH);
+
+        JSeparator sepHeaders = new JSeparator();
+        sepHeaders.setForeground(DialogStyles.BORDER_SEPARATOR);
+        sepHeaders.setBackground(DialogStyles.BORDER_SEPARATOR);
+        encabezado.add(sepHeaders, BorderLayout.SOUTH);
+
+        add(encabezado, BorderLayout.NORTH);
     }
 
-    private JPanel crearCabecera(String titulo) {
+    protected JPanel crearCabecera(String titulo) {
         JPanel cabecera = new JPanel(new BorderLayout());
-        cabecera.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 15));
-        cabecera.setBackground(Color.WHITE);
+        cabecera.setBorder(BorderFactory.createEmptyBorder(16, 22, 16, 18));
+        cabecera.setBackground(DialogStyles.BG_CONTENT);
 
         JLabel lblTitulo = new JLabel(titulo);
-        lblTitulo.setFont(new Font("SpaceGrotesk", Font.BOLD, 18));
+        lblTitulo.setFont(DialogStyles.FONT_HEADER_DIALOG);
+        lblTitulo.setForeground(DialogStyles.TEXT_PRIMARY);
 
         JButton btnCerrar = new JButton("✕");
         btnCerrar.setFocusPainted(false);
         btnCerrar.setBorderPainted(false);
         btnCerrar.setContentAreaFilled(false);
         btnCerrar.setFont(new Font("SansSerif", Font.BOLD, 16));
-        btnCerrar.setForeground(Color.GRAY);
+        btnCerrar.setForeground(DialogStyles.TEXT_MUTED);
+        btnCerrar.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btnCerrar.addActionListener(e -> dispose());
 
         cabecera.add(lblTitulo, BorderLayout.WEST);
@@ -34,16 +47,16 @@ public abstract class BaseDialog extends JDialog {
         return cabecera;
     }
 
+    /**
+     * Línea fina entre secciones dentro del contenido (mismo tono que el separador bajo la cabecera).
+     */
     protected JPanel crearSeparador() {
         JPanel sep = new JPanel();
         sep.setPreferredSize(new Dimension(0, 1));
-        sep.setBackground(new Color(220, 220, 220));
+        sep.setBackground(DialogStyles.BORDER_SEPARATOR);
         return sep;
     }
 
-    /**
-     * Centra el diálogo respecto a la ventana padre tras hacer pack().
-     */
     protected void centrarRespectoPadre() {
         pack();
         setLocationRelativeTo(getParent());

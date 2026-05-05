@@ -4,10 +4,8 @@ import Negocio.Entidades.Plaza;
 import Negocio.Entidades.Reserva;
 import Persistencia.Daoimpl.PlazaDBDAO;
 import Persistencia.Daoimpl.ReservaDBDAO;
-import Presentacion.Controladores.ControllerMenuPrincipalAdmin;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ArrayList;
 
 public class ServicioPlaza {
     private PlazaDBDAO PLAZA_DAO;
@@ -104,9 +102,34 @@ public class ServicioPlaza {
         }
     }
 
+    /** Busca plaza por código (id en BD tal como llega desde la tabla). */
+    public Plaza obtenerPlazaPorCodigo(String codigo) {
+        if (codigo == null || codigo.isBlank()) {
+            return null;
+        }
+        for (Plaza p : PLAZA_DAO.getPlazas()) {
+            if (codigo.equals(p.getCodigoPlaza())) {
+                return p;
+            }
+        }
+        return null;
+    }
 
-
-
+    /**
+     * Iguala el texto guardado en BD con las opciones del combo del formulario: Moto, Coche, Coche grande.
+     */
+    public static String tipoVehiculoParaCombo(String desdeBd) {
+        if (desdeBd == null || desdeBd.isBlank()) {
+            return "Coche";
+        }
+        String t = desdeBd.trim();
+        for (String opt : new String[]{"Moto", "Coche", "Coche grande"}) {
+            if (opt.equalsIgnoreCase(t)) {
+                return opt;
+            }
+        }
+        return "Coche";
+    }
 
     public void saberReserva(ServicioReserva reserva) {
 

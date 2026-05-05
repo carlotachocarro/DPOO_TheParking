@@ -1,12 +1,8 @@
 package Presentacion.Vistas;
 
-<<<<<<< HEAD
-import Negocio.Servicios.ParkingObserver;
-import Negocio.Servicios.ServicioPlaza;
+import Presentacion.Controladores.ControladorAplicacion;
 import Presentacion.Controladores.ControladorEntradasSalidas;
 import Presentacion.Controladores.ControladorMisReservas;
-=======
->>>>>>> ecea1f2b62f56a68daf27d1deb23ca46fd2148f9
 import Presentacion.Controladores.ControladorReservasPlaza;
 import Presentacion.Controladores.ControllerMenuPrincipalAdmin;
 import Presentacion.Vistas.Panels.EstadoParkingPanel;
@@ -54,8 +50,8 @@ public class MainUsuarioFrame extends JFrame {
 
         new ControladorReservasPlaza(reservasPanel, nombreUsuario, controller.getServicioPlaza());
 
-        EntradaSalidaPanel entradaSalida= new EntradaSalidaPanel();
-        ControladorEntradasSalidas ds= new ControladorEntradasSalidas(entradaSalida,nombreUsuario);
+        EntradaSalidaPanel entradaSalida = new EntradaSalidaPanel();
+        new ControladorEntradasSalidas(entradaSalida, nombreUsuario);
         contentPanel.add(entradaSalida, "ENTRADA_SALIDA");
 
 
@@ -87,7 +83,7 @@ public class MainUsuarioFrame extends JFrame {
     private JPanel crearSidebar() {
         JPanel sidebar = new JPanel();
         sidebar.setPreferredSize(new Dimension(220, 0));
-        sidebar.setBackground(new Color(34,40,49));
+        sidebar.setBackground(new Color(34, 40, 49));
         sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
         sidebar.setBorder(BorderFactory.createEmptyBorder(20, 15, 20, 15));
 
@@ -96,13 +92,21 @@ public class MainUsuarioFrame extends JFrame {
         lblLogo.setFont(new Font("SpaceGrotesk", Font.BOLD, 20));
         lblLogo.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JButton btnEstado = new JButton("Estado Parking");
-        JButton btnEntradaSalida = new JButton("Entrada / Salida");
-        JButton btnReservar = new JButton("Reservar Plaza");
-        JButton btnMisReservas = new JButton("Mis Reservas");
-        JButton btnGrafico = new JButton("Gráfico");
-        JButton btnEliminarCuenta = new JButton("Eliminar cuenta");
-        JButton btnCerrarSesion = new JButton("Cerrar Sesión");
+        JLabel lblBadgeUsuario = new JLabel("USUARIO");
+        lblBadgeUsuario.setForeground(new Color(52, 152, 219));
+        lblBadgeUsuario.setFont(new Font("Inter", Font.BOLD, 12));
+        lblBadgeUsuario.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JLabel lblSeccionApp = crearEtiquetaSeccion("APLICACIÓN");
+        JButton btnEstado = crearBotonMenu("Estado Parking");
+        JButton btnEntradaSalida = crearBotonMenu("Entrada / Salida");
+        JButton btnReservar = crearBotonMenu("Reservar Plaza");
+        JButton btnMisReservas = crearBotonMenu("Mis Reservas");
+        JButton btnGrafico = crearBotonMenu("Gráfico");
+
+        JLabel lblSeccionCuenta = crearEtiquetaSeccion("CUENTA");
+        JButton btnEliminarCuenta = crearBotonMenu("Eliminar cuenta");
+        JButton btnCerrarSesion = crearBotonMenu("Cerrar Sesión");
 
         btnEstado.addActionListener(e -> mostrarVista("ESTADO"));
         btnEntradaSalida.addActionListener(e -> mostrarVista("ENTRADA_SALIDA"));
@@ -113,22 +117,36 @@ public class MainUsuarioFrame extends JFrame {
         btnCerrarSesion.addActionListener(e -> cerrarSesion());
 
         sidebar.add(lblLogo);
-        sidebar.add(Box.createVerticalStrut(30));
+        sidebar.add(Box.createVerticalStrut(10));
+        sidebar.add(lblBadgeUsuario);
+        sidebar.add(Box.createVerticalStrut(25));
+        sidebar.add(lblSeccionApp);
+        sidebar.add(Box.createVerticalStrut(8));
         sidebar.add(btnEstado);
-        sidebar.add(Box.createVerticalStrut(10));
+        sidebar.add(Box.createVerticalStrut(8));
         sidebar.add(btnEntradaSalida);
-        sidebar.add(Box.createVerticalStrut(10));
+        sidebar.add(Box.createVerticalStrut(8));
         sidebar.add(btnReservar);
-        sidebar.add(Box.createVerticalStrut(10));
+        sidebar.add(Box.createVerticalStrut(8));
         sidebar.add(btnMisReservas);
-        sidebar.add(Box.createVerticalStrut(10));
+        sidebar.add(Box.createVerticalStrut(8));
         sidebar.add(btnGrafico);
         sidebar.add(Box.createVerticalGlue());
+        sidebar.add(lblSeccionCuenta);
+        sidebar.add(Box.createVerticalStrut(8));
         sidebar.add(btnEliminarCuenta);
-        sidebar.add(Box.createVerticalStrut(10));
+        sidebar.add(Box.createVerticalStrut(8));
         sidebar.add(btnCerrarSesion);
 
         return sidebar;
+    }
+
+    private JLabel crearEtiquetaSeccion(String texto) {
+        JLabel lbl = new JLabel(texto);
+        lbl.setForeground(new Color(140, 150, 160));
+        lbl.setFont(new Font("Inter", Font.BOLD, 11));
+        lbl.setAlignmentX(Component.LEFT_ALIGNMENT);
+        return lbl;
     }
 
     private JButton crearBotonMenu(String texto) {
@@ -186,7 +204,7 @@ public class MainUsuarioFrame extends JFrame {
 
         if (opcion == JOptionPane.YES_OPTION) {
             dispose();
-            new AuthFrame().setVisible(true);
+            ControladorAplicacion.reiniciarFlujoAutenticacion();
         }
     }
 
@@ -208,7 +226,7 @@ public class MainUsuarioFrame extends JFrame {
             );
 
             dispose();
-            new AuthFrame().setVisible(true);
+            ControladorAplicacion.reiniciarFlujoAutenticacion();
         }
     }
     public String  getNombreUsuario() {

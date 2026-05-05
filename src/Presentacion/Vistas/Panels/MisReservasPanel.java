@@ -1,6 +1,7 @@
 package Presentacion.Vistas.Panels;
 
-import Presentacion.Vistas.MainUsuarioFrame;
+import Presentacion.Vistas.Dialogs.CancelarReservaDialog;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
@@ -120,10 +121,7 @@ public class MisReservasPanel extends JPanel implements ParkingObserver{
 
         if (reserva.activa()) {
             JButton btnCancelar = new JButton("Cancelar");
-            btnCancelar.addActionListener(e -> JOptionPane.showMessageDialog(
-                    this,
-                    "Aquí abrirías el JDialog de cancelar reserva para " + reserva.codigoPlaza()
-            ));
+            btnCancelar.addActionListener(e -> abrirDialogoCancelar(reserva));
             derecha.add(btnCancelar);
         }
 
@@ -133,6 +131,21 @@ public class MisReservasPanel extends JPanel implements ParkingObserver{
         return card;
     }
 
+
+    private void abrirDialogoCancelar(ReservaVista reserva) {
+        Window padre = SwingUtilities.getWindowAncestor(this);
+        CancelarReservaDialog dlg = new CancelarReservaDialog(
+                padre,
+                reserva.codigoPlaza(),
+                reserva.planta(),
+                reserva.matricula(),
+                reserva.fechaReserva(),
+                reserva.tipoVehiculo());
+        dlg.setVisible(true);
+        if (dlg.fueConfirmado()) {
+            // Pendiente de integración con ControladorMisReservas / ServicioReserva.cancelar(...)
+        }
+    }
 
     public record ReservaVista(
             String codigoPlaza,

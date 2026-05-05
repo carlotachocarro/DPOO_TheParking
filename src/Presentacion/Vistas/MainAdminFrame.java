@@ -1,6 +1,9 @@
 package Presentacion.Vistas;
 
+import Presentacion.Controladores.ControladorAplicacion;
 import Presentacion.Controladores.ControllerMenuPrincipalAdmin;
+import Negocio.Entidades.Plaza;
+import Negocio.Servicios.ServicioPlaza;
 import Presentacion.Vistas.Dialogs.DetallePlazaDialog;
 import Presentacion.Vistas.Dialogs.PlazaFormDialog;
 import Presentacion.Vistas.Panels.EstadoParkingPanel;
@@ -216,13 +219,22 @@ public class MainAdminFrame extends JFrame {
     }
 
     private void abrirEditarPlaza(String codigoPlaza) {
-        // Pides al controller los datos actuales:
-        // String[] datos = controller.obtenerDatosPlaza(codigoPlaza);
-        // PlazaFormDialog dialog = PlazaFormDialog.paraEditar(this, datos[0], datos[1], datos[2]);
-        PlazaFormDialog dialog = PlazaFormDialog.paraEditar(this, codigoPlaza, "1", "Coche");
+        Plaza plaza = controller.getServicioPlaza().obtenerPlazaPorCodigo(codigoPlaza);
+        if (plaza == null) {
+            JOptionPane.showMessageDialog(this,
+                    "No se encontró la plaza con código \"" + codigoPlaza + "\".",
+                    "Editar plaza",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String pisoActual = Integer.toString(plaza.getPlanta());
+        String tipoCombo = ServicioPlaza.tipoVehiculoParaCombo(plaza.getTipoVehiculo());
+
+        PlazaFormDialog dialog = PlazaFormDialog.paraEditar(this, codigoPlaza, pisoActual, tipoCombo);
         dialog.setVisible(true);
         if (dialog.fueConfirmado()) {
-            // controller.editarPlaza(...);
+            // controller.editarPlaza(dialog.getCodigo(), dialog.getPiso(), dialog.getTipoVehiculo());
             panelGestionPlazas.mostrarPlazas();
         }
     }
@@ -265,7 +277,7 @@ public class MainAdminFrame extends JFrame {
         );
         if (opcion == JOptionPane.YES_OPTION) {
             dispose();
-            new AuthFrame().setVisible(true);
+            ControladorAplicacion.reiniciarFlujoAutenticacion();
         }
     }
 }
