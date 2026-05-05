@@ -2,6 +2,7 @@ package Presentacion.Vistas.Panels;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
 
 public class EntradaSalidaPanel extends JPanel {
 
@@ -11,6 +12,8 @@ public class EntradaSalidaPanel extends JPanel {
 
     private JTextField txtMatriculaSalida;
     private JLabel lblResultadoSalida;
+    private JButton btnRegistrarSalida;
+    private JButton btnRegistrarEntrada;
 
     public EntradaSalidaPanel() {
         setLayout(new BorderLayout(16, 16));
@@ -63,8 +66,8 @@ public class EntradaSalidaPanel extends JPanel {
         comboTipoVehiculo = new JComboBox<>(new String[]{"Coche", "Moto", "Coche grande"});
 
         JButton btnRegistrarEntrada = new JButton("Registrar entrada");
-        btnRegistrarEntrada.addActionListener(e ->
-                mostrarResultadoEntrada("Acceso concedido. Plaza asignada: A-03"));
+        //btnRegistrarEntrada.addActionListener(e ->mostrarResultadoEntrada("Acceso concedido. Plaza asignada: A-03"));
+        btnRegistrarEntrada.setActionCommand("ENTRADA");
 
         lblResultadoEntrada = new JLabel(" ");
         lblResultadoEntrada.setForeground(new Color(46, 125, 50));
@@ -111,8 +114,8 @@ public class EntradaSalidaPanel extends JPanel {
         txtMatriculaSalida = new JTextField();
 
         JButton btnRegistrarSalida = new JButton("Registrar salida");
-        btnRegistrarSalida.addActionListener(e ->
-                mostrarResultadoSalida("Salida registrada. Plaza A-03 liberada."));
+        btnRegistrarSalida.setActionCommand("SALIDA");
+        //btnRegistrarSalida.addActionListener(e -> mostrarResultadoSalida("Salida registrada. Plaza A-03 liberada."));
 
         lblResultadoSalida = new JLabel(" ");
         lblResultadoSalida.setForeground(new Color(198, 40, 40));
@@ -146,6 +149,10 @@ public class EntradaSalidaPanel extends JPanel {
         panel.add(area, BorderLayout.CENTER);
         return panel;
     }
+    public void addEntradaSalidaListener(ActionListener listener) {
+        btnRegistrarEntrada.addActionListener(listener);
+        btnRegistrarSalida.addActionListener(listener);
+    }
 
     public String getMatriculaEntrada() {
         return txtMatriculaEntrada.getText();
@@ -165,5 +172,10 @@ public class EntradaSalidaPanel extends JPanel {
 
     public void mostrarResultadoSalida(String mensaje) {
         lblResultadoSalida.setText(mensaje);
+    }
+
+    public void limpiarCampos(){
+        txtMatriculaEntrada.setText("");
+        txtMatriculaSalida.setText("");
     }
 }

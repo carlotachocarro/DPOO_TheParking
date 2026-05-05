@@ -2,6 +2,8 @@ package Presentacion.Vistas;
 
 import Negocio.Servicios.ParkingObserver;
 import Negocio.Servicios.ServicioPlaza;
+import Presentacion.Controladores.ControladorEntradasSalidas;
+import Presentacion.Controladores.ControladorMisReservas;
 import Presentacion.Controladores.ControladorReservasPlaza;
 import Presentacion.Controladores.ControllerMenuPrincipalAdmin;
 import Presentacion.Vistas.Dialogs.NotificacionesDialog;
@@ -49,18 +51,24 @@ public class MainUsuarioFrame extends JFrame {
         // Añadir ESA MISMA al CardLayout
         ReservasPlazaPanel reservasPanel = new ReservasPlazaPanel();
 
-        new ControladorReservasPlaza(
-                reservasPanel,
-                nombreUsuario,
-                controller.getServicioPlaza()
-        );
-        contentPanel.add(new EntradaSalidaPanel(), "ENTRADA_SALIDA");
+        new ControladorReservasPlaza(reservasPanel, nombreUsuario, controller.getServicioPlaza());
+
+        EntradaSalidaPanel entradaSalida= new EntradaSalidaPanel();
+        ControladorEntradasSalidas ds= new ControladorEntradasSalidas(entradaSalida,nombreUsuario);
+        contentPanel.add(entradaSalida, "ENTRADA_SALIDA");
+
+
         contentPanel.add(reservasPanel, "RESERVAR");
-        contentPanel.add(new MisReservasPanel(), "MIS_RESERVAS");
+        MisReservasPanel reservas = new MisReservasPanel(this::mostrarVista);
+        ControladorMisReservas misReservas = new ControladorMisReservas(reservas);
+
+        contentPanel.add(reservas, "MIS_RESERVAS");
         contentPanel.add(new GraficoOcupacionPanel(), "GRAFICO");
 
         add(contentPanel, BorderLayout.CENTER);
         mostrarVista("ESTADO");
+
+        misReservas.getReserva(nombreUsuario);
 
     }
 

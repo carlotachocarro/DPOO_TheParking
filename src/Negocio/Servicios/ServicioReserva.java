@@ -3,12 +3,12 @@ package Negocio.Servicios;
 import Negocio.Entidades.Reserva;
 import Persistencia.Daoimpl.PlazaDBDAO;
 import Persistencia.Daoimpl.ReservaDBDAO;
-import Persistencia.Daoimpl.UsuarioDAO;
 import Persistencia.Daoimpl.UsuarioDBDAO;
 import Negocio.Entidades.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class ServicioReserva {
     private ReservaDBDAO reservaDBDAO;
@@ -41,6 +41,8 @@ public class ServicioReserva {
             if(reservaDBDAO.nuevaReserva( id_plaza,idUsuario,matricula)){
                 // vamos poner que esta ocupada la plaza actualizar el main
                 servicioPlaza.notifyObservers();
+                // Vamos hacer un registro del historial de las plazas
+
 
                 return true;
             }
@@ -86,6 +88,41 @@ public class ServicioReserva {
                 + " - " + plaza.getTipoVehiculo()
                 + " - " + estado;
     }
+
+    public  List<String> ObtenerReservas(String Nombre){
+        String[] mensaje;
+        ArrayList<Reserva> reservas = new ArrayList<>();
+        ArrayList<Plaza> plazas = new ArrayList<>();
+        String idUser= usuarioDBDAO.getUsuarioId(Nombre,null);
+        reservas = reservaDBDAO.getReservaByUser(idUser);
+        plazas =  plazaDBDAO.getPlazas();
+        List<String> resultado = new ArrayList<>();
+        //"B2", "Moto", "5678DEF", "02/05/2026", "Planta 2", false
+
+        for (Reserva reserva : reservas) {
+            Plaza plazaEncontrada = null;
+
+            for (Plaza plaza : plazas) {
+                String m=plaza.getCodigoPlaza();
+                String rm = reserva.getIdPlaza();
+
+                if (m.equals(rm))
+                {
+                    String estadoPlaza="";
+                    if(plaza.getEstado_ocupado()){
+                        estadoPlaza="Ocupada";
+                    }
+                    resultado.add(reserva.getIdPlaza()+"-"+plaza.getTipoVehiculo()+"-"+reserva.getMatricula()+"-"+reserva.getDate()+"-"+plaza.getPlanta()+"-"+ "True" );
+                }
+
+            }
+
+
+        }
+       return resultado;
+
+    }
+
 
 
 }

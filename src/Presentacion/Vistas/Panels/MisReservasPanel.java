@@ -1,21 +1,28 @@
 package Presentacion.Vistas.Panels;
 
+import Presentacion.Vistas.MainUsuarioFrame;
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
+import java.util.function.Consumer;
 
-public class MisReservasPanel extends JPanel {
+import Negocio.Servicios.ParkingObserver;
+
+public class MisReservasPanel extends JPanel implements ParkingObserver{
 
     private JPanel panelLista;
     private JLabel lblResumen;
+    private Consumer<String> navigator;
 
-    public MisReservasPanel() {
+    public MisReservasPanel(Consumer<String> navigator) {
+        this.navigator = navigator;
         setLayout(new BorderLayout(16, 16));
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         add(crearCabecera(), BorderLayout.NORTH);
         add(crearCentro(), BorderLayout.CENTER);
         add(crearResumen(), BorderLayout.SOUTH);
+
     }
 
     private JPanel crearCabecera() {
@@ -35,6 +42,7 @@ public class MisReservasPanel extends JPanel {
         textos.add(subtitulo);
 
         JButton btnNuevaReserva = new JButton("Nueva reserva");
+        btnNuevaReserva.addActionListener(e -> navigator.accept("RESERVAR"));
 
         cabecera.add(textos, BorderLayout.WEST);
         cabecera.add(btnNuevaReserva, BorderLayout.EAST);
@@ -77,6 +85,7 @@ public class MisReservasPanel extends JPanel {
         revalidate();
         repaint();
     }
+
 
     private JPanel crearTarjetaReserva(ReservaVista reserva) {
         JPanel card = new JPanel(new BorderLayout());
@@ -124,6 +133,7 @@ public class MisReservasPanel extends JPanel {
         return card;
     }
 
+
     public record ReservaVista(
             String codigoPlaza,
             String tipoVehiculo,
@@ -132,4 +142,12 @@ public class MisReservasPanel extends JPanel {
             String planta,
             boolean activa
     ) {}
+
+
+    @Override
+    public void onParkingChange(String estado, String resumen) {
+        SwingUtilities.invokeLater(() -> {
+
+        });
+    }
 }

@@ -16,6 +16,7 @@ public class ServicioVehiculo {
     private ReservaDBDAO reservaDBDAO;
     private HistorialDBDAO historialDAO;
     private Random random;
+    private ServicioPlaza servicioPlaza;
 
     public ServicioVehiculo() {
         this.plazaDBDAO = new PlazaDBDAO();
@@ -46,6 +47,7 @@ public class ServicioVehiculo {
         //Si se ha conseguido una plaza, se ocupa
         if (IdplazaAsignada != null) {
             if (plazaDBDAO.ocuparPlaza(IdplazaAsignada, true, matricula, username)) {
+                servicioPlaza.notifyObservers();
                 return IdplazaAsignada;
             }
         }
@@ -60,6 +62,8 @@ public class ServicioVehiculo {
             if(p.getEstado_ocupado() && p.getMatricula().equals(matricula)){ //Buscamos la plaza que tenia reservada
                 //Vaciamos plaza
                 return plazaDBDAO.ocuparPlaza(p.getCodigoPlaza(), false, "none", null);
+                //servicioPlaza.notifyObservers();
+
             }
         }
         //No se ha podido encontrar la matricula
