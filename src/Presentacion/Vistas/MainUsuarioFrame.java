@@ -1,12 +1,14 @@
 package Presentacion.Vistas;
 
+<<<<<<< HEAD
 import Negocio.Servicios.ParkingObserver;
 import Negocio.Servicios.ServicioPlaza;
 import Presentacion.Controladores.ControladorEntradasSalidas;
 import Presentacion.Controladores.ControladorMisReservas;
+=======
+>>>>>>> ecea1f2b62f56a68daf27d1deb23ca46fd2148f9
 import Presentacion.Controladores.ControladorReservasPlaza;
 import Presentacion.Controladores.ControllerMenuPrincipalAdmin;
-import Presentacion.Vistas.Dialogs.NotificacionesDialog;
 import Presentacion.Vistas.Panels.EstadoParkingPanel;
 import Presentacion.Vistas.Panels.EntradaSalidaPanel;
 import Presentacion.Vistas.Panels.MisReservasPanel;
@@ -15,7 +17,6 @@ import Presentacion.Vistas.Panels.ReservasPlazaPanel;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.List;
 
 public class MainUsuarioFrame extends JFrame {
 
@@ -24,7 +25,7 @@ public class MainUsuarioFrame extends JFrame {
     private final String nombreUsuario;
     private ControllerMenuPrincipalAdmin controller;
 
-    public MainUsuarioFrame(String nombreUsuario,ControllerMenuPrincipalAdmin  controller) {
+    public MainUsuarioFrame(String nombreUsuario, ControllerMenuPrincipalAdmin controller) {
         this.nombreUsuario = nombreUsuario;
         this.controller = controller;
         configurarVentana();

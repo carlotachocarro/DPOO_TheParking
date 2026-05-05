@@ -10,10 +10,8 @@ public class LoginPanel extends JPanel {
     private JPasswordField txtPassword;
     private JButton btnEntrar;
     private JButton btnRegistro;
-    private AuthFrame frame;
 
-    public LoginPanel(AuthFrame frame) {
-        this.frame = frame;
+    public LoginPanel() {
         inicializar();
     }
 
@@ -54,9 +52,6 @@ public class LoginPanel extends JPanel {
         btnRegistro.setForeground(new Color(52, 152, 219));
         btnRegistro.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        //btnEntrar.addActionListener(e -> iniciarSesion());
-        btnRegistro.addActionListener(e -> frame.mostrarRegistro());
-
         add(lblTitulo);
         add(Box.createVerticalStrut(40));
         add(lblBienvenida);
@@ -74,28 +69,26 @@ public class LoginPanel extends JPanel {
         add(new JLabel("¿No tienes cuenta?"));
         add(btnRegistro);
     }
-    /*
-    public void iniciarSesion() {
-        String usuarioCorreo = txtUsuarioCorreo.getText().trim();
-        String password = new String(txtPassword.getPassword()).trim();
-
-        if (usuarioCorreo.isEmpty() || password.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Debes rellenar usuario/correo y contraseña.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        Window ventana = SwingUtilities.getWindowAncestor(this);
-        ventana.dispose();
-        new MainUsuarioFrame("usuario1").setVisible(true);
-
-    }*/
 
     public void limpiarCampos() {
-        txtPassword.setText("");
         txtUsuarioCorreo.setText("");
+        txtPassword.setText("");
     }
+
+    public void focoEnUsuarioCorreo() {
+        txtUsuarioCorreo.requestFocusInWindow();
+    }
+
+    public void focoEnPassword() {
+        txtPassword.requestFocusInWindow();
+    }
+
     public void addLoginListener(ActionListener listener) {
         btnEntrar.addActionListener(listener);
+    }
+
+    public void addIrARegistroListener(ActionListener listener) {
+        btnRegistro.addActionListener(listener);
     }
 
     public String getUsuarioCorreo() {

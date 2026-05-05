@@ -31,8 +31,34 @@ public class UsuarioDBDAO implements UsuarioDAO{
     }
 
     public boolean eliminarUsuario(String nombre, String mail){
-        //POR IMPLEMENTAR
-        return false;
+        String q1 = "DELETE FROM reserva WHERE id_usuario = (SELECT id_usuario FROM usuario WHERE nombre = ? OR mail=? LIMIT 1 )";
+        ArrayList<String> values = new ArrayList<>();
+        ArrayList<String> types = new ArrayList<>();
+        values.add(nombre);
+        values.add(mail);
+        types.add("String");
+        types.add("String");
+        int res1 = SQL_CRUD.CUD(q1, values, types);
+
+        String q2 = "UPDATE plaza_parking SET estado_actual = 0, estado_reserva = 0, matricula = 'none' , id_usuario = NULL WHERE id_usuario = (SELECT id_usuario FROM usuario WHERE nombre = ? OR mail=? LIMIT 1 )";
+        ArrayList<String> values2 = new ArrayList<>();
+        ArrayList<String> types2 = new ArrayList<>();
+        values2.add(nombre);
+        values2.add(mail);
+        types2.add("String");
+        types2.add("String");
+        int res2 = SQL_CRUD.CUD(q2, values2, types2);
+
+        String q3 = "DELETE FROM usuario WHERE id_usuario = (SELECT id_usuario FROM usuario WHERE nombre = ? OR mail=? LIMIT 1 )";
+        ArrayList<String> values3 = new ArrayList<>();
+        ArrayList<String> types3 = new ArrayList<>();
+        values3.add(nombre);
+        values3.add(mail);
+        types3.add("String");
+        types3.add("String");
+        int res3 = SQL_CRUD.CUD(q3, values, types);
+
+        return res3 > 0;
     }
 
     public boolean checkUsuario(String nombre, String mail){
