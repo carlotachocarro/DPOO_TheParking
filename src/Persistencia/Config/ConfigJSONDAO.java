@@ -71,5 +71,20 @@ public class ConfigJSONDAO {
         return config.getAsJsonObject("database").get("dbPassword").getAsString();
     }
 
-    public String getDBNombreAdmin(){return config.getAsJsonObject("database").get("contrasenaAdmin").getAsString();}
+
+    public String getNombreAdmin(){
+        return config.get("nombreAdmin").getAsString();
+    };
+
+    public String getAdminPass(){
+        return config.get("contrasenaAdmin").getAsString();
+    };
+
+    public String getPlazasDisp(){
+        return config.get("cantidadPlazasDisponibles").getAsString();
+    };
+
+    public String getTipo(){
+        return config.get("tipo").getAsString();
+    };
 }

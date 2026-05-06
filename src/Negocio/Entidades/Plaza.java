@@ -13,7 +13,7 @@ public class Plaza {
     private Usuario user;
 
 
-    public Plaza(String tipoVheiculo, int planta, String codigoPlaza, boolean ocu, boolean res, boolean sim, Usuario u) {
+    public Plaza(String tipoVheiculo, int planta, String codigoPlaza, boolean ocu, boolean res, boolean sim, Usuario u, String matricula) {
         this.tipoVheiculo = tipoVheiculo;
         this.planta = planta;
         this.codigoPlaza = codigoPlaza;
@@ -21,6 +21,7 @@ public class Plaza {
         this.estado_reserva = res;
         this.simulado = sim;
         this.user = u;
+        this.matricula = matricula;
     }
 
 
