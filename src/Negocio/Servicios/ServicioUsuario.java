@@ -1,6 +1,7 @@
 package Negocio.Servicios;
 
 import Negocio.Entidades.Usuario;
+import Persistencia.Config.ConfigJSONDAO;
 import Persistencia.Daoimpl.Singleton;
 import Persistencia.Daoimpl.UsuarioDAO;
 import Persistencia.Daoimpl.UsuarioDBDAO;
@@ -12,10 +13,13 @@ import static java.lang.foreign.MemorySegment.NULL;
 public class ServicioUsuario {
 
     private UsuarioDBDAO usuariDAO;
+    private ConfigJSONDAO configJSONDAO;
     private  Usuario usuario;
 
     public  ServicioUsuario() {
+
         usuariDAO = new UsuarioDBDAO();
+        configJSONDAO = new ConfigJSONDAO();
     }
 
     public int registrarUsua(String nombreUser, String correrElectro, String contra,String repContra) {
@@ -117,6 +121,16 @@ public class ServicioUsuario {
  *         ↓
  * Usuario pasa a "VERIFICADO"
  */
+public boolean inicioSessionAdmin(String contra){
+    /*
+    if (configJSONDAO.getDBContraseña().equals(contra)){
+        return true;
+    }*/
+    if ("admin".equals(contra)){
+        return true;
+    }
+    return false;
+}
 
 
     public boolean inicioSession(String nombre,String contra) {

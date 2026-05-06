@@ -35,32 +35,32 @@ public class ControladorInicioSesion implements ActionListener {
 
         if (usuarioCorreo.isEmpty() || password.isEmpty()) {
             JOptionPane.showMessageDialog(
-                    vista,
-                    "Debes rellenar usuario/correo y contraseña",
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE
+                    vista, "Debes rellenar usuario/correo y contraseña", "Error", JOptionPane.ERROR_MESSAGE
             );
-            return;
-        }
-
-        boolean loginCorrecto = servicioUsuario.inicioSession(usuarioCorreo, password);
-
-        if (!loginCorrecto) {
-            JOptionPane.showMessageDialog(
-                    vista,
-                    "Contraseña o usuario incorrecto",
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE
-            );
-            vista.limpiarCampos();
-            vista.focoEnUsuarioCorreo();
             return;
         }
 
         if (usuarioCorreo.equalsIgnoreCase("admin")) {
-            app.abrirMenuAdmin();
-        } else {
-            app.abrirMenuUsuario(usuarioCorreo);
+
+            if (servicioUsuario.inicioSessionAdmin(password)) {
+                app.abrirMenuAdmin();
+            } else {
+                JOptionPane.showMessageDialog(vista, "Contraseña o usuario incorrecto", "Error", JOptionPane.ERROR_MESSAGE);
+                vista.limpiarCampos();
+            }
+
         }
+        else {
+            boolean loginCorrecto = servicioUsuario.inicioSession(usuarioCorreo, password);
+            if (!loginCorrecto) {
+                JOptionPane.showMessageDialog(vista, "Contraseña o usuario incorrecto", "Error", JOptionPane.ERROR_MESSAGE);
+                vista.limpiarCampos();
+                vista.focoEnUsuarioCorreo();
+                return;
+            }
+
+        }
+
+
     }
 }
