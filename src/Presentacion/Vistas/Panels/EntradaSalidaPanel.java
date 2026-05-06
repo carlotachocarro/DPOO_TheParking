@@ -65,7 +65,7 @@ public class EntradaSalidaPanel extends JPanel {
         txtMatriculaEntrada = new JTextField();
         comboTipoVehiculo = new JComboBox<>(new String[]{"Coche", "Moto", "Coche grande"});
 
-        JButton btnRegistrarEntrada = new JButton("Registrar entrada");
+        btnRegistrarEntrada = new JButton("Registrar entrada");
         //btnRegistrarEntrada.addActionListener(e ->mostrarResultadoEntrada("Acceso concedido. Plaza asignada: A-03"));
         btnRegistrarEntrada.setActionCommand("ENTRADA");
 
@@ -113,7 +113,7 @@ public class EntradaSalidaPanel extends JPanel {
 
         txtMatriculaSalida = new JTextField();
 
-        JButton btnRegistrarSalida = new JButton("Registrar salida");
+        btnRegistrarSalida = new JButton("Registrar salida");
         btnRegistrarSalida.setActionCommand("SALIDA");
         //btnRegistrarSalida.addActionListener(e -> mostrarResultadoSalida("Salida registrada. Plaza A-03 liberada."));
 
@@ -163,6 +163,7 @@ public class EntradaSalidaPanel extends JPanel {
     }
 
     public String getMatriculaSalida() {
+
         return txtMatriculaSalida.getText();
     }
 

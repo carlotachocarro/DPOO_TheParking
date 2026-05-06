@@ -27,22 +27,19 @@ public class ControladorEntradasSalidas implements ActionListener {
     public void actionPerformed(ActionEvent e){
 
         String matricula= entradaSalidaPanel.getMatriculaEntrada();
+        String matriculaSalida = entradaSalidaPanel.getMatriculaSalida();
         String tipoVhiculo = entradaSalidaPanel.getTipoVehiculoEntrada();
 
-        if (matricula == null || matricula == "" ){
-            JOptionPane.showMessageDialog(entradaSalidaPanel, "Porfavor introduzca la matricula");
-            entradaSalidaPanel.limpiarCampos();
-            return;
-        }
-        else {
-            if (ControladorReservasPlaza.esMatriculaValida(matricula)){
-                JOptionPane.showMessageDialog(entradaSalidaPanel, "Porfavor introduzca una matricula valida");
-                entradaSalidaPanel.limpiarCampos();
-                return;
-            }
-        }
+
+
+
         switch (e.getActionCommand()) {
             case "ENTRADA":
+                if (matricula == null || matricula == ""){
+                    JOptionPane.showMessageDialog(entradaSalidaPanel, "Porfavor introduzca la matricula");
+
+                    break;
+                }
 
                if (servicioVehiculo.registroEntradaVehiculo(matricula,tipoVhiculo,nombreUsuario) == null){
                    JOptionPane.showMessageDialog(entradaSalidaPanel, "La plaza no existe");
@@ -50,24 +47,29 @@ public class ControladorEntradasSalidas implements ActionListener {
                    JOptionPane.showMessageDialog(entradaSalidaPanel, "Se ha registrado una entrada correctamente!!!!");
 
                }
-
+                entradaSalidaPanel.limpiarCampos();
 
                 break;
             case "SALIDA":
-                if (!servicioVehiculo.registrarSalidaVehiculo(matricula)){
+
+                if (matriculaSalida == null || matriculaSalida == ""){
+                    JOptionPane.showMessageDialog(entradaSalidaPanel, "Porfavor introduzca la matricula");
+
+                    break;
+                }
+
+                if (!servicioVehiculo.registrarSalidaVehiculo(matriculaSalida)){
                     JOptionPane.showMessageDialog(entradaSalidaPanel, "La plaza no existe");
+
                 }else {
                     JOptionPane.showMessageDialog(entradaSalidaPanel, "Se ha registrado una salida correctamente!!!!");
                 }
-
+                entradaSalidaPanel.limpiarCampos();
                 break;
 
         }
 
 
     }
-
-
-
 
 }
