@@ -47,7 +47,7 @@ public class ServicioVehiculo {
         //Si se ha conseguido una plaza, se ocupa
         if (IdplazaAsignada != null) {
             if (plazaDBDAO.ocuparPlaza(IdplazaAsignada, true, matricula, username)) {
-                servicioPlaza.notifyObservers();
+
                 return IdplazaAsignada;
             }
         }
@@ -61,7 +61,7 @@ public class ServicioVehiculo {
         for(Plaza p : plazasTotal){
             if(p.getEstado_ocupado() && p.getMatricula().equals(matricula)){ //Buscamos la plaza que tenia reservada
                 //Vaciamos plaza
-                servicioPlaza.notifyObservers();
+
                 return plazaDBDAO.ocuparPlaza(p.getCodigoPlaza(), false, "none", null);
 
             }

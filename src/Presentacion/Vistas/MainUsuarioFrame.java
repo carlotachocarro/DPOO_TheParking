@@ -51,7 +51,7 @@ public class MainUsuarioFrame extends JFrame {
         new ControladorReservasPlaza(reservasPanel, nombreUsuario, controller.getServicioPlaza());
 
         EntradaSalidaPanel entradaSalida = new EntradaSalidaPanel();
-        new ControladorEntradasSalidas(entradaSalida, nombreUsuario);
+        new ControladorEntradasSalidas(entradaSalida, nombreUsuario,controller.getServicioPlaza());
         contentPanel.add(entradaSalida, "ENTRADA_SALIDA");
 
 

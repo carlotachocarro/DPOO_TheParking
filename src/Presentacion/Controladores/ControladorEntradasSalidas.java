@@ -1,5 +1,6 @@
 package Presentacion.Controladores;
 
+import Negocio.Servicios.ServicioPlaza;
 import Negocio.Servicios.ServicioVehiculo;
 import Presentacion.Vistas.Panels.EntradaSalidaPanel;
 
@@ -13,12 +14,15 @@ public class ControladorEntradasSalidas implements ActionListener {
     private  ControladorReservasPlaza ControladorReservasPlaza;
     private ServicioVehiculo servicioVehiculo;
     private String nombreUsuario;
+    private ServicioPlaza servicioPlaza;
 
-    public ControladorEntradasSalidas(EntradaSalidaPanel entradaSalidaPanel,String nombreUsuario) {
+    public ControladorEntradasSalidas(EntradaSalidaPanel entradaSalidaPanel, String nombreUsuario, ServicioPlaza servicioPlaza) {
         this.entradaSalidaPanel = entradaSalidaPanel;
         entradaSalidaPanel.addEntradaSalidaListener(this);
         this.servicioVehiculo = new ServicioVehiculo();
         this.nombreUsuario = nombreUsuario;
+        this.servicioPlaza = servicioPlaza;
+
     }
 
 
@@ -48,7 +52,7 @@ public class ControladorEntradasSalidas implements ActionListener {
 
                }
                 entradaSalidaPanel.limpiarCampos();
-
+                servicioPlaza.notifyObservers();
                 break;
             case "SALIDA":
 
@@ -65,6 +69,7 @@ public class ControladorEntradasSalidas implements ActionListener {
                     JOptionPane.showMessageDialog(entradaSalidaPanel, "Se ha registrado una salida correctamente!!!!");
                 }
                 entradaSalidaPanel.limpiarCampos();
+                servicioPlaza.notifyObservers();
                 break;
 
         }

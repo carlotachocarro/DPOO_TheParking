@@ -21,7 +21,7 @@ public class ControladorInicioSesion implements ActionListener {
         this.vista.addLoginListener(this);
         this.vista.addIrARegistroListener(e -> app.mostrarRegistro());
 
-        servicioUsuario.registrarAdmin();
+       // servicioUsuario.registrarAdmin();
     }
 
     @Override
@@ -59,6 +59,7 @@ public class ControladorInicioSesion implements ActionListener {
                 return;
             }
 
+            app.abrirMenuUsuario(usuarioCorreo);
         }
 
 

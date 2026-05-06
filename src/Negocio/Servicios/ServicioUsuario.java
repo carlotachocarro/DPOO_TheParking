@@ -122,13 +122,11 @@ public class ServicioUsuario {
  * Usuario pasa a "VERIFICADO"
  */
 public boolean inicioSessionAdmin(String contra){
-    /*
-    if (configJSONDAO.getDBContraseña().equals(contra)){
-        return true;
-    }*/
-    if ("admin".equals(contra)){
+
+    if (configJSONDAO.getAdminPass().equals(contra)){
         return true;
     }
+
     return false;
 }
 
