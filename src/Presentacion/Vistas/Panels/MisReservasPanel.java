@@ -1,5 +1,6 @@
 package Presentacion.Vistas.Panels;
 
+import Presentacion.Controladores.ControladorPOPAP_CancelarReserva;
 import Presentacion.Vistas.Dialogs.CancelarReservaDialog;
 
 import javax.swing.*;
@@ -14,8 +15,10 @@ public class MisReservasPanel extends JPanel implements ParkingObserver{
     private JPanel panelLista;
     private JLabel lblResumen;
     private Consumer<String> navigator;
+    private String nombreUsuario;
 
-    public MisReservasPanel(Consumer<String> navigator) {
+    public MisReservasPanel(Consumer<String> navigator,String nombreUsuario) {
+        this.nombreUsuario = nombreUsuario;
         this.navigator = navigator;
         setLayout(new BorderLayout(16, 16));
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
@@ -134,13 +137,13 @@ public class MisReservasPanel extends JPanel implements ParkingObserver{
 
     private void abrirDialogoCancelar(ReservaVista reserva) {
         Window padre = SwingUtilities.getWindowAncestor(this);
-        CancelarReservaDialog dlg = new CancelarReservaDialog(
-                padre,
+        CancelarReservaDialog dlg = new CancelarReservaDialog(padre,
                 reserva.codigoPlaza(),
                 reserva.planta(),
                 reserva.matricula(),
                 reserva.fechaReserva(),
                 reserva.tipoVehiculo());
+        ControladorPOPAP_CancelarReserva dialog = new ControladorPOPAP_CancelarReserva(dlg,nombreUsuario);
         dlg.setVisible(true);
         if (dlg.fueConfirmado()) {
             // Pendiente de integración con ControladorMisReservas / ServicioReserva.cancelar(...)

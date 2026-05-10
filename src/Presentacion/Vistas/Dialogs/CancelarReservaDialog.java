@@ -7,6 +7,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
 /**
@@ -18,7 +19,10 @@ public class CancelarReservaDialog extends BaseDialog {
     private boolean confirmado;
     private JTextField txtMatricula;
     private JButton btnConfirmar;
-    private final String matriculaEsperada;
+    private JButton btnVolver;
+    private String matriculaEsperada;
+    private String idPlaza;
+
 
     public CancelarReservaDialog(Window parent,
                                  String codigoPlaza,
@@ -29,6 +33,7 @@ public class CancelarReservaDialog extends BaseDialog {
         super(parent, "Cancelar reserva");
         this.matriculaEsperada = matricula != null ? matricula.trim() : "";
 
+        this.idPlaza = codigoPlaza;
         JPanel cuerpo = new JPanel(new BorderLayout());
         cuerpo.setBackground(DialogStyles.BG_CONTENT);
         cuerpo.add(crearFranjaAviso(), BorderLayout.NORTH);
@@ -236,20 +241,14 @@ public class CancelarReservaDialog extends BaseDialog {
         inner.setOpaque(false);
         inner.setBorder(BorderFactory.createEmptyBorder(12, 20, 18, 20));
 
-        JButton volver = DialogStyles.botonSecundario("Volver");
-        volver.addActionListener(e -> dispose());
+        btnVolver = DialogStyles.botonSecundario("Volver");
+        btnVolver.setActionCommand("volver");
 
         btnConfirmar = DialogStyles.botonPrimario("Sí, cancelar reserva", DialogStyles.DANGER, Color.WHITE);
-        btnConfirmar.addActionListener(e -> {
-            if (matriculaCoincide()) {
-                confirmado = true;
-                dispose();
-            }
-        });
-
+        btnConfirmar.setActionCommand("cancelar");
         JPanel izq = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         izq.setOpaque(false);
-        izq.add(volver);
+        izq.add(btnVolver);
 
         JPanel der = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         der.setOpaque(false);
@@ -283,5 +282,22 @@ public class CancelarReservaDialog extends BaseDialog {
             return false;
         }
         return t.equalsIgnoreCase(matriculaEsperada);
+    }
+
+    public String getMatricula() {
+        return txtMatricula.getText();
+    }
+    public String getMatriculaEsperada() {
+        return matriculaEsperada;
+    }
+    public String getIdPlaza(){
+        return idPlaza;
+    }
+    public void addCancelarReservaListener(ActionListener listener) {
+        btnConfirmar.addActionListener(listener);
+        btnVolver.addActionListener(listener);
+    }
+    public void limiarMatricula (String matricula) {
+        matriculaEsperada =matricula;
     }
 }

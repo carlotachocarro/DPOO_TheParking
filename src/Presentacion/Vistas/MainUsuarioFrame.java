@@ -13,13 +13,21 @@ import Presentacion.Vistas.Panels.ReservasPlazaPanel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
 
 public class MainUsuarioFrame extends JFrame {
 
     private CardLayout cardLayout;
     private JPanel contentPanel;
-    private final String nombreUsuario;
+    private String nombreUsuario;
     private ControllerMenuPrincipalAdmin controller;
+    private JButton btnEstado;
+    private JButton btnEntradaSalida;
+    private JButton btnMisReservas;
+    private JButton btnReservar;
+    private JButton btnGrafico;
+    private JButton btnEliminarCuenta;
+    private JButton btnCerrarSesion;
 
     public MainUsuarioFrame(String nombreUsuario, ControllerMenuPrincipalAdmin controller) {
         this.nombreUsuario = nombreUsuario;
@@ -56,7 +64,7 @@ public class MainUsuarioFrame extends JFrame {
 
 
         contentPanel.add(reservasPanel, "RESERVAR");
-        MisReservasPanel reservas = new MisReservasPanel(this::mostrarVista);
+        MisReservasPanel reservas = new MisReservasPanel(this::mostrarVista,nombreUsuario);
         ControladorMisReservas misReservas = new ControladorMisReservas(reservas);
 
         contentPanel.add(reservas, "MIS_RESERVAS");
@@ -98,15 +106,15 @@ public class MainUsuarioFrame extends JFrame {
         lblBadgeUsuario.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JLabel lblSeccionApp = crearEtiquetaSeccion("APLICACIÓN");
-        JButton btnEstado = crearBotonMenu("Estado Parking");
-        JButton btnEntradaSalida = crearBotonMenu("Entrada / Salida");
-        JButton btnReservar = crearBotonMenu("Reservar Plaza");
-        JButton btnMisReservas = crearBotonMenu("Mis Reservas");
-        JButton btnGrafico = crearBotonMenu("Gráfico");
+        btnEstado = crearBotonMenu("Estado Parking");
+        btnEntradaSalida = crearBotonMenu("Entrada / Salida");
+        btnReservar = crearBotonMenu("Reservar Plaza");
+        btnMisReservas = crearBotonMenu("Mis Reservas");
+        btnGrafico = crearBotonMenu("Gráfico");
 
         JLabel lblSeccionCuenta = crearEtiquetaSeccion("CUENTA");
-        JButton btnEliminarCuenta = crearBotonMenu("Eliminar cuenta");
-        JButton btnCerrarSesion = crearBotonMenu("Cerrar Sesión");
+        btnEliminarCuenta = crearBotonMenu("Eliminar cuenta");
+        btnCerrarSesion = crearBotonMenu("Cerrar Sesión");
 
         btnEstado.addActionListener(e -> mostrarVista("ESTADO"));
         btnEntradaSalida.addActionListener(e -> mostrarVista("ENTRADA_SALIDA"));
@@ -208,7 +216,7 @@ public class MainUsuarioFrame extends JFrame {
         }
     }
 
-    private void eliminarCuenta() {
+    public void eliminarCuenta() {
         int opcion = JOptionPane.showConfirmDialog(
                 this,
                 "¿Seguro que quieres eliminar tu cuenta?",
@@ -217,19 +225,31 @@ public class MainUsuarioFrame extends JFrame {
                 JOptionPane.WARNING_MESSAGE
         );
 
-        if (opcion == JOptionPane.YES_OPTION) {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "La cuenta se eliminará próximamente de la base de datos.",
-                    "Cuenta eliminada",
-                    JOptionPane.INFORMATION_MESSAGE
-            );
 
+        if (opcion == JOptionPane.YES_OPTION && controller.eliminarCuenta(nombreUsuario)) {
+            JOptionPane.showMessageDialog(this, "La cuenta se eliminará próximamente de la base de datos.", "Cuenta eliminada", JOptionPane.INFORMATION_MESSAGE);
+            setNombreUsuario("");
             dispose();
             ControladorAplicacion.reiniciarFlujoAutenticacion();
+        }else {
+            JOptionPane.showMessageDialog(this, "La cuenta no se ha podido eliminar", "Cuenta eliminada", JOptionPane.INFORMATION_MESSAGE);
         }
     }
-    public String  getNombreUsuario() {
-        return nombreUsuario;
+
+    public void setNombreUsuario (String nombreUsuario2) {
+        nombreUsuario = nombreUsuario2;
+
     }
+
+    public void addIrARegistroListener(ActionListener listener) {
+        btnEstado.addActionListener(listener);
+        btnCerrarSesion.addActionListener(listener);
+        btnReservar.addActionListener(listener);
+        btnEliminarCuenta.addActionListener(listener);
+        btnGrafico.addActionListener(listener);
+        btnEntradaSalida.addActionListener(listener);
+        btnMisReservas.addActionListener(listener);
+
+    }
+
 }

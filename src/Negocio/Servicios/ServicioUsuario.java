@@ -162,14 +162,24 @@ public boolean inicioSessionAdmin(String contra){
     }
 
 
-    public void eliminarCuenta(String name){
 
+    public boolean eliminarCuenta(String name){
 
-        if (usuariDAO.eliminarUsuario(name,null)){
+        if(validarCorreoElectro(name)){
+            if (usuariDAO.eliminarUsuario(null,name)){
+                return true;
+            }
             // Si lo hemos podido eliminar de la base de datos , Aqui dentro tendremos que elimnar los datos de la ram
 
+        }else{
+            if (usuariDAO.eliminarUsuario(name,null)){
+                // si entra aqui se borra correctamente el correo
+                return true;
+            }
 
+            // Si lo hemos podido eliminar de la base de datos , Aqui dentro tendremos que elimnar los datos de la ram
         }
+        return false;
     }
 
 }

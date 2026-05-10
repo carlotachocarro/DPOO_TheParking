@@ -1,4 +1,62 @@
 package Presentacion.Controladores;
 
-public class ControladorPOPAP_CancelarReserva {
+import Negocio.Servicios.ServicioPlaza;
+import Negocio.Servicios.ServicioReserva;
+import Presentacion.Vistas.Dialogs.CancelarReservaDialog;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+
+public class ControladorPOPAP_CancelarReserva extends JDialog implements ActionListener {
+
+    private CancelarReservaDialog cancelarReservaDialog;
+    private ServicioReserva servicioReserva;
+    private String nombreUsuario;
+
+
+    public  ControladorPOPAP_CancelarReserva(CancelarReservaDialog cancelarReservaDialog ,String nombreUsuario) {
+
+        this.cancelarReservaDialog = cancelarReservaDialog;
+        this.nombreUsuario = nombreUsuario;
+
+        this.servicioReserva = new ServicioReserva(new ServicioPlaza());
+
+        this.cancelarReservaDialog.addCancelarReservaListener(this);
+
+    }
+
+
+
+    @Override
+    public void actionPerformed(ActionEvent e){
+
+        switch (e.getActionCommand()){
+            case "volver":
+                cancelarReservaDialog.dispose();
+                break;
+            case "cancelar":
+                if (cancelarReservaDialog.getMatricula().equals(cancelarReservaDialog.getMatricula())){
+                   if(servicioReserva.cancelarReserva(cancelarReservaDialog.getIdPlaza(),nombreUsuario)){
+                       JOptionPane.showMessageDialog(null, "Reserva Cancelada Correctamente");
+                       cancelarReservaDialog.dispose();
+                       break;
+                   }
+                   else {
+                       JOptionPane.showMessageDialog(null, "La reserva no se puede cancelar no se ha encontrado");
+                       cancelarReservaDialog.dispose();
+                       break;
+                   }
+
+                }
+                JOptionPane.showMessageDialog(cancelarReservaDialog, "Matricula introducida incorreta !!");
+                cancelarReservaDialog.limiarMatricula("");
+
+                break;
+        }
+
+    }
+
+
 }

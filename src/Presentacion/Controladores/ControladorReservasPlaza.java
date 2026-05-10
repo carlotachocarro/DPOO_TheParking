@@ -45,8 +45,8 @@ public class ControladorReservasPlaza implements ActionListener {
             case "CONFIRM_RESERVA":
                 String matricula = vista.getTxtMatricula().getText();
                 if (matricula.equals("") || !esMatriculaValida(matricula)) {
-                    JOptionPane.showMessageDialog(vista, "Datos incorrectos");
-                    vista.limpiarCampos();
+//                    JOptionPane.showMessageDialog(vista, "Datos incorrectos");
+//                    vista.limpiarCampos();
                     return;
                 }
 
@@ -70,5 +70,8 @@ public class ControladorReservasPlaza implements ActionListener {
         }
 
 
+    }
+    public String getNombreUsuario() {
+        return nombreUsuario;
     }
 }

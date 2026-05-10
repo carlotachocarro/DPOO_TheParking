@@ -3,6 +3,7 @@ package Presentacion.Controladores;
 
 import Negocio.Servicios.ServicioPlaza;
 import Negocio.Servicios.ServicioReserva;
+import Negocio.Servicios.ServicioUsuario;
 import Presentacion.Vistas.MainUsuarioFrame;
 import Presentacion.Vistas.Panels.ReservasPlazaPanel;
 
@@ -10,6 +11,7 @@ public class ControllerMenuPrincipalAdmin {
     private ServicioPlaza servicioPlaza;
     private ServicioReserva servicioReserva;
     private MainUsuarioFrame mainUsuarioFrame;
+    private ServicioUsuario servicioUsuario;
 
 
 
@@ -18,6 +20,14 @@ public class ControllerMenuPrincipalAdmin {
         this.servicioReserva = new ServicioReserva(servicioPlaza);
 
        // new ControladorReservasPlaza(reservasPanel,mainUsuarioFrame.getNombreUsuario(),servicioPlaza);
+
+    }
+
+    public boolean eliminarCuenta(String name){
+        if (servicioUsuario.eliminarCuenta(name)){
+            return true;
+        }
+        return false;
 
     }
 

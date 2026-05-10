@@ -15,14 +15,16 @@ public class ServicioReserva {
     private UsuarioDBDAO usuarioDBDAO;
     private PlazaDBDAO plazaDBDAO;
     private ServicioPlaza servicioPlaza;
+    private ServicioUsuario servicioUsuario;
 
 
     public ServicioReserva(ServicioPlaza servicioPlaza) {
-
+        this.servicioUsuario= new ServicioUsuario();
         this.reservaDBDAO = new ReservaDBDAO();
         this.usuarioDBDAO = new UsuarioDBDAO();
         this.plazaDBDAO = new PlazaDBDAO();
         this.servicioPlaza = servicioPlaza;
+
 
     }
 
@@ -30,7 +32,7 @@ public class ServicioReserva {
     public boolean realizarReservaVeiculo(String id_plaza, String matricula,String usuario){
         String idUsuario;
 
-        if (esCorreoElectronico(usuario)){
+        if (servicioUsuario.validarCorreoElectro(usuario)){
              idUsuario = usuarioDBDAO.getUsuarioId(null,usuario);
         }else{
              idUsuario = usuarioDBDAO.getUsuarioId(usuario,null);
@@ -49,9 +51,7 @@ public class ServicioReserva {
         }
         return false;
     }
-    public boolean esCorreoElectronico(String texto) {
-        return texto.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
-    }
+
     /*
     vista.cargarPlazasDisponibles(List.of(
                                 "1 - Planta 1 - Coche - Libre",
@@ -89,12 +89,21 @@ public class ServicioReserva {
                 + " - " + estado;
     }
 
+
+
     public  List<String> ObtenerReservas(String Nombre){
         String[] mensaje;
         ArrayList<Reserva> reservas = new ArrayList<>();
         ArrayList<Plaza> plazas = new ArrayList<>();
-        String idUser= usuarioDBDAO.getUsuarioId(Nombre,null);
-        reservas = reservaDBDAO.getReservaByUser(idUser);
+        String idUsuario;
+        if (servicioUsuario.validarCorreoElectro(Nombre)){
+            idUsuario=usuarioDBDAO.getUsuarioId(null,Nombre);
+        }
+        else {
+            idUsuario=usuarioDBDAO.getUsuarioId(Nombre,null);
+        }
+
+        reservas = reservaDBDAO.getReservaByUser(idUsuario);
         plazas =  plazaDBDAO.getPlazas();
         List<String> resultado = new ArrayList<>();
         //"B2", "Moto", "5678DEF", "02/05/2026", "Planta 2", false
@@ -121,6 +130,23 @@ public class ServicioReserva {
         }
        return resultado;
 
+    }
+
+    public boolean cancelarReserva(String idPlaza,String nombre){
+
+        String idUsuario;
+        if (servicioUsuario.validarCorreoElectro(nombre)){
+            idUsuario=usuarioDBDAO.getUsuarioId(null,nombre);
+        }
+        else {
+            idUsuario=usuarioDBDAO.getUsuarioId(nombre,null);
+        }
+
+        if (reservaDBDAO.borrarReserva(idPlaza,idUsuario)){
+            return true;
+        }
+
+        return false;
     }
 
 
