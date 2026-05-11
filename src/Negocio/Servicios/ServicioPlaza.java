@@ -29,12 +29,12 @@ public class ServicioPlaza {
             String matricula = "*";
             String estadoPlaza = "Libre";
             String Reserva = "Disponible";
-            String data ="";
+            String data = "";
 
-            if (plaza.getEstado_reserva()){
+            if (plaza.getEstado_reserva()) {
                 Reserva = "Reservado";
             }
-            if (plaza.getEstado_ocupado()){
+            if (plaza.getEstado_ocupado()) {
                 estadoPlaza = "Ocupado";
             }
 
@@ -42,7 +42,7 @@ public class ServicioPlaza {
                 for (Reserva reserva : reservas) {
                     if (reserva.getIdPlaza().equals(plaza.getCodigoPlaza())) {
                         matricula = reserva.getMatricula();
-                        data=reserva.getDate();
+                        data = reserva.getDate();
                         break; // importante cortar el bucle
                     }
                 }
@@ -59,12 +59,12 @@ public class ServicioPlaza {
         return info.toString();
     }
 
-    public String Actualizar_PlazasMenu(){
+    public String Actualizar_PlazasMenu() {
         ArrayList<Plaza> plazas = PLAZA_DAO.getPlazas();
-        int plazaLibre=0;
-        int PlazaReserva=0;
-        int PlazaOcupado=0;
-        int TotalPlazas=0;
+        int plazaLibre = 0;
+        int PlazaReserva = 0;
+        int PlazaOcupado = 0;
+        int TotalPlazas = 0;
 
         for (Plaza plaza : plazas) {
             TotalPlazas++;
@@ -74,14 +74,13 @@ public class ServicioPlaza {
 
             if (plaza.getEstado_ocupado()) {
                 PlazaOcupado++;
-            }
-            else {
+            } else {
                 plazaLibre++;
             }
 
         }
 
-        String info = plazaLibre+","+PlazaReserva+","+PlazaOcupado+","+TotalPlazas;
+        String info = plazaLibre + "," + PlazaReserva + "," + PlazaOcupado + "," + TotalPlazas;
         return info;
 
     }
@@ -90,6 +89,7 @@ public class ServicioPlaza {
     public void addObserver(ParkingObserver o) {
         observers.add(o);
     }
+
     public void removeObserver(ParkingObserver o) {
         observers.remove(o);
     }
@@ -105,7 +105,9 @@ public class ServicioPlaza {
         }
     }
 
-    /** Busca plaza por código (id en BD tal como llega desde la tabla). */
+    /**
+     * Busca plaza por código (id en BD tal como llega desde la tabla).
+     */
     public Plaza obtenerPlazaPorCodigo(String codigo) {
         if (codigo == null || codigo.isBlank()) {
             return null;
@@ -134,13 +136,22 @@ public class ServicioPlaza {
         return "Coche";
     }
 
-    public boolean adminCrearPlaza(){
+    public boolean adminCrearPlaza(String tipoPlaza, String planta) {
+        {
+            if (PLAZA_DAO.crearPlaza(tipoPlaza, planta)) {
+                return true;
+            }
+            return false;
+        }
 
-        return true;
+
     }
 
-    public boolean adminEliminarPlaza(){
+    private boolean eliminarPlaza(String id) {
 
+        if (PLAZA_DAO.eliminarPlaza(id)) {
+            return true;
+        }
         return false;
     }
 
