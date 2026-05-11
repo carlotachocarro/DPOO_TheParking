@@ -14,17 +14,15 @@ public class ControladorPOPAP_CancelarReserva extends JDialog implements ActionL
     private CancelarReservaDialog cancelarReservaDialog;
     private ServicioReserva servicioReserva;
     private String nombreUsuario;
+    private ServicioPlaza servicioPlaza;
 
-
-    public  ControladorPOPAP_CancelarReserva(CancelarReservaDialog cancelarReservaDialog ,String nombreUsuario) {
+    public  ControladorPOPAP_CancelarReserva(CancelarReservaDialog cancelarReservaDialog ,String nombreUsuario,ServicioPlaza servicioPlaza) {
 
         this.cancelarReservaDialog = cancelarReservaDialog;
         this.nombreUsuario = nombreUsuario;
-
-        this.servicioReserva = new ServicioReserva(new ServicioPlaza());
-
+        this.servicioPlaza = servicioPlaza;
+        this.servicioReserva = new ServicioReserva(servicioPlaza);
         this.cancelarReservaDialog.addCancelarReservaListener(this);
-
     }
 
 

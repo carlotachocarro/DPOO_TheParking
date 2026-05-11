@@ -1,5 +1,6 @@
 package Presentacion.Vistas;
 
+import Negocio.Servicios.ServicioPlaza;
 import Presentacion.Controladores.ControladorAplicacion;
 import Presentacion.Controladores.ControladorEntradasSalidas;
 import Presentacion.Controladores.ControladorMisReservas;
@@ -64,7 +65,7 @@ public class MainUsuarioFrame extends JFrame {
 
 
         contentPanel.add(reservasPanel, "RESERVAR");
-        MisReservasPanel reservas = new MisReservasPanel(this::mostrarVista,nombreUsuario);
+        MisReservasPanel reservas = new MisReservasPanel(this::mostrarVista,nombreUsuario, controller.getServicioPlaza());
         ControladorMisReservas misReservas = new ControladorMisReservas(reservas);
 
         contentPanel.add(reservas, "MIS_RESERVAS");

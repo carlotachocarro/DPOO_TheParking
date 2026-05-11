@@ -18,6 +18,7 @@ public class ControllerMenuPrincipalAdmin {
     public ControllerMenuPrincipalAdmin() {
         this.servicioPlaza = new ServicioPlaza();
         this.servicioReserva = new ServicioReserva(servicioPlaza);
+        this.servicioUsuario = new ServicioUsuario();
 
        // new ControladorReservasPlaza(reservasPanel,mainUsuarioFrame.getNombreUsuario(),servicioPlaza);
 

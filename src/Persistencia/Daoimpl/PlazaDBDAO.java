@@ -229,5 +229,29 @@ public class PlazaDBDAO {
         int result = SQL_CRUD.CUD(query, values, types);
         return result > 0;
     }
+    public boolean limpiarPlaza(String idPlaza){
+
+        String query = """
+        UPDATE plaza_parking
+        SET
+            estado_actual = 0,
+            estado_reserva = 0,
+            matricula = 'none',
+            id_usuario = NULL,
+            simulado = 0
+        WHERE id_plaza = ?
+        """;
+
+        ArrayList<String> values = new ArrayList<>();
+        ArrayList<String> types = new ArrayList<>();
+
+        values.add(idPlaza);
+        types.add("int");
+
+        int result = SQL_CRUD.CUD(query, values, types);
+
+        return result > 0;
+    }
+
 
 }

@@ -66,7 +66,6 @@ public class EstadoParkingPanel extends JPanel implements ParkingObserver {
         controller.getServicioPlaza().addObserver(this);
         mostrarPlazas();
 
-        System.out.println("Panel servicio: " + controller.getServicioPlaza());
     }
 
 

@@ -44,7 +44,7 @@ public class ServicioReserva {
                 // vamos poner que esta ocupada la plaza actualizar el main
                 servicioPlaza.notifyObservers();
                 // Vamos hacer un registro del historial de las plazas
-
+                //Vamos actualizar las reservas
 
                 return true;
             }
@@ -143,6 +143,9 @@ public class ServicioReserva {
         }
 
         if (reservaDBDAO.borrarReserva(idPlaza,idUsuario)){
+            plazaDBDAO.limpiarPlaza(idPlaza);
+            // VAMOS A USAR EL OBSERVER PARA ACTUALIZAR LAS PLAZAS RESERVADAS
+            servicioPlaza.notifyObservers();
             return true;
         }
 

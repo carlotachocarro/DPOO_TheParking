@@ -29,6 +29,7 @@ public class ServicioPlaza {
             String matricula = "*";
             String estadoPlaza = "Libre";
             String Reserva = "Disponible";
+            String data ="";
 
             if (plaza.getEstado_reserva()){
                 Reserva = "Reservado";
@@ -41,6 +42,7 @@ public class ServicioPlaza {
                 for (Reserva reserva : reservas) {
                     if (reserva.getIdPlaza().equals(plaza.getCodigoPlaza())) {
                         matricula = reserva.getMatricula();
+                        data=reserva.getDate();
                         break; // importante cortar el bucle
                     }
                 }
@@ -50,6 +52,7 @@ public class ServicioPlaza {
                     .append("-").append(estadoPlaza)
                     .append("-").append(Reserva)
                     .append("-").append(matricula)
+                    .append("-").append(data)
                     .append("\n");
         }
 
@@ -131,8 +134,16 @@ public class ServicioPlaza {
         return "Coche";
     }
 
-    public void saberReserva(ServicioReserva reserva) {
+    public boolean adminCrearPlaza(){
 
+        return true;
     }
+
+    public boolean adminEliminarPlaza(){
+
+        return false;
+    }
+
+
 
 }
