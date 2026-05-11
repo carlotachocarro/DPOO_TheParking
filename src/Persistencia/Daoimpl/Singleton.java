@@ -30,8 +30,10 @@ public final class Singleton {
             Class.forName(driver);
             this.conn = DriverManager.getConnection(url, usuario, password);
         }
+        // ✅ Por esto:
         catch(ClassNotFoundException | SQLException e){
-            System.out.println(e);
+            System.out.println("❌ Error de conexión: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
