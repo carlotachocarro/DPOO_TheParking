@@ -1,5 +1,6 @@
 package Persistencia.Config;
 
+import Persistencia.persistenciaExcepciones.ExcepcionFicheroNoEncontrado;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
@@ -14,17 +15,18 @@ public class ConfigJSONDAO {
 
     private JsonObject config;
 
-    public ConfigJSONDAO() {
+    public ConfigJSONDAO() throws ExcepcionFicheroNoEncontrado {
         try (FileReader reader = new FileReader(FILE_PATH)) {
             Gson gson = new Gson();
             config = gson.fromJson(reader, JsonObject.class);
         } catch (IOException e) {
             System.out.println(e);
+            throw new ExcepcionFicheroNoEncontrado();
         }
     }
 
 
-    public void existeElArchivo() {
+    public void existeElArchivo() throws ExcepcionFicheroNoEncontrado {
         try {
             File file = new File(FILE_PATH);
 
@@ -47,7 +49,7 @@ public class ConfigJSONDAO {
                 writer.close();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new ExcepcionFicheroNoEncontrado();
         }
     }
 

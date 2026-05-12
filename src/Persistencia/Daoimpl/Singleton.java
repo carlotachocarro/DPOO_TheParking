@@ -1,5 +1,7 @@
 package Persistencia.Daoimpl;
 import Persistencia.Config.ConfigJSONDAO;
+import Persistencia.persistenciaExcepciones.ExcepcionFicheroNoEncontrado;
+import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
 
 import java.sql.*;
 
@@ -20,7 +22,7 @@ public final class Singleton {
      * Constructor of the class, it will use the ConfigJSONDAO class to get the information to make the connection to the database.
 
      */
-    private Singleton() {
+    private Singleton() throws ExcepcionFicheroNoEncontrado, ExcepcionGeneralDB {
         ConfigJSONDAO config = new ConfigJSONDAO();
         String url = "jdbc:mysql://" + config.getDBIp() + ":" + config.getDBPuerto() + "/" + config.getDBNombre();
         String driver = "com.mysql.cj.jdbc.Driver";
@@ -33,7 +35,7 @@ public final class Singleton {
         // ✅ Por esto:
         catch(ClassNotFoundException | SQLException e){
             System.out.println("❌ Error de conexión: " + e.getMessage());
-            e.printStackTrace();
+            throw new ExcepcionGeneralDB();
         }
     }
 
@@ -42,7 +44,7 @@ public final class Singleton {
      * @return Returns an instance of the class Singleton.
 
      */
-    public static Singleton getInstance(){
+    public static Singleton getInstance() throws ExcepcionFicheroNoEncontrado, ExcepcionGeneralDB{
 
         Singleton result = instance;
         if (result != null) {

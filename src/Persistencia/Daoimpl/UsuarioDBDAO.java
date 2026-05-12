@@ -2,17 +2,23 @@ package Persistencia.Daoimpl;
 
 import Negocio.Entidades.Usuario;
 import Persistencia.SQL_CRUD;
+import Persistencia.persistenciaExcepciones.ExcepcionFicheroNoEncontrado;
+import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class UsuarioDBDAO implements UsuarioDAO{
-    public UsuarioDBDAO() {
-        Singleton.getInstance().getConn();
+    public UsuarioDBDAO() throws ExcepcionFicheroNoEncontrado {
+        try{
+            Singleton.getInstance().getConn();
+        } catch (Exception e){
+            throw new ExcepcionFicheroNoEncontrado();
+        }
     }
 
-    public boolean registrarUsuario(String nombre, String eMail, String contraseña){
+    public boolean registrarUsuario(String nombre, String eMail, String contraseña) throws ExcepcionGeneralDB {
         if (checkUsuario(nombre, eMail)) return false;
 
         String query = "INSERT INTO usuario (nombre, mail, contraseña) VALUES (?,?,?)";
@@ -25,12 +31,16 @@ public class UsuarioDBDAO implements UsuarioDAO{
         types.add("String");
         types.add("String");
         types.add("String");
-
-        int result = SQL_CRUD.CUD(query, values, types);
-        return result > 0;
+        try {
+            int result = SQL_CRUD.CUD(query, values, types);
+            return result > 0;
+        } catch (Exception e){
+            System.out.println(e);
+            throw new ExcepcionGeneralDB();
+        }
     }
 
-    public boolean eliminarUsuario(String nombre, String mail){
+    public boolean eliminarUsuario(String nombre, String mail) throws ExcepcionGeneralDB{
         String q1 = "DELETE FROM reserva WHERE id_usuario = (SELECT id_usuario FROM usuario WHERE nombre = ? OR mail=? LIMIT 1 )";
         ArrayList<String> values = new ArrayList<>();
         ArrayList<String> types = new ArrayList<>();
@@ -38,7 +48,12 @@ public class UsuarioDBDAO implements UsuarioDAO{
         values.add(mail);
         types.add("String");
         types.add("String");
-        int res1 = SQL_CRUD.CUD(q1, values, types);
+        try {
+            int res1 = SQL_CRUD.CUD(q1, values, types);
+        } catch (Exception e){
+            System.out.println(e);
+            throw new ExcepcionGeneralDB();
+        }
 
         String q2 = "UPDATE plaza_parking SET estado_actual = 0, estado_reserva = 0, matricula = 'none' , id_usuario = NULL WHERE id_usuario = (SELECT id_usuario FROM usuario WHERE nombre = ? OR mail=? LIMIT 1 )";
         ArrayList<String> values2 = new ArrayList<>();
@@ -47,7 +62,12 @@ public class UsuarioDBDAO implements UsuarioDAO{
         values2.add(mail);
         types2.add("String");
         types2.add("String");
-        int res2 = SQL_CRUD.CUD(q2, values2, types2);
+        try {
+            int res2 = SQL_CRUD.CUD(q2, values2, types2);
+        } catch (Exception e){
+            System.out.println(e);
+            throw new ExcepcionGeneralDB();
+        }
 
         String q3 = "DELETE FROM usuario WHERE id_usuario = (SELECT id_usuario FROM usuario WHERE nombre = ? OR mail=? LIMIT 1 )";
         ArrayList<String> values3 = new ArrayList<>();
@@ -56,12 +76,16 @@ public class UsuarioDBDAO implements UsuarioDAO{
         values3.add(mail);
         types3.add("String");
         types3.add("String");
-        int res3 = SQL_CRUD.CUD(q3, values, types);
-
-        return res3 > 0;
+        try {
+            int res3= SQL_CRUD.CUD(q3, values3, types3);
+            return res3 > 0;
+        } catch (Exception e){
+            System.out.println(e);
+            throw new ExcepcionGeneralDB();
+        }
     }
 
-    public boolean checkUsuario(String nombre, String mail){
+    public boolean checkUsuario(String nombre, String mail) throws ExcepcionGeneralDB{
         String query = "SELECT * FROM usuario WHERE nombre = ? OR mail = ?";
 
         ArrayList<String> values = new ArrayList<>();
@@ -71,18 +95,16 @@ public class UsuarioDBDAO implements UsuarioDAO{
         values.add(mail);
         types.add("String");
         types.add("String");
-
-        ResultSet rs = SQL_CRUD.Select(query, values, types);
         try {
+            ResultSet rs = SQL_CRUD.Select(query, values, types);
             return rs.next();
-        } catch (SQLException e){
+        } catch (Exception e){
             System.out.println(e);
-            e.printStackTrace();
-            return false;
+            throw new ExcepcionGeneralDB();
         }
     }
 
-    public Usuario getUsuario(String nombre, String mail){
+    public Usuario getUsuario(String nombre, String mail) throws ExcepcionGeneralDB{
         String query = "SELECT * FROM usuario WHERE nombre = ? OR mail = ?";
         Usuario user =null;
         ArrayList<String> values = new ArrayList<>();
@@ -93,18 +115,19 @@ public class UsuarioDBDAO implements UsuarioDAO{
         types.add("String");
         types.add("String");
 
-        ResultSet rs = SQL_CRUD.Select(query, values, types);
         try{
+            ResultSet rs = SQL_CRUD.Select(query, values, types);
             if (rs.next()){
                 user = new Usuario(rs.getString("nombre"), rs.getString("mail"));
             }
-        } catch (SQLException e){
+        } catch (Exception e){
             System.out.println(e);
+            throw new ExcepcionGeneralDB();
         }
         return user;
     }
 
-    public Usuario getUsuarioById(String id){
+    public Usuario getUsuarioById(String id) throws ExcepcionGeneralDB{
         String query = "SELECT * FROM usuario WHERE id_usuario=?";
         Usuario user =null;
         ArrayList<String> values = new ArrayList<>();
@@ -113,18 +136,19 @@ public class UsuarioDBDAO implements UsuarioDAO{
         values.add(id);
         types.add("int");
 
-        ResultSet rs = SQL_CRUD.Select(query, values, types);
         try{
+            ResultSet rs = SQL_CRUD.Select(query, values, types);
             if (rs.next()){
                 user = new Usuario(rs.getString("nombre"), rs.getString("mail"));
             }
-        } catch (SQLException e){
+        } catch (Exception e){
             System.out.println(e);
+            throw new ExcepcionGeneralDB();
         }
         return user;
     }
 
-    public String getUsuarioContraseña(String nombre, String mail){
+    public String getUsuarioContraseña(String nombre, String mail) throws ExcepcionGeneralDB{
         String query = "SELECT * FROM usuario WHERE nombre = ? OR mail = ?";
         String password = "";
         ArrayList<String> values = new ArrayList<>();
@@ -135,18 +159,19 @@ public class UsuarioDBDAO implements UsuarioDAO{
         types.add("String");
         types.add("String");
 
-        ResultSet rs = SQL_CRUD.Select(query, values, types);
         try{
+            ResultSet rs = SQL_CRUD.Select(query, values, types);
             if (rs.next()){
                 password = rs.getString("contraseña");
             }
-        } catch (SQLException e){
+        } catch (Exception e){
             System.out.println(e);
+            throw new ExcepcionGeneralDB();
         }
         return password;
     }
 
-    public String getUsuarioId(String nombre, String mail){
+    public String getUsuarioId(String nombre, String mail) throws ExcepcionGeneralDB{
         String query = "SELECT * FROM usuario WHERE nombre = ? OR mail = ?";
         ArrayList<String> values = new ArrayList<>();
         ArrayList<String> types = new ArrayList<>();
@@ -158,13 +183,14 @@ public class UsuarioDBDAO implements UsuarioDAO{
         types.add("String");
         types.add("String");
 
-        ResultSet rs = SQL_CRUD.Select(query, values, types);
         try{
+            ResultSet rs = SQL_CRUD.Select(query, values, types);
             if (rs.next()){
                 userId = rs.getInt("id_usuario");
             }
-        } catch (SQLException e){
+        } catch (Exception e){
             System.out.println(e);
+            throw new ExcepcionGeneralDB();
         }
         return ""+userId;
     }

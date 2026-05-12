@@ -3,17 +3,23 @@ package Persistencia.Daoimpl;
 import Negocio.Entidades.Plaza;
 import Negocio.Entidades.Usuario;
 import Persistencia.SQL_CRUD;
+import Persistencia.persistenciaExcepciones.ExcepcionFicheroNoEncontrado;
+import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class PlazaDBDAO {
-    public PlazaDBDAO() {
-        Singleton.getInstance().getConn();
+    public PlazaDBDAO() throws ExcepcionFicheroNoEncontrado {
+        try{
+            Singleton.getInstance().getConn();
+        } catch (Exception e){
+            throw new ExcepcionFicheroNoEncontrado();
+        }
     }
 
-    public boolean crearPlaza(String tipoPlaza, String planta){
+    public boolean crearPlaza(String tipoPlaza, String planta) throws ExcepcionGeneralDB {
         String query = "INSERT INTO plaza_parking (tipo_vehiculo, planta, estado_actual, estado_reserva, matricula, simulado, id_usuario) VALUES (?, ?, 0,0,'none',0, NULL)";
         ArrayList<String> values = new ArrayList<>();
         ArrayList<String> types = new ArrayList<>();
@@ -21,9 +27,13 @@ public class PlazaDBDAO {
         values.add(planta);
         types.add("String");
         types.add("int");
-
-        int res = SQL_CRUD.CUD(query, values, types);
-        return res > 0;
+        try {
+            int res = SQL_CRUD.CUD(query, values, types);
+            return res > 0;
+        } catch (Exception e){
+            System.out.println(e);
+            throw new ExcepcionGeneralDB();
+        }
     }
 
     public boolean eliminarPlaza(String id){
@@ -32,15 +42,14 @@ public class PlazaDBDAO {
     }
 
 
-    public ArrayList<Plaza> getPlazas(){
+    public ArrayList<Plaza> getPlazas() throws ExcepcionGeneralDB {
         String query = "SELECT * FROM plaza_parking";
         ArrayList<String> values = new ArrayList<>();
         ArrayList<String> types = new ArrayList<>();
         ArrayList<Plaza> plazas = new ArrayList<>();
-
-        ResultSet res = SQL_CRUD.Select(query, values, types);
-        while(true){
-            try {
+        try {
+            ResultSet res = SQL_CRUD.Select(query, values, types);
+            while(true){
                 if(!res.next()) break;
                 String tipo_plaza = res.getString("tipo_vehiculo");
                 int planta = res.getInt("planta");
@@ -70,16 +79,15 @@ public class PlazaDBDAO {
                 } else {
                     plazas.add(new Plaza(tipo_plaza,planta,id,ocu, rese, sim, null, "none"));
                 }
-
-            } catch (Exception e){
-                System.out.println(e);
             }
-
+        } catch (Exception e){
+            System.out.println(e);
+            throw new ExcepcionGeneralDB();
         }
         return plazas;
     }
 
-    public ArrayList<Plaza> getPlazasLibres(String tipo){
+    public ArrayList<Plaza> getPlazasLibres(String tipo) throws ExcepcionGeneralDB {
         String query = "SELECT * FROM plaza_parking WHERE estado_actual = 0 AND estado_reserva = 0 AND simulado = 0 AND tipo_vehiculo = ?";
         ArrayList<String> values = new ArrayList<>();
         ArrayList<String> types = new ArrayList<>();
@@ -87,44 +95,42 @@ public class PlazaDBDAO {
 
         values.add(tipo);
         types.add("String");
-
-        ResultSet res = SQL_CRUD.Select(query, values, types);
-        while(true){
-            try {
-                if(!res.next()) break;
+        try {
+            ResultSet res = SQL_CRUD.Select(query, values, types);
+            while(true) {
+                if (!res.next()) break;
                 String tipo_plaza = res.getString("tipo_vehiculo");
                 int planta = res.getInt("planta");
                 String id = res.getInt("id_plaza") + "";
                 boolean ocu = false;
                 boolean rese = false;
                 boolean sim = false;
-                if (res.getInt("estado_actual") == 1){
+                if (res.getInt("estado_actual") == 1) {
                     ocu = true;
                 } else {
                     ocu = false;
                 }
-                if (res.getInt("estado_reserva") == 1){
+                if (res.getInt("estado_reserva") == 1) {
                     rese = true;
                 } else {
                     rese = false;
                 }
-                if (res.getInt("simulado") == 1){
+                if (res.getInt("simulado") == 1) {
                     sim = true;
                 } else {
                     sim = false;
                 }
                 int userId = res.getInt("id_usuario");
-                if (userId != 0){
+                if (userId != 0) {
                     UsuarioDBDAO u = new UsuarioDBDAO();
-                    plazas.add(new Plaza(tipo_plaza,planta,id, ocu, rese, sim, u.getUsuarioById(userId+""), res.getString("matricula")));
+                    plazas.add(new Plaza(tipo_plaza, planta, id, ocu, rese, sim, u.getUsuarioById(userId + ""), res.getString("matricula")));
                 } else {
-                    plazas.add(new Plaza(tipo_plaza,planta,id, ocu, rese, sim, null, "none"));
+                    plazas.add(new Plaza(tipo_plaza, planta, id, ocu, rese, sim, null, "none"));
                 }
-
-            } catch (Exception e){
-                System.out.println(e);
             }
-
+        } catch (Exception e){
+            System.out.println(e);
+            throw new ExcepcionGeneralDB();
         }
         return plazas;
     }
@@ -134,7 +140,7 @@ public class PlazaDBDAO {
      * @param id
      * @return
      */
-    public Usuario getPlazaUsuario(String id){
+    public Usuario getPlazaUsuario(String id) throws ExcepcionGeneralDB {
         String query = "SELECT * FROM plaza_parking WHERE id_plaza = ?";
         ArrayList<String> values = new ArrayList<>();
         ArrayList<String> types = new ArrayList<>();
@@ -154,11 +160,12 @@ public class PlazaDBDAO {
             }
         } catch (Exception e){
             System.out.println(e);
+            throw new ExcepcionGeneralDB();
         }
         return null;
     }
 
-    public boolean ocuparPlaza(String id_plaza ,boolean ocupacion, String matricula, String nombreUsuario){
+    public boolean ocuparPlaza(String id_plaza ,boolean ocupacion, String matricula, String nombreUsuario) throws ExcepcionGeneralDB {
         String query = "";
         ArrayList<String> values = new ArrayList<>();
         ArrayList<String> types = new ArrayList<>();
@@ -177,11 +184,15 @@ public class PlazaDBDAO {
             values.add(id_plaza);
             types.add("int");
         }
-        int result = SQL_CRUD.CUD(query, values, types);
-        return result > 0;
+        try {
+            int result = SQL_CRUD.CUD(query, values, types);
+            return result > 0;
+        } catch (Exception e){
+            throw new ExcepcionGeneralDB();
+        }
     }
 
-    public boolean ocuparPlazaSimul(String id_plaza ,boolean ocupacion, String matricula){
+    public boolean ocuparPlazaSimul(String id_plaza ,boolean ocupacion, String matricula) throws ExcepcionGeneralDB {
         String query = "";
         ArrayList<String> values = new ArrayList<>();
         ArrayList<String> types = new ArrayList<>();
@@ -196,11 +207,17 @@ public class PlazaDBDAO {
             values.add(id_plaza);
             types.add("int");
         }
-        int result = SQL_CRUD.CUD(query, values, types);
-        return result > 0;
+        try {
+            int result = SQL_CRUD.CUD(query, values, types);
+            return result > 0;
+        } catch (Exception e){
+            System.out.println(e);
+            throw new ExcepcionGeneralDB();
+        }
+
     }
 
-    public boolean reservarPlaza(String id_plaza ,boolean reserva){
+    public boolean reservarPlaza(String id_plaza ,boolean reserva) throws ExcepcionGeneralDB{
         String query = "";
         ArrayList<String> values = new ArrayList<>();
         ArrayList<String> types = new ArrayList<>();
@@ -211,11 +228,17 @@ public class PlazaDBDAO {
         }
         values.add(id_plaza);
         types.add("int");
-        int result = SQL_CRUD.CUD(query, values, types);
-        return result > 0;
+        try {
+            int result = SQL_CRUD.CUD(query, values, types);
+            return result > 0;
+        } catch (Exception e){
+            System.out.println(e);
+            throw new ExcepcionGeneralDB();
+        }
+
     }
 
-    public boolean simularPlaza(String id_plaza ,boolean simul){
+    public boolean simularPlaza(String id_plaza ,boolean simul) throws ExcepcionGeneralDB{
         String query = "";
         ArrayList<String> values = new ArrayList<>();
         ArrayList<String> types = new ArrayList<>();
@@ -226,10 +249,17 @@ public class PlazaDBDAO {
         }
         values.add(id_plaza);
         types.add("int");
-        int result = SQL_CRUD.CUD(query, values, types);
-        return result > 0;
+        try {
+            int result = SQL_CRUD.CUD(query, values, types);
+            return result > 0;
+        } catch (Exception e){
+            System.out.println(e);
+            throw new ExcepcionGeneralDB();
+
+        }
+
     }
-    public boolean limpiarPlaza(String idPlaza){
+    public boolean limpiarPlaza(String idPlaza) throws ExcepcionGeneralDB{
 
         String query = """
         UPDATE plaza_parking
@@ -247,10 +277,13 @@ public class PlazaDBDAO {
 
         values.add(idPlaza);
         types.add("int");
-
-        int result = SQL_CRUD.CUD(query, values, types);
-
-        return result > 0;
+        try {
+            int result = SQL_CRUD.CUD(query, values, types);
+            return result > 0;
+        } catch (Exception e){
+            System.out.println(e);
+            throw new ExcepcionGeneralDB();
+        }
     }
 
 

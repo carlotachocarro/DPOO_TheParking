@@ -6,6 +6,8 @@ import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import Persistencia.Daoimpl.Singleton;
+import Persistencia.persistenciaExcepciones.ExcepcionFicheroNoEncontrado;
+import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
 
 /**
  * This class will let the developers to have a set of instruccions to make CRUD petitions to the database.
@@ -23,7 +25,7 @@ public class SQL_CRUD {
      * @param tipos ArrayList with the data types of the values.
      * @return Returns a ResultSet object that lets the user retrive the information that the query gave.
      */
-    public static ResultSet Select(String query, ArrayList<String> values, ArrayList<String> tipos)  {
+    public static ResultSet Select(String query, ArrayList<String> values, ArrayList<String> tipos) throws ExcepcionFicheroNoEncontrado, ExcepcionGeneralDB {
         PreparedStatement pst;
         Singleton s1 = Singleton.getInstance();
         ResultSet res;
@@ -63,7 +65,7 @@ public class SQL_CRUD {
      * @param isInsert Boolean that lets the user know if the petition is an insert.
      * @return Returns a PreparedStatement object.
      */
-    private static PreparedStatement CUDpreparedStament(String query, ArrayList<String> values, ArrayList<String> tipos, boolean isInsert)  {
+    private static PreparedStatement CUDpreparedStament(String query, ArrayList<String> values, ArrayList<String> tipos, boolean isInsert) throws ExcepcionFicheroNoEncontrado, ExcepcionGeneralDB {
         PreparedStatement pst;
         Singleton s1 = Singleton.getInstance();
         try {
@@ -96,7 +98,7 @@ public class SQL_CRUD {
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ExcepcionGeneralDB();
         }
         return pst;
     }
@@ -108,15 +110,15 @@ public class SQL_CRUD {
      * @param tipos ArrayList with the data types of the values.
      * @return Returns a number with the status of the petition.
      */
-    public static int CUD(String query, ArrayList<String> values, ArrayList<String> tipos)  {
+    public static int CUD(String query, ArrayList<String> values, ArrayList<String> tipos) throws ExcepcionFicheroNoEncontrado, ExcepcionGeneralDB {
         int res = 0;
         try {
             PreparedStatement pst = CUDpreparedStament(query, values, tipos, false);
             res = pst.executeUpdate();
         } catch (SQLIntegrityConstraintViolationException e) {
-            System.out.println(e);
+            throw new ExcepcionGeneralDB();
         } catch (SQLException e) {
-            System.out.println(e);
+            throw new RuntimeException();
         }
         return res;
     }
@@ -128,7 +130,7 @@ public class SQL_CRUD {
      * @param tipos ArrayList with the data types of the values.
      * @return Returns a number with the id of the new register generated.
      */
-    public static int CUDReturningNextval(String query, ArrayList<String> values, ArrayList<String> tipos) {
+    public static int CUDReturningNextval(String query, ArrayList<String> values, ArrayList<String> tipos) throws ExcepcionFicheroNoEncontrado, ExcepcionGeneralDB {
         try {
             PreparedStatement pst = CUDpreparedStament(query, values, tipos, true);
             int res = pst.executeUpdate();
@@ -139,9 +141,9 @@ public class SQL_CRUD {
                 }
             }
         } catch (SQLIntegrityConstraintViolationException e) {
-            System.out.println(e);
+            throw new ExcepcionGeneralDB();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException();
         }
         throw new RuntimeException("Error inserting the DataBase");
     }
