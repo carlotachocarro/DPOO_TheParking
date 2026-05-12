@@ -5,6 +5,7 @@ import Presentacion.Controladores.*;
 import Presentacion.Vistas.Dialogs.*;
 import Presentacion.Vistas.Panels.*;
 import Negocio.Entidades.Plaza;
+import Negocio.Entidades.Usuario;
 
 import javax.swing.*;
 import java.awt.*;
@@ -57,7 +58,7 @@ public class MainAdminFrame extends MainBaseFrame {
         contentPanel.add(panelGestionPlazas, GESTION_PLAZAS);
         contentPanel.add(crearPanelPlaceholder("Gestión de reservas"), GESTION_RESERVAS);
         contentPanel.add(panelEstadoAdmin, ESTADO);
-        contentPanel.add(new GraficoOcupacionPanel(), GRAFICO);
+        contentPanel.add(new GraficoOcupacionPanel(controller), GRAFICO);
 
         mostrarVista(GESTION_PLAZAS);
     }
@@ -121,7 +122,68 @@ public class MainAdminFrame extends MainBaseFrame {
         );
         controlador.abrirDialogo();
     }
-    private void abrirEditarPlaza(String codigoPlaza) { /* ... */ }
-    private void confirmarEliminarPlaza(String codigoPlaza) { /* ... */ }
-    private void abrirDetallePlaza(String codigoPlaza) { /* ... */ }
+
+    private void abrirEditarPlaza(String codigoPlaza) {
+        new ControladorPOPAP_EditarPlaza(
+                this,
+                controller.getServicioPlaza(),
+                () -> panelGestionPlazas.mostrarPlazas()
+        ).abrirDialogo(codigoPlaza);
+    }
+
+    private void confirmarEliminarPlaza(String codigoPlaza) {
+        new ControladorPOPAP_EliminarPlaza(
+                this,
+                controller.getServicioPlaza(),
+                () -> {
+                    panelGestionPlazas.mostrarPlazas();
+                    panelEstadoAdmin.mostrarPlazas();
+                }
+        ).confirmarYEliminar(codigoPlaza);
+    }
+
+    private void abrirDetallePlaza(String codigoPlaza) {
+        Plaza p = controller.getServicioPlaza().obtenerPlazaPorCodigo(codigoPlaza);
+        if (p == null) {
+            JOptionPane.showMessageDialog(this,
+                    "No se encontró la plaza.",
+                    "Detalle de plaza",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        String estado = p.getEstado_ocupado() ? "Ocupada" : "Libre";
+        String reservaTxt = p.getEstado_reserva() ? "Reservada" : "Disponible";
+        String mat = p.getMatricula();
+        if (mat == null || mat.isBlank() || "none".equalsIgnoreCase(mat)) {
+            mat = null;
+        }
+        Usuario u = p.getUser();
+        String nombre = u != null ? u.getNombre() : null;
+        String correo = u != null ? u.getCorreoElectronico() : null;
+
+        DetallePlazaDialog dlg = new DetallePlazaDialog(this,
+                p.getCodigoPlaza(),
+                String.valueOf(p.getPlanta()),
+                ServicioPlaza.tipoVehiculoParaCombo(p.getTipoVehiculo()),
+                estado,
+                reservaTxt,
+                mat,
+                nombre,
+                correo);
+        if ("Reservada".equalsIgnoreCase(reservaTxt)) {
+            dlg.setCancelarReservaListener(plazaId -> {
+                if (controller.getServicioReserva().adminCancelarReservaEnPlaza(plazaId)) {
+                    JOptionPane.showMessageDialog(this, "Reserva cancelada.");
+                    panelGestionPlazas.mostrarPlazas();
+                    panelEstadoAdmin.mostrarPlazas();
+                } else {
+                    JOptionPane.showMessageDialog(this,
+                            "No se pudo cancelar la reserva.",
+                            "Detalle de plaza",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            });
+        }
+        dlg.setVisible(true);
+    }
 }

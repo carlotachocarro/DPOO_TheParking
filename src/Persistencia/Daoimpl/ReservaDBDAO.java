@@ -134,5 +134,39 @@ public class ReservaDBDAO {
         }
     }
 
+    /**
+     * Reasigna todas las reservas apuntando a una plaza a otra (mismo registro, nuevo {@code id_plaza}).
+     */
+    public boolean actualizarIdPlazaReserva(String idPlazaAnterior, String idPlazaNuevo) throws ExcepcionGeneralDB {
+        String query = "UPDATE reserva SET id_plaza = ? WHERE id_plaza = ?";
+        ArrayList<String> values = new ArrayList<>();
+        ArrayList<String> types = new ArrayList<>();
+        values.add(idPlazaNuevo);
+        values.add(idPlazaAnterior);
+        types.add("int");
+        types.add("int");
+        try {
+            int res = SQL_CRUD.CUD(query, values, types);
+            return res > 0;
+        } catch (Exception e) {
+            System.out.println(e);
+            throw new ExcepcionGeneralDB();
+        }
+    }
+
+    public boolean eliminarReservasDePlaza(String idPlaza) throws ExcepcionGeneralDB {
+        String query = "DELETE FROM reserva WHERE id_plaza = ?";
+        ArrayList<String> values = new ArrayList<>();
+        ArrayList<String> types = new ArrayList<>();
+        values.add(idPlaza);
+        types.add("int");
+        try {
+            SQL_CRUD.CUD(query, values, types);
+            return true;
+        } catch (Exception e) {
+            System.out.println(e);
+            throw new ExcepcionGeneralDB();
+        }
+    }
 
 }

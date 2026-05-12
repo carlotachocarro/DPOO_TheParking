@@ -49,10 +49,14 @@ public class ControladorAplicacion {
         authFrame.mostrarRegistro();
     }
 
-    public void abrirMenuUsuario(String nombreUsuario) {
+    /**
+     * @param nombreUsuario texto de login (nombre o correo), para reservas y vistas
+     * @param idUsuario     id numérico en BD (tabla {@code usuario}), para FK en {@code plaza_parking}
+     */
+    public void abrirMenuUsuario(String nombreUsuario, String idUsuario) {
         authFrame.dispose();
         ControllerMenuPrincipalAdmin controller = new ControllerMenuPrincipalAdmin();
-        new MainUsuarioFrame(nombreUsuario, controller).setVisible(true);
+        new MainUsuarioFrame(nombreUsuario, idUsuario, controller).setVisible(true);
     }
 
     public void abrirMenuAdmin() {

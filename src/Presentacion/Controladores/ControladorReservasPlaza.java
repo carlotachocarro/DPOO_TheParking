@@ -1,59 +1,63 @@
 package Presentacion.Controladores;
 
-import Negocio.Servicios.ServicioPlaza;
 import Negocio.Servicios.ServicioReserva;
 import Presentacion.Vistas.Panels.ReservasPlazaPanel;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ControladorReservasPlaza implements ActionListener {
 
-    private ReservasPlazaPanel vista;
-    private ServicioReserva servicioReserva;
+    private final ReservasPlazaPanel vista;
+    private final ServicioReserva servicioReserva;
+    private final String nombreUsuario;
 
-    private String nombreUsuario;
-    private ServicioPlaza servicioPlaza;
-
-    public ControladorReservasPlaza(ReservasPlazaPanel vista,String nombreUsuario,ServicioPlaza servicioPlaza) {
+    public ControladorReservasPlaza(ReservasPlazaPanel vista,
+                                   String nombreUsuario,
+                                   ServicioReserva servicioReserva) {
         this.nombreUsuario = nombreUsuario;
         this.vista = vista;
-        this.servicioPlaza = new ServicioPlaza();
-        this.servicioReserva = new ServicioReserva(servicioPlaza);
-
+        this.servicioReserva = servicioReserva;
 
         this.vista.addRegistroListener(this);
-
     }
-
-
 
     public boolean esMatriculaValida(String matricula) {
-        return matricula.matches("^[0-9]{4}\\s?[A-Z]{3}$");
+        if (matricula == null) {
+            return false;
+        }
+        String m = matricula.trim().toUpperCase();
+        return m.matches("^[0-9]{4}\\s?[A-Z]{3}$");
     }
-
 
     @Override
     public void actionPerformed(ActionEvent e) {
 
-
         switch (e.getActionCommand()) {
 
             case "CONFIRM_RESERVA":
-                String matricula = vista.getTxtMatricula().getText();
-                if (matricula.equals("") || !esMatriculaValida(matricula)) {
-//                    JOptionPane.showMessageDialog(vista, "Datos incorrectos");
-//                    vista.limpiarCampos();
+                String matricula = vista.getTxtMatricula().getText().trim().toUpperCase();
+                if (matricula.isEmpty() || !esMatriculaValida(matricula)) {
+                    JOptionPane.showMessageDialog(vista,
+                            "Matrícula inválida. Formato: 4 dígitos y 3 letras (ej: 1234 ABC).",
+                            "Reservar plaza",
+                            JOptionPane.WARNING_MESSAGE);
                     return;
                 }
 
                 String seleccion = vista.getListaPlazas().getSelectedValue();
+                if (seleccion == null || seleccion.isBlank()) {
+                    JOptionPane.showMessageDialog(vista,
+                            "Selecciona una plaza en la lista.",
+                            "Reservar plaza",
+                            JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
                 String idPlaza = seleccion.split(" - ")[0];
-                if (!servicioReserva.realizarReservaVeiculo(idPlaza, matricula,nombreUsuario)) {
-                    JOptionPane.showMessageDialog(vista, "No Se ha podido realizar la reserva del plaza");
+                if (!servicioReserva.realizarReservaVeiculo(idPlaza, matricula, nombreUsuario)) {
+                    JOptionPane.showMessageDialog(vista, "No se ha podido realizar la reserva de la plaza.");
                     vista.limpiarCampos();
                     return;
                 }
@@ -62,15 +66,14 @@ public class ControladorReservasPlaza implements ActionListener {
                 break;
 
             case "BUSCAR":
-
-
                 vista.cargarPlazasDisponibles(servicioReserva.buscarPlazasDeParking(vista.getComboTipoVehiculo()));
+                break;
 
+            default:
                 break;
         }
-
-
     }
+
     public String getNombreUsuario() {
         return nombreUsuario;
     }

@@ -89,4 +89,36 @@ public class ConfigJSONDAO {
     public String getTipo(){
         return config.get("tipo").getAsString();
     };
+
+    /**
+     * Máximo N (segundos) para el retardo aleatorio entre acciones del simulador de tráfico (enunciado: entre 1 y N).
+     * Prioriza {@code tiempoEntradaVehiculos} del JSON; si no existe, {@code intervaloSimulacionSegundos}.
+     * 0 = simulación desactivada.
+     */
+    public int getMaxSegundosEntreEventosSimulacion() {
+        try {
+            if (config != null && config.has("tiempoEntradaVehiculos")) {
+                int n = config.get("tiempoEntradaVehiculos").getAsInt();
+                if (n > 0) {
+                    return n;
+                }
+            }
+            if (config != null && config.has("intervaloSimulacionSegundos")) {
+                int n = config.get("intervaloSimulacionSegundos").getAsInt();
+                if (n > 0) {
+                    return n;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        return 0;
+    }
+
+    /**
+     * @deprecated Usar {@link #getMaxSegundosEntreEventosSimulacion()} (incluye {@code tiempoEntradaVehiculos}).
+     */
+    public int getIntervaloSimulacionSegundos() {
+        return getMaxSegundosEntreEventosSimulacion();
+    }
 }

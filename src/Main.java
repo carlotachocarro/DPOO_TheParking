@@ -1,19 +1,14 @@
 import Presentacion.Controladores.ControladorAplicacion;
 
+/**
+ * Punto de entrada: solo arranca el controlador de aplicación (login / registro / menús).
+ * <p>
+ * Pendientes funcionales opcionales del enunciado: panel admin de gestión de reservas en bloque,
+ * notificación persistente tras cancelación admin (ya hay flujo desde detalle de plaza), etc.
+ */
 public class Main {
 
-    public static void   main(String[] args) {
-
-
+    public static void main(String[] args) {
         ControladorAplicacion.reiniciarFlujoAutenticacion();
-
-        // FALTA ACTUALIZAR LAS VIEWS I CONTROLERS PARA ARREGALR LO DE LOS LISENERS
-        // FALTA TAMBIE QUE EL MENU ADMIN I EL MEN U NORMAL TENGA HERENCIA POR TAL QUE SU IMPLMENTACION SEA MAS FACIL
-        // FALTA DESDE EL ADMIN ELIMINAR RESERVA DE UN USARIO I NOTIFICARLA AL USUARIO QUE SE HA ELIMINADO LA RESERVA
-        //FALTA PODER CREAR PLAZAS DESDE EL ADMIN
-        //Falta el controler eliminar una plaza
-        // Falta poder editar una plaza
-        //Falta poder Gestionar Reservas
-        // el grafico del simulador en marcha --> cosa dificil
     }
 }

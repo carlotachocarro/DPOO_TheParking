@@ -36,9 +36,70 @@ public class PlazaDBDAO {
         }
     }
 
-    public boolean eliminarPlaza(String id){
-        //POR IMPLEMENTAR
-        return false;
+    /**
+     * Elimina la fila de plaza. Las reservas asociadas deben haberse movido o borrado antes si hay FK.
+     */
+    public boolean eliminarPlazaFisica(String idPlaza) {
+        String query = "DELETE FROM plaza_parking WHERE id_plaza = ?";
+        ArrayList<String> values = new ArrayList<>();
+        ArrayList<String> types = new ArrayList<>();
+        values.add(idPlaza);
+        types.add("int");
+        try {
+            int res = SQL_CRUD.CUD(query, values, types);
+            return res > 0;
+        } catch (Exception e) {
+            System.out.println(e);
+            return false;
+        }
+    }
+
+    /**
+     * Deja la plaza en estado reservada sin ocupación (vehículo aún no aparca), con usuario y matrícula de la reserva.
+     */
+    public boolean aplicarReservaEnPlaza(String idPlaza, String idUsuario, String matricula) {
+        String query = """
+                UPDATE plaza_parking
+                SET estado_reserva = 1, estado_actual = 0, matricula = ?, id_usuario = ?, simulado = 0
+                WHERE id_plaza = ?
+                """;
+        ArrayList<String> values = new ArrayList<>();
+        ArrayList<String> types = new ArrayList<>();
+        values.add(matricula);
+        values.add(idUsuario);
+        values.add(idPlaza);
+        types.add("String");
+        types.add("int");
+        types.add("int");
+        try {
+            int res = SQL_CRUD.CUD(query, values, types);
+            return res > 0;
+        } catch (Exception e) {
+            System.out.println(e);
+            return false;
+        }
+    }
+
+    /**
+     * Actualiza tipo de vehículo y planta de una plaza (metadatos de la instalación).
+     */
+    public boolean actualizarDatosPlaza(String idPlaza, String tipoVehiculo, int planta) {
+        String query = "UPDATE plaza_parking SET tipo_vehiculo = ?, planta = ? WHERE id_plaza = ?";
+        ArrayList<String> values = new ArrayList<>();
+        ArrayList<String> types = new ArrayList<>();
+        values.add(tipoVehiculo);
+        values.add(String.valueOf(planta));
+        values.add(idPlaza);
+        types.add("String");
+        types.add("int");
+        types.add("int");
+        try {
+            int res = SQL_CRUD.CUD(query, values, types);
+            return res > 0;
+        } catch (Exception e) {
+            System.out.println(e);
+            return false;
+        }
     }
 
 

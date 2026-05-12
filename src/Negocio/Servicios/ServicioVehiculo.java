@@ -5,7 +5,6 @@ import Negocio.Entidades.Reserva;
 import Persistencia.Daoimpl.PlazaDBDAO;
 import Persistencia.Daoimpl.ReservaDBDAO;
 import Persistencia.Daoimpl.HistorialDBDAO;
-import Persistencia.Config.ConfigJSONDAO;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -18,12 +17,12 @@ public class ServicioVehiculo {
     private Random random;
     private ServicioPlaza servicioPlaza;
 
-    public ServicioVehiculo() {
+    public ServicioVehiculo(ServicioPlaza servicioPlaza) {
         this.plazaDBDAO = new PlazaDBDAO();
         this.reservaDBDAO = new ReservaDBDAO();
         this.historialDAO = new HistorialDBDAO();
         this.random = new Random();
-
+        this.servicioPlaza = servicioPlaza;
     }
 
     //Funciones entrada y salida de vehiculos

@@ -9,10 +9,13 @@ import java.awt.*;
 public class MainUsuarioFrame extends MainBaseFrame {
 
     private final String nombreUsuario;
+    /** id_usuario en base de datos (FK plaza_parking); resuelto en login, no se recalcula por discrepancias de texto */
+    private final String idUsuarioSesion;
 
-    public MainUsuarioFrame(String nombreUsuario, ControllerMenuPrincipalAdmin controller) {
+    public MainUsuarioFrame(String nombreUsuario, String idUsuarioSesion, ControllerMenuPrincipalAdmin controller) {
         super(controller);  // llama a configurarVentana + inicializarComponentes
         this.nombreUsuario = nombreUsuario;
+        this.idUsuarioSesion = idUsuarioSesion;
     }
 
     @Override protected String getTitulo()       { return "The Parking - Panel Usuario"; }
@@ -25,18 +28,19 @@ public class MainUsuarioFrame extends MainBaseFrame {
         contentPanel.add(new EstadoParkingPanel(controller), "ESTADO");
 
         ReservasPlazaPanel reservasPanel = new ReservasPlazaPanel();
-        new ControladorReservasPlaza(reservasPanel, nombreUsuario, controller.getServicioPlaza());
+        new ControladorReservasPlaza(reservasPanel, nombreUsuario, controller.getServicioReserva());
         contentPanel.add(reservasPanel, "RESERVAR");
 
         EntradaSalidaPanel entradaSalida = new EntradaSalidaPanel();
-        new ControladorEntradasSalidas(entradaSalida, nombreUsuario, controller.getServicioPlaza());
+        new ControladorEntradasSalidas(entradaSalida, idUsuarioSesion, controller.getServicioVehiculo());
         contentPanel.add(entradaSalida, "ENTRADA_SALIDA");
 
-        MisReservasPanel misReservasPanel = new MisReservasPanel(this::mostrarVista, nombreUsuario, controller.getServicioPlaza());
+        MisReservasPanel misReservasPanel = new MisReservasPanel(
+                this::mostrarVista, nombreUsuario, controller.getServicioPlaza(), controller.getServicioReserva());
         new ControladorMisReservas(misReservasPanel).getReserva(nombreUsuario);
         contentPanel.add(misReservasPanel, "MIS_RESERVAS");
 
-        contentPanel.add(new GraficoOcupacionPanel(), "GRAFICO");
+        contentPanel.add(new GraficoOcupacionPanel(controller), "GRAFICO");
 
         mostrarVista("ESTADO");
     }
@@ -93,6 +97,7 @@ public class MainUsuarioFrame extends MainBaseFrame {
 
         if (opcion == JOptionPane.YES_OPTION && controller.eliminarCuenta(nombreUsuario)) {
             JOptionPane.showMessageDialog(this, "Cuenta eliminada correctamente.");
+            controller.detenerTimersSecundarios();
             dispose();
             ControladorAplicacion.reiniciarFlujoAutenticacion();
         } else {

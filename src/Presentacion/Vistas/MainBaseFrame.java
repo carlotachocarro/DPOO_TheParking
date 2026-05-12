@@ -102,6 +102,7 @@ public abstract class MainBaseFrame extends JFrame {
                 JOptionPane.YES_NO_OPTION
         );
         if (opcion == JOptionPane.YES_OPTION) {
+            controller.detenerTimersSecundarios();
             dispose();
             ControladorAplicacion.reiniciarFlujoAutenticacion();
         }

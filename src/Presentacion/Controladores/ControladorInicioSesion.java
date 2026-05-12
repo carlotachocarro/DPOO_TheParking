@@ -1,9 +1,12 @@
 package Presentacion.Controladores;
 
+import Negocio.Servicios.ServicioPlaza;
+import Negocio.Servicios.ServicioReserva;
 import Negocio.Servicios.ServicioUsuario;
 import Presentacion.Vistas.LoginPanel;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -59,7 +62,21 @@ public class ControladorInicioSesion implements ActionListener {
                 return;
             }
 
-            app.abrirMenuUsuario(usuarioCorreo);
+            String idUsuario = servicioUsuario.idUsuarioParaSesion(usuarioCorreo);
+            if (idUsuario == null) {
+                JOptionPane.showMessageDialog(vista,
+                        "No se pudo obtener tu identificador de usuario para el parking.",
+                        "Error de sesión",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            ServicioPlaza plazaAux = new ServicioPlaza();
+            ServicioReserva reservaAux = new ServicioReserva(plazaAux);
+            Window win = SwingUtilities.getWindowAncestor(vista);
+            ControladorPOPAP_Notificaciones.mostrarSiCorresponde(win, reservaAux, idUsuario);
+
+            app.abrirMenuUsuario(usuarioCorreo.trim(), idUsuario);
         }
 
 

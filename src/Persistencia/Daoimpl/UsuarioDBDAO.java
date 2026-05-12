@@ -178,8 +178,16 @@ public class UsuarioDBDAO implements UsuarioDAO{
 
         int userId = -1;
 
-        values.add(nombre);
-        values.add(mail);
+        String n = nombre != null ? nombre.trim() : null;
+        String m = mail != null ? mail.trim() : null;
+        if ((n != null && n.isEmpty())) n = null;
+        if ((m != null && m.isEmpty())) m = null;
+        if (n == null && m == null) {
+            return "-1";
+        }
+
+        values.add(n);
+        values.add(m);
         types.add("String");
         types.add("String");
 

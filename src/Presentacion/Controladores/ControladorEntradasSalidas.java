@@ -19,7 +19,7 @@ public class ControladorEntradasSalidas implements ActionListener {
     public ControladorEntradasSalidas(EntradaSalidaPanel entradaSalidaPanel, String nombreUsuario, ServicioPlaza servicioPlaza) {
         this.entradaSalidaPanel = entradaSalidaPanel;
         entradaSalidaPanel.addEntradaSalidaListener(this);
-        this.servicioVehiculo = new ServicioVehiculo();
+        this.servicioVehiculo = new ServicioVehiculo(servicioPlaza);
         this.nombreUsuario = nombreUsuario;
         this.servicioPlaza = servicioPlaza;
 

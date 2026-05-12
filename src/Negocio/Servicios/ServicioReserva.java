@@ -4,11 +4,12 @@ import Negocio.Entidades.Reserva;
 import Persistencia.Daoimpl.PlazaDBDAO;
 import Persistencia.Daoimpl.ReservaDBDAO;
 import Persistencia.Daoimpl.UsuarioDBDAO;
+import Persistencia.Daoimpl.AvisoLoginDBDAO;
+import Persistencia.persistenciaExcepciones.ExcepcionFicheroNoEncontrado;
 import Negocio.Entidades.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class ServicioReserva {
     private ReservaDBDAO reservaDBDAO;
@@ -16,6 +17,7 @@ public class ServicioReserva {
     private PlazaDBDAO plazaDBDAO;
     private ServicioPlaza servicioPlaza;
     private ServicioUsuario servicioUsuario;
+    private AvisoLoginDBDAO avisoLoginDAO;
 
 
     public ServicioReserva(ServicioPlaza servicioPlaza) {
@@ -152,6 +154,100 @@ public class ServicioReserva {
         return false;
     }
 
+    /**
+     * Cancelación desde el panel admin (detalle de plaza). Registra aviso para el próximo login del usuario.
+     */
+    public boolean adminCancelarReservaEnPlaza(String idPlaza) {
+        try {
+            Reserva reserva = null;
+            for (Reserva r : reservaDBDAO.getReservas()) {
+                if (idPlaza.equals(r.getIdPlaza())) {
+                    reserva = r;
+                    break;
+                }
+            }
+            if (reserva == null) {
+                return false;
+            }
+            Plaza plaza = null;
+            for (Plaza pl : plazaDBDAO.getPlazas()) {
+                if (idPlaza.equals(pl.getCodigoPlaza())) {
+                    plaza = pl;
+                    break;
+                }
+            }
+            if (plaza == null) {
+                return false;
+            }
+            AvisoCancelacionUsuario aviso = new AvisoCancelacionUsuario(
+                    plaza.getCodigoPlaza(),
+                    String.valueOf(plaza.getPlanta()),
+                    reserva.getMatricula(),
+                    plaza.getTipoVehiculo(),
+                    null,
+                    null
+            );
+            insertarAvisoSeguro(reserva.getIdCliente(), aviso);
+
+            if (reservaDBDAO.borrarReserva(idPlaza, reserva.getIdCliente())) {
+                plazaDBDAO.limpiarPlaza(idPlaza);
+                servicioPlaza.notifyObservers();
+                return true;
+            }
+            return false;
+        } catch (Exception e) {
+            System.out.println(e);
+            return false;
+        }
+    }
+
+    /** Avisos pendientes de mostrar al usuario tras el login (no los borra). */
+    public ArrayList<AvisoCancelacionUsuario> obtenerAvisosPendientesLogin(String idUsuario) {
+        try {
+            AvisoLoginDBDAO dao = getAvisoLoginDAO();
+            if (dao == null) {
+                return new ArrayList<>();
+            }
+            return dao.listarPorUsuario(idUsuario);
+        } catch (Exception e) {
+            System.out.println(e);
+            return new ArrayList<>();
+        }
+    }
+
+    /** Tras cerrar el diálogo de notificaciones, elimina los avisos ya mostrados. */
+    public void limpiarAvisosTrasMostrarNotificacion(String idUsuario) {
+        try {
+            AvisoLoginDBDAO dao = getAvisoLoginDAO();
+            if (dao != null) {
+                dao.eliminarTodosUsuario(idUsuario);
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+
+    private AvisoLoginDBDAO getAvisoLoginDAO() {
+        if (avisoLoginDAO == null) {
+            try {
+                avisoLoginDAO = new AvisoLoginDBDAO();
+            } catch (ExcepcionFicheroNoEncontrado e) {
+                return null;
+            }
+        }
+        return avisoLoginDAO;
+    }
+
+    private void insertarAvisoSeguro(String idUsuario, AvisoCancelacionUsuario aviso) {
+        try {
+            AvisoLoginDBDAO dao = getAvisoLoginDAO();
+            if (dao != null) {
+                dao.insertar(idUsuario, aviso);
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
 
 
 }

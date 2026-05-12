@@ -9,5 +9,6 @@
   "nombreAdmin": "admin",
   "contrasenaAdmin": "admin",
   "cantidadPlazasDisponibles": 5,
-  "tipo":"coche"
+  "tipo":"coche",
+  "tiempoEntradaVehiculos": 5
 }

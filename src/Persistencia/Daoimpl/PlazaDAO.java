@@ -14,7 +14,8 @@ public interface PlazaDAO {
     public Usuario getPlazaUsuario(String id);
 
 
-    public boolean ocuparPlaza(String id_plaza ,boolean ocupacion, String matricula, String nombreUsuario);
+    /** Si ocupacion es true, matricula e idUsuario (clave numérica en tabla usuario) son obligatorios. Si es false, idUsuario se ignora. */
+    public boolean ocuparPlaza(String id_plaza ,boolean ocupacion, String matricula, String idUsuario);
 
     public boolean ocuparPlazaSimul(String id_plaza ,boolean ocupacion, String matricula);
 
