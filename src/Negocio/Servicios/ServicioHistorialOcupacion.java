@@ -1,6 +1,8 @@
 package Negocio.Servicios;
 
 import Persistencia.Daoimpl.HistorialDBDAO;
+import Persistencia.persistenciaExcepciones.ExcepcionFicheroNoEncontrado;
+import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,11 +16,11 @@ public class ServicioHistorialOcupacion {
 
     private final HistorialDBDAO historialDAO;
 
-    public ServicioHistorialOcupacion() {
+    public ServicioHistorialOcupacion() throws ExcepcionFicheroNoEncontrado {
         this.historialDAO = new HistorialDBDAO();
     }
 
-    public List<Integer> serieUltimaHoraCronologica() {
+    public List<Integer> serieUltimaHoraCronologica() throws ExcepcionGeneralDB {
         ArrayList<Integer> valores = historialDAO.sacaHistorial();
         if (valores == null || valores.isEmpty()) {
             return List.of();

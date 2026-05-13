@@ -65,11 +65,11 @@ public class ServicioPlaza {
     }
 
     /** Número de plazas definidas en el aparcamiento (todas las filas en BD). */
-    public int getTotalPlazasEnSistema() {
+    public int getTotalPlazasEnSistema() throws ExcepcionGeneralDB {
         return PLAZA_DAO.getPlazas().size();
     }
 
-    public String Actualizar_PlazasMenu() {
+    public String Actualizar_PlazasMenu() throws ExcepcionGeneralDB {
         ArrayList<Plaza> plazas = PLAZA_DAO.getPlazas();
         int plazaLibre = 0;
         int PlazaReserva = 0;
@@ -104,7 +104,7 @@ public class ServicioPlaza {
         observers.remove(o);
     }
 
-    public void notifyObservers() {
+    public void notifyObservers() throws ExcepcionGeneralDB {
 
         String estado = saberTodaslasPlazas();
         String resumen = Actualizar_PlazasMenu();
@@ -118,7 +118,7 @@ public class ServicioPlaza {
     /**
      * Busca plaza por código (id en BD tal como llega desde la tabla).
      */
-    public Plaza obtenerPlazaPorCodigo(String codigo) {
+    public Plaza obtenerPlazaPorCodigo(String codigo) throws ExcepcionGeneralDB {
         if (codigo == null || codigo.isBlank()) {
             return null;
         }
@@ -146,7 +146,7 @@ public class ServicioPlaza {
         return "Coche";
     }
 
-    public boolean adminCrearPlaza(String tipoPlaza, String planta) {
+    public boolean adminCrearPlaza(String tipoPlaza, String planta) throws ExcepcionGeneralDB {
         {
             if (PLAZA_DAO.crearPlaza(tipoPlaza, planta)) {
                 return true;
@@ -170,7 +170,7 @@ public class ServicioPlaza {
                 notifyObservers();
                 return true;
             }
-        } catch (NumberFormatException ignored) {
+        } catch (NumberFormatException | ExcepcionGeneralDB ignored) {
             return false;
         }
         return false;
@@ -233,7 +233,7 @@ public class ServicioPlaza {
         }
     }
 
-    private Reserva encontrarReservaPorIdPlaza(String idPlaza) {
+    private Reserva encontrarReservaPorIdPlaza(String idPlaza) throws ExcepcionGeneralDB {
         for (Reserva r : RESERVA_DAO.getReservas()) {
             if (idPlaza.equals(r.getIdPlaza())) {
                 return r;
@@ -242,7 +242,7 @@ public class ServicioPlaza {
         return null;
     }
 
-    private Plaza primeraPlazaLibreMismoTipoDistinta(String idExcluir, String tipoVehiculo) {
+    private Plaza primeraPlazaLibreMismoTipoDistinta(String idExcluir, String tipoVehiculo) throws ExcepcionGeneralDB {
         for (Plaza c : PLAZA_DAO.getPlazasLibres(tipoVehiculo)) {
             if (!idExcluir.equals(c.getCodigoPlaza())) {
                 return c;

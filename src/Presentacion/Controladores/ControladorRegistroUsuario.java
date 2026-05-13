@@ -1,6 +1,8 @@
 package Presentacion.Controladores;
 
 import Negocio.Servicios.ServicioUsuario;
+import Persistencia.persistenciaExcepciones.ExcepcionFicheroNoEncontrado;
+import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
 import Presentacion.Vistas.RegistroPanel;
 
 import javax.swing.*;
@@ -13,7 +15,7 @@ public class ControladorRegistroUsuario implements ActionListener {
     private final ServicioUsuario servicioUsuario;
     private final ControladorAplicacion app;
 
-    public ControladorRegistroUsuario(RegistroPanel vista, ControladorAplicacion app) {
+    public ControladorRegistroUsuario(RegistroPanel vista, ControladorAplicacion app) throws ExcepcionFicheroNoEncontrado {
         this.vista = vista;
         this.app = app;
         this.servicioUsuario = new ServicioUsuario();
@@ -24,10 +26,16 @@ public class ControladorRegistroUsuario implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        registrarUsuario();
+        try {
+            registrarUsuario();
+        } catch (ExcepcionGeneralDB ex) {
+            throw new RuntimeException(ex);
+        } catch (ExcepcionFicheroNoEncontrado ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
-    private void registrarUsuario() {
+    private void registrarUsuario() throws ExcepcionGeneralDB, ExcepcionFicheroNoEncontrado {
         String nombre = vista.getNombreUsuario();
         String correo = vista.getCorreo();
         String password = vista.getPassword();
@@ -108,7 +116,8 @@ public class ControladorRegistroUsuario implements ActionListener {
                         "Información",
                         JOptionPane.INFORMATION_MESSAGE
                 );
-                app.abrirMenuUsuario(nombre);
+                String idUsuario = servicioUsuario.idUsuarioParaSesion(nombre);
+                app.abrirMenuUsuario(nombre, idUsuario != null ? idUsuario : "");
                 break;
 
             default:

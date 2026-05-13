@@ -1,6 +1,7 @@
 package Presentacion.Controladores;
 
 import Negocio.Servicios.ServicioPlaza;
+import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
 import Presentacion.Vistas.Dialogs.PlazaFormDialog;
 
 import javax.swing.*;
@@ -30,7 +31,7 @@ public class ControladorPOPAP_NuevaPlaza {
      * Abre el diálogo de nueva plaza y gestiona todo el flujo.
      * Llamar desde MainAdminFrame al pulsar "+ Nueva Plaza".
      */
-    public void abrirDialogo() {
+    public void abrirDialogo() throws ExcepcionGeneralDB {
         PlazaFormDialog dialog = PlazaFormDialog.paraNueva(parentWindow);
         dialog.setVisible(true); // bloqueante hasta que el usuario cierra
 

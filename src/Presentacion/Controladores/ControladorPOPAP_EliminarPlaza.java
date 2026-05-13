@@ -2,6 +2,7 @@ package Presentacion.Controladores;
 
 import Negocio.Entidades.Plaza;
 import Negocio.Servicios.ServicioPlaza;
+import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
 
 import javax.swing.*;
 import java.awt.*;
@@ -28,7 +29,7 @@ public class ControladorPOPAP_EliminarPlaza {
      *
      * @return {@code true} si la plaza se eliminó correctamente
      */
-    public boolean confirmarYEliminar(String codigoPlaza) {
+    public boolean confirmarYEliminar(String codigoPlaza) throws ExcepcionGeneralDB {
         Plaza p = servicioPlaza.obtenerPlazaPorCodigo(codigoPlaza);
         if (p == null) {
             JOptionPane.showMessageDialog(parentWindow,

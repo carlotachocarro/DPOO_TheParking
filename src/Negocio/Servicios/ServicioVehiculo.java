@@ -5,6 +5,8 @@ import Negocio.Entidades.Reserva;
 import Persistencia.Daoimpl.PlazaDBDAO;
 import Persistencia.Daoimpl.ReservaDBDAO;
 import Persistencia.Daoimpl.HistorialDBDAO;
+import Persistencia.persistenciaExcepciones.ExcepcionFicheroNoEncontrado;
+import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -17,7 +19,7 @@ public class ServicioVehiculo {
     private Random random;
     private ServicioPlaza servicioPlaza;
 
-    public ServicioVehiculo(ServicioPlaza servicioPlaza) {
+    public ServicioVehiculo(ServicioPlaza servicioPlaza) throws ExcepcionFicheroNoEncontrado {
         this.plazaDBDAO = new PlazaDBDAO();
         this.reservaDBDAO = new ReservaDBDAO();
         this.historialDAO = new HistorialDBDAO();
@@ -26,7 +28,7 @@ public class ServicioVehiculo {
     }
 
     //Funciones entrada y salida de vehiculos
-    public String registroEntradaVehiculo(String matricula, String tipoVehiculo, String username) {
+    public String registroEntradaVehiculo(String matricula, String tipoVehiculo, String username) throws ExcepcionGeneralDB, ExcepcionFicheroNoEncontrado {
         ArrayList<Reserva> reservas = reservaDBDAO.getReservas();
         String IdplazaAsignada = null;
         //Bucle para ver si esta matricula tiene alguna reserva ya hecha
@@ -55,7 +57,7 @@ public class ServicioVehiculo {
         return null;
     }
 
-    public boolean registrarSalidaVehiculo(String matricula){
+    public boolean registrarSalidaVehiculo(String matricula) throws ExcepcionGeneralDB, ExcepcionFicheroNoEncontrado {
         ArrayList<Plaza> plazasTotal = plazaDBDAO.getPlazas();
         for(Plaza p : plazasTotal){
             if(p.getEstado_ocupado() && p.getMatricula().equals(matricula)){ //Buscamos la plaza que tenia reservada
@@ -72,7 +74,7 @@ public class ServicioVehiculo {
     //Funciones para la simulacion del transito de vehiculos
 
 
-    public double probabilidadEntrada(){
+    public double probabilidadEntrada() throws ExcepcionGeneralDB {
         ArrayList<Plaza> plazasTotal = plazaDBDAO.getPlazas();
         int availableNoReservadas = 0;
         int totalNoReservadas = 0;
@@ -108,7 +110,7 @@ public class ServicioVehiculo {
         return matriculaAleatoria;
     }
 
-    public boolean simulaEntrada(){
+    public boolean simulaEntrada() throws ExcepcionGeneralDB {
         ArrayList<Plaza> plazasTotal = plazaDBDAO.getPlazas();
         ArrayList<Plaza> plazasDisponibles = new ArrayList<>();
 
@@ -129,7 +131,7 @@ public class ServicioVehiculo {
 
     }
 
-    public boolean simulaSalida(){
+    public boolean simulaSalida() throws ExcepcionGeneralDB {
         ArrayList<Plaza> plazasTotal = plazaDBDAO.getPlazas();
         ArrayList<Plaza> ocupadasSimuladas = new ArrayList<>();
 
@@ -149,7 +151,7 @@ public class ServicioVehiculo {
         return false;
     }
 
-    public boolean vehiculoEnParking(String matricula){
+    public boolean vehiculoEnParking(String matricula) throws ExcepcionGeneralDB {
         ArrayList<Plaza> plazasTotal = plazaDBDAO.getPlazas();
         for(Plaza p: plazasTotal){
             if(p.getEstado_ocupado() && p.getMatricula().equals(matricula)){
@@ -159,7 +161,7 @@ public class ServicioVehiculo {
         return false;
     }
 
-    public int disponibilidadPorTipo(String tipo){
+    public int disponibilidadPorTipo(String tipo) throws ExcepcionGeneralDB {
         return plazaDBDAO.getPlazasLibres(tipo).size();
     }
 

@@ -2,6 +2,7 @@ package Presentacion.Controladores;
 
 import Negocio.Entidades.Plaza;
 import Negocio.Servicios.ServicioPlaza;
+import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
 import Presentacion.Vistas.Dialogs.PlazaFormDialog;
 
 import javax.swing.*;
@@ -29,7 +30,7 @@ public class ControladorPOPAP_EditarPlaza {
      *
      * @return {@code true} si el usuario confirmó y la actualización en BD tuvo éxito
      */
-    public boolean abrirDialogo(String codigoPlaza) {
+    public boolean abrirDialogo(String codigoPlaza) throws ExcepcionGeneralDB {
         Plaza p = servicioPlaza.obtenerPlazaPorCodigo(codigoPlaza);
         if (p == null) {
             JOptionPane.showMessageDialog(parentWindow,

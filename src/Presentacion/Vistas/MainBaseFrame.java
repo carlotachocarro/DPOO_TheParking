@@ -1,5 +1,7 @@
 package Presentacion.Vistas;
 
+import Persistencia.persistenciaExcepciones.ExcepcionFicheroNoEncontrado;
+import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
 import Presentacion.Controladores.ControladorAplicacion;
 import Presentacion.Controladores.ControllerMenuPrincipalAdmin;
 
@@ -14,7 +16,7 @@ public abstract class MainBaseFrame extends JFrame {
     protected final ControllerMenuPrincipalAdmin controller;
 
     // ── Constructor ───────────────────────────────────────────────────────────
-    public MainBaseFrame(ControllerMenuPrincipalAdmin controller) {
+    public MainBaseFrame(ControllerMenuPrincipalAdmin controller) throws ExcepcionFicheroNoEncontrado, ExcepcionGeneralDB {
         this.controller = controller;
         configurarVentana();
         inicializarComponentes();
@@ -54,7 +56,7 @@ public abstract class MainBaseFrame extends JFrame {
         return sidebar;  // cada subclase sigue añadiendo sus botones
     }
 
-    private void inicializarComponentes() {
+    private void inicializarComponentes() throws ExcepcionFicheroNoEncontrado, ExcepcionGeneralDB {
         setLayout(new BorderLayout());
 
         add(crearSidebar(), BorderLayout.WEST);   // <- cada subclase implementa
@@ -94,7 +96,7 @@ public abstract class MainBaseFrame extends JFrame {
         cardLayout.show(contentPanel, nombreVista);
     }
 
-    protected void cerrarSesion() {
+    protected void cerrarSesion() throws ExcepcionFicheroNoEncontrado {
         int opcion = JOptionPane.showConfirmDialog(
                 this,
                 "¿Seguro que quieres cerrar sesión?",
@@ -151,7 +153,7 @@ public abstract class MainBaseFrame extends JFrame {
     protected abstract JPanel crearSidebar();
 
     /** Añade los JPanels al contentPanel con cardLayout */
-    protected abstract void crearPaneles();
+    protected abstract void crearPaneles() throws ExcepcionFicheroNoEncontrado, ExcepcionGeneralDB;
 
     /**
      * Componente opcional a la derecha de la topbar.
