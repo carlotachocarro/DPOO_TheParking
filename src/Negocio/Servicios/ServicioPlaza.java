@@ -6,6 +6,9 @@ import Negocio.Entidades.AvisoCancelacionUsuario;
 import Persistencia.Daoimpl.PlazaDBDAO;
 import Persistencia.Daoimpl.ReservaDBDAO;
 import Persistencia.Daoimpl.AvisoLoginDBDAO;
+import Persistencia.persistenciaExcepciones.ExcepcionFicheroNoEncontrado;
+import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,14 +17,14 @@ public class ServicioPlaza {
     private ReservaDBDAO RESERVA_DAO;
     private List<ParkingObserver> observers = new ArrayList<>();
 
-    public ServicioPlaza() {
+    public ServicioPlaza() throws ExcepcionFicheroNoEncontrado {
         this.PLAZA_DAO = new PlazaDBDAO();
         this.RESERVA_DAO = new ReservaDBDAO();
 
     }
 
 
-    public String saberTodaslasPlazas() {
+    public String saberTodaslasPlazas() throws ExcepcionGeneralDB {
         ArrayList<Plaza> plazas = PLAZA_DAO.getPlazas();
         ArrayList<Reserva> reservas = RESERVA_DAO.getReservas();
 
