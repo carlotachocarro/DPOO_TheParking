@@ -5,6 +5,8 @@ import Persistencia.Config.ConfigJSONDAO;
 import Persistencia.Daoimpl.Singleton;
 import Persistencia.Daoimpl.UsuarioDAO;
 import Persistencia.Daoimpl.UsuarioDBDAO;
+import Persistencia.persistenciaExcepciones.ExcepcionFicheroNoEncontrado;
+import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
 
 import java.security.MessageDigest;
 
@@ -16,13 +18,13 @@ public class ServicioUsuario {
     private ConfigJSONDAO configJSONDAO;
     private  Usuario usuario;
 
-    public  ServicioUsuario() {
+    public  ServicioUsuario() throws ExcepcionFicheroNoEncontrado {
 
         usuariDAO = new UsuarioDBDAO();
         configJSONDAO = new ConfigJSONDAO();
     }
 
-    public int registrarUsua(String nombreUser, String correrElectro, String contra,String repContra) {
+    public int registrarUsua(String nombreUser, String correrElectro, String contra,String repContra) throws ExcepcionGeneralDB {
         String encryptedPassword ;
         if (validarCorreoElectro(correrElectro) == true){
             if (contra.equals(repContra)){
@@ -131,7 +133,7 @@ public boolean inicioSessionAdmin(String contra){
 }
 
 
-    public boolean inicioSession(String nombre,String contra) {
+    public boolean inicioSession(String nombre,String contra) throws ExcepcionGeneralDB {
 
         String correoElectro = null;
         if (validarCorreoElectro(nombre) == true){
@@ -150,7 +152,7 @@ public boolean inicioSessionAdmin(String contra){
         return false;
     }
 
-    public void registrarAdmin(){
+    public void registrarAdmin() throws ExcepcionGeneralDB {
         String encryptedPassword  = encriptarContrasena("admin");
         if (!usuariDAO.checkUsuario("admin","admin")) {
             if (usuariDAO.registrarUsuario("admin","admin",encryptedPassword)){
@@ -161,9 +163,25 @@ public boolean inicioSessionAdmin(String contra){
 
     }
 
+    /**
+     * Devuelve el id (clave primaria en BD) del usuario identificado por nombre o correo.
+     * Retorna null si no se encuentra o hay error.
+     */
+    public String idUsuarioParaSesion(String nombreOCorreo) {
+        if (nombreOCorreo == null || nombreOCorreo.isBlank()) return null;
+        try {
+            if (validarCorreoElectro(nombreOCorreo)) {
+                return usuariDAO.getUsuarioId(null, nombreOCorreo);
+            } else {
+                return usuariDAO.getUsuarioId(nombreOCorreo, null);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
-
-    public boolean eliminarCuenta(String name){
+    public boolean eliminarCuenta(String name) throws ExcepcionGeneralDB {
 
         if(validarCorreoElectro(name)){
             if (usuariDAO.eliminarUsuario(null,name)){

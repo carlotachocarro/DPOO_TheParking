@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Random;
 
 import Persistencia.persistenciaExcepciones.ExcepcionFicheroNoEncontrado;
+import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
 
 /**
  * Orquesta servicios de la sesión principal (usuario y administrador).
@@ -31,7 +32,7 @@ public class ControllerMenuPrincipalAdmin {
     /** Evita encadenar nuevos ticks tras {@link #detenerTimersSecundarios()}. */
     private volatile boolean simulacionTraficoEncendida;
 
-    public ControllerMenuPrincipalAdmin() {
+    public ControllerMenuPrincipalAdmin() throws ExcepcionFicheroNoEncontrado {
         this.servicioPlaza = new ServicioPlaza();
         this.servicioReserva = new ServicioReserva(servicioPlaza);
         this.servicioUsuario = new ServicioUsuario();
@@ -71,12 +72,25 @@ public class ControllerMenuPrincipalAdmin {
             if (!simulacionTraficoEncendida) {
                 return;
             }
-            double pEntrada = servicioVehiculo.probabilidadEntrada();
+            double pEntrada = 0;
+            try {
+                pEntrada = servicioVehiculo.probabilidadEntrada();
+            } catch (ExcepcionGeneralDB ex) {
+                throw new RuntimeException(ex);
+            }
             double r = randomSimulacion.nextDouble();
             if (r < pEntrada) {
-                servicioVehiculo.simulaEntrada();
+                try {
+                    servicioVehiculo.simulaEntrada();
+                } catch (ExcepcionGeneralDB ex) {
+                    throw new RuntimeException(ex);
+                }
             } else {
-                servicioVehiculo.simulaSalida();
+                try {
+                    servicioVehiculo.simulaSalida();
+                } catch (ExcepcionGeneralDB ex) {
+                    throw new RuntimeException(ex);
+                }
             }
             programarSiguienteEventoSimulacion(maxSegundos);
         });
@@ -84,7 +98,7 @@ public class ControllerMenuPrincipalAdmin {
         timerSimulacionTrafico.start();
     }
 
-    public boolean eliminarCuenta(String name){
+    public boolean eliminarCuenta(String name) throws ExcepcionGeneralDB {
         if (servicioUsuario.eliminarCuenta(name)){
             return true;
         }
@@ -107,11 +121,11 @@ public class ControllerMenuPrincipalAdmin {
         return servicioVehiculo;
     }
 
-    public List<Integer> getSerieHistorialOcupacionUltimaHora() {
+    public List<Integer> getSerieHistorialOcupacionUltimaHora() throws ExcepcionGeneralDB {
         return servicioHistorialOcupacion.serieUltimaHoraCronologica();
     }
 
-    public int getCapacidadTotalPlazas() {
+    public int getCapacidadTotalPlazas() throws ExcepcionGeneralDB {
         return servicioPlaza.getTotalPlazasEnSistema();
     }
 
@@ -139,14 +153,14 @@ public class ControllerMenuPrincipalAdmin {
         }
     }
 
-    public String actualizarPlazasLibres(){
+    public String actualizarPlazasLibres() throws ExcepcionGeneralDB {
        String Value =servicioPlaza.Actualizar_PlazasMenu();
 
         return Value;
     }
 
 
-    public String actualizarEstadoParking() {
+    public String actualizarEstadoParking() throws ExcepcionGeneralDB {
          return servicioPlaza.saberTodaslasPlazas();
     }
 

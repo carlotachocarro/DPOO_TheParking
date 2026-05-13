@@ -1,6 +1,7 @@
 package Presentacion.Vistas.Panels;
 
 import Negocio.Servicios.ParkingObserver;
+import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
 import Presentacion.Controladores.ControllerMenuPrincipalAdmin;
 
 import javax.swing.*;
@@ -38,20 +39,20 @@ public class EstadoParkingPanel extends JPanel implements ParkingObserver {
     private AccionFilaListener accionFilaListener;
 
     public interface AccionFilaListener {
-        void onEditar(String codigoPlaza);
-        void onEliminar(String codigoPlaza);
-        void onClickFila(String codigoPlaza); // para abrir DetallePlazaDialog en admin
+        void onEditar(String codigoPlaza) throws ExcepcionGeneralDB;
+        void onEliminar(String codigoPlaza) throws ExcepcionGeneralDB;
+        void onClickFila(String codigoPlaza) throws ExcepcionGeneralDB; // para abrir DetallePlazaDialog en admin
     }
 
 
 
-    public EstadoParkingPanel(ControllerMenuPrincipalAdmin controller) {
+    public EstadoParkingPanel(ControllerMenuPrincipalAdmin controller) throws ExcepcionGeneralDB {
 
         this(controller, Modo.USUARIO);
        // controller.getServicioPlaza().addObserver(this);
     }
 
-    public EstadoParkingPanel(ControllerMenuPrincipalAdmin controller, Modo modo) {
+    public EstadoParkingPanel(ControllerMenuPrincipalAdmin controller, Modo modo) throws ExcepcionGeneralDB {
 
         this.controller = controller;
         this.modo = modo;
@@ -196,7 +197,11 @@ public class EstadoParkingPanel extends JPanel implements ParkingObserver {
                     if (modo == Modo.ADMIN_GESTION && col == columnas.length - 1) return;
                     if (fila >= 0 && accionFilaListener != null) {
                         String codigo = (String) modeloTabla.getValueAt(fila, 0);
-                        accionFilaListener.onClickFila(codigo);
+                        try {
+                            accionFilaListener.onClickFila(codigo);
+                        } catch (ExcepcionGeneralDB ex) {
+                            throw new RuntimeException(ex);
+                        }
                     }
                 }
             });
@@ -227,7 +232,7 @@ public class EstadoParkingPanel extends JPanel implements ParkingObserver {
         return pie;
     }
 
-    public void mostrarPlazas() {
+    public void mostrarPlazas() throws ExcepcionGeneralDB {
         // Stats
         String infCantidadDePlazas = controller.actualizarPlazasLibres();
         if (infCantidadDePlazas != null && !infCantidadDePlazas.isEmpty()) {
@@ -311,14 +316,22 @@ public class EstadoParkingPanel extends JPanel implements ParkingObserver {
             btnEdit.addActionListener(e -> {
                 fireEditingStopped();
                 if (accionFilaListener != null && codigoFila != null) {
-                    accionFilaListener.onEditar(codigoFila);
+                    try {
+                        accionFilaListener.onEditar(codigoFila);
+                    } catch (ExcepcionGeneralDB ex) {
+                        throw new RuntimeException(ex);
+                    }
                 }
             });
 
             btnDel.addActionListener(e -> {
                 fireEditingStopped();
                 if (accionFilaListener != null && codigoFila != null) {
-                    accionFilaListener.onEliminar(codigoFila);
+                    try {
+                        accionFilaListener.onEliminar(codigoFila);
+                    } catch (ExcepcionGeneralDB ex) {
+                        throw new RuntimeException(ex);
+                    }
                 }
             });
         }

@@ -1,3 +1,4 @@
+import Persistencia.persistenciaExcepciones.ExcepcionFicheroNoEncontrado;
 import Presentacion.Controladores.ControladorAplicacion;
 
 /**
@@ -8,7 +9,7 @@ import Presentacion.Controladores.ControladorAplicacion;
  */
 public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ExcepcionFicheroNoEncontrado {
         ControladorAplicacion.reiniciarFlujoAutenticacion();
     }
 }

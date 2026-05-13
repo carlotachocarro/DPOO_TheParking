@@ -1,6 +1,8 @@
 package Presentacion.Vistas;
 
 import Negocio.Servicios.ServicioPlaza;
+import Persistencia.persistenciaExcepciones.ExcepcionFicheroNoEncontrado;
+import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
 import Presentacion.Controladores.*;
 import Presentacion.Vistas.Dialogs.*;
 import Presentacion.Vistas.Panels.*;
@@ -20,7 +22,7 @@ public class MainAdminFrame extends MainBaseFrame {
     private static final String ESTADO            = "ESTADO";
     private static final String GRAFICO           = "GRAFICO";
 
-    public MainAdminFrame(ControllerMenuPrincipalAdmin controller) {
+    public MainAdminFrame(ControllerMenuPrincipalAdmin controller) throws ExcepcionGeneralDB, ExcepcionFicheroNoEncontrado {
         super(controller);
     }
 
@@ -35,24 +37,30 @@ public class MainAdminFrame extends MainBaseFrame {
         btnNuevaPlaza.setForeground(Color.WHITE);
         btnNuevaPlaza.setFocusPainted(false);
         btnNuevaPlaza.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
-        btnNuevaPlaza.addActionListener(e -> abrirNuevaPlaza());
+        btnNuevaPlaza.addActionListener(e -> {
+            try {
+                abrirNuevaPlaza();
+            } catch (ExcepcionGeneralDB ex) {
+                throw new RuntimeException(ex);
+            }
+        });
         return btnNuevaPlaza;
     }
 
     @Override
-    protected void crearPaneles() {
+    protected void crearPaneles() throws ExcepcionGeneralDB {
         panelGestionPlazas = new EstadoParkingPanel(controller, EstadoParkingPanel.Modo.ADMIN_GESTION);
         panelGestionPlazas.setAccionFilaListener(new EstadoParkingPanel.AccionFilaListener() {
-            @Override public void onEditar(String codigo)   { abrirEditarPlaza(codigo); }
-            @Override public void onEliminar(String codigo) { confirmarEliminarPlaza(codigo); }
-            @Override public void onClickFila(String codigo){ abrirDetallePlaza(codigo); }
+            @Override public void onEditar(String codigo) throws ExcepcionGeneralDB { abrirEditarPlaza(codigo); }
+            @Override public void onEliminar(String codigo) throws ExcepcionGeneralDB { confirmarEliminarPlaza(codigo); }
+            @Override public void onClickFila(String codigo) throws ExcepcionGeneralDB { abrirDetallePlaza(codigo); }
         });
 
         panelEstadoAdmin = new EstadoParkingPanel(controller, EstadoParkingPanel.Modo.ADMIN_ESTADO);
         panelEstadoAdmin.setAccionFilaListener(new EstadoParkingPanel.AccionFilaListener() {
             @Override public void onEditar(String codigo)   {}
             @Override public void onEliminar(String codigo) {}
-            @Override public void onClickFila(String codigo){ abrirDetallePlaza(codigo); }
+            @Override public void onClickFila(String codigo) throws ExcepcionGeneralDB { abrirDetallePlaza(codigo); }
         });
 
         contentPanel.add(panelGestionPlazas, GESTION_PLAZAS);
@@ -79,11 +87,21 @@ public class MainAdminFrame extends MainBaseFrame {
         btnGestionPlazas.addActionListener(e   -> mostrarVista(GESTION_PLAZAS));
         btnGestionReservas.addActionListener(e -> mostrarVista(GESTION_RESERVAS));
         btnEstado.addActionListener(e -> {
-            panelEstadoAdmin.mostrarPlazas();
+            try {
+                panelEstadoAdmin.mostrarPlazas();
+            } catch (ExcepcionGeneralDB ex) {
+                throw new RuntimeException(ex);
+            }
             mostrarVista(ESTADO);
         });
         btnGrafico.addActionListener(e      -> mostrarVista(GRAFICO));
-        btnCerrarSesion.addActionListener(e -> cerrarSesion());
+        btnCerrarSesion.addActionListener(e -> {
+            try {
+                cerrarSesion();
+            } catch (ExcepcionFicheroNoEncontrado ex) {
+                throw new RuntimeException(ex);
+            }
+        });
 
         sidebar.add(lblSeccionGestion);
         sidebar.add(Box.createVerticalStrut(8));
@@ -102,7 +120,6 @@ public class MainAdminFrame extends MainBaseFrame {
         return sidebar;
     }
 
-    // ── Lógica específica del admin ───────────────────────────────────────────
 
     private JPanel crearPanelPlaceholder(String texto) {
         JPanel p = new JPanel(new GridBagLayout());
@@ -114,35 +131,55 @@ public class MainAdminFrame extends MainBaseFrame {
         return p;
     }
 
-    private void abrirNuevaPlaza() {
+    private void abrirNuevaPlaza() throws ExcepcionGeneralDB {
         ControladorPOPAP_NuevaPlaza controlador = new ControladorPOPAP_NuevaPlaza(
                 this,
                 controller.getServicioPlaza(),
-                () -> panelGestionPlazas.mostrarPlazas()  // callback de refresco
+                () -> {
+                    try {
+                        panelGestionPlazas.mostrarPlazas();
+                    } catch (ExcepcionGeneralDB e) {
+                        throw new RuntimeException(e);
+                    }
+                }  // callback de refresco
         );
         controlador.abrirDialogo();
     }
 
-    private void abrirEditarPlaza(String codigoPlaza) {
+    private void abrirEditarPlaza(String codigoPlaza) throws ExcepcionGeneralDB {
         new ControladorPOPAP_EditarPlaza(
                 this,
                 controller.getServicioPlaza(),
-                () -> panelGestionPlazas.mostrarPlazas()
+                () -> {
+                    try {
+                        panelGestionPlazas.mostrarPlazas();
+                    } catch (ExcepcionGeneralDB e) {
+                        throw new RuntimeException(e);
+                    }
+                }
         ).abrirDialogo(codigoPlaza);
     }
 
-    private void confirmarEliminarPlaza(String codigoPlaza) {
+    private void confirmarEliminarPlaza(String codigoPlaza) throws ExcepcionGeneralDB {
         new ControladorPOPAP_EliminarPlaza(
                 this,
                 controller.getServicioPlaza(),
                 () -> {
-                    panelGestionPlazas.mostrarPlazas();
-                    panelEstadoAdmin.mostrarPlazas();
+                    try {
+                        panelGestionPlazas.mostrarPlazas();
+                    } catch (ExcepcionGeneralDB e) {
+                        throw new RuntimeException(e);
+                    }
+                    try {
+                        panelEstadoAdmin.mostrarPlazas();
+                    } catch (ExcepcionGeneralDB e) {
+                        throw new RuntimeException(e);
+                    }
                 }
         ).confirmarYEliminar(codigoPlaza);
     }
 
-    private void abrirDetallePlaza(String codigoPlaza) {
+    private void abrirDetallePlaza(String codigoPlaza) throws ExcepcionGeneralDB {
         Plaza p = controller.getServicioPlaza().obtenerPlazaPorCodigo(codigoPlaza);
         if (p == null) {
             JOptionPane.showMessageDialog(this,

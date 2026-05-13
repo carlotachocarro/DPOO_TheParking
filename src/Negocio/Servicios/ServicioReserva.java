@@ -7,6 +7,7 @@ import Persistencia.Daoimpl.UsuarioDBDAO;
 import Persistencia.Daoimpl.AvisoLoginDBDAO;
 import Persistencia.persistenciaExcepciones.ExcepcionFicheroNoEncontrado;
 import Negocio.Entidades.*;
+import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +21,7 @@ public class ServicioReserva {
     private AvisoLoginDBDAO avisoLoginDAO;
 
 
-    public ServicioReserva(ServicioPlaza servicioPlaza) {
+    public ServicioReserva(ServicioPlaza servicioPlaza) throws ExcepcionFicheroNoEncontrado {
         this.servicioUsuario= new ServicioUsuario();
         this.reservaDBDAO = new ReservaDBDAO();
         this.usuarioDBDAO = new UsuarioDBDAO();
@@ -31,7 +32,7 @@ public class ServicioReserva {
     }
 
 
-    public boolean realizarReservaVeiculo(String id_plaza, String matricula,String usuario){
+    public boolean realizarReservaVeiculo(String id_plaza, String matricula,String usuario) throws ExcepcionGeneralDB, ExcepcionFicheroNoEncontrado {
         String idUsuario;
 
         if (servicioUsuario.validarCorreoElectro(usuario)){
@@ -61,7 +62,7 @@ public class ServicioReserva {
                                 "B-04 - Planta 2 - Coche - Libre",
                                 "C-01 - Planta 3 - Coche - Libre"));
     * */
-    public List<String> buscarPlazasDeParking (String tipoVehiculo){
+    public List<String> buscarPlazasDeParking (String tipoVehiculo) throws ExcepcionGeneralDB {
 
         ArrayList<Plaza> plazas = plazaDBDAO.getPlazasLibres(tipoVehiculo);
         List<String> resultado = new ArrayList<>();
@@ -93,7 +94,7 @@ public class ServicioReserva {
 
 
 
-    public  List<String> ObtenerReservas(String Nombre){
+    public  List<String> ObtenerReservas(String Nombre) throws ExcepcionGeneralDB {
         String[] mensaje;
         ArrayList<Reserva> reservas = new ArrayList<>();
         ArrayList<Plaza> plazas = new ArrayList<>();
@@ -134,7 +135,7 @@ public class ServicioReserva {
 
     }
 
-    public boolean cancelarReserva(String idPlaza,String nombre){
+    public boolean cancelarReserva(String idPlaza,String nombre) throws ExcepcionGeneralDB {
 
         String idUsuario;
         if (servicioUsuario.validarCorreoElectro(nombre)){

@@ -2,6 +2,8 @@ package Presentacion.Controladores;
 
 import javax.swing.SwingUtilities;
 
+import Persistencia.persistenciaExcepciones.ExcepcionFicheroNoEncontrado;
+import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
 import Presentacion.Vistas.AuthFrame;
 import Presentacion.Vistas.LoginPanel;
 import Presentacion.Vistas.MainAdminFrame;
@@ -13,11 +15,17 @@ public class ControladorAplicacion {
     /**
      * Muestra login/registro con los controladores enlazados. Seguro desde el hilo principal o desde el EDT.
      */
-    public static void reiniciarFlujoAutenticacion() {
+    public static void reiniciarFlujoAutenticacion() throws ExcepcionFicheroNoEncontrado {
         if (SwingUtilities.isEventDispatchThread()) {
             new ControladorAplicacion().iniciar();
         } else {
-            SwingUtilities.invokeLater(() -> new ControladorAplicacion().iniciar());
+            SwingUtilities.invokeLater(() -> {
+                try {
+                    new ControladorAplicacion().iniciar();
+                } catch (ExcepcionFicheroNoEncontrado e) {
+                    throw new RuntimeException(e);
+                }
+            });
         }
     }
 
@@ -25,7 +33,7 @@ public class ControladorAplicacion {
     private LoginPanel loginPanel;
     private RegistroPanel registroPanel;
 
-    public void iniciar() {
+    public void iniciar() throws ExcepcionFicheroNoEncontrado {
         authFrame = new AuthFrame();
 
         loginPanel = new LoginPanel();
@@ -53,13 +61,13 @@ public class ControladorAplicacion {
      * @param nombreUsuario texto de login (nombre o correo), para reservas y vistas
      * @param idUsuario     id numérico en BD (tabla {@code usuario}), para FK en {@code plaza_parking}
      */
-    public void abrirMenuUsuario(String nombreUsuario, String idUsuario) {
+    public void abrirMenuUsuario(String nombreUsuario, String idUsuario) throws ExcepcionFicheroNoEncontrado, ExcepcionGeneralDB {
         authFrame.dispose();
         ControllerMenuPrincipalAdmin controller = new ControllerMenuPrincipalAdmin();
         new MainUsuarioFrame(nombreUsuario, idUsuario, controller).setVisible(true);
     }
 
-    public void abrirMenuAdmin() {
+    public void abrirMenuAdmin() throws ExcepcionFicheroNoEncontrado, ExcepcionGeneralDB {
         authFrame.dispose();
         ControllerMenuPrincipalAdmin controller = new ControllerMenuPrincipalAdmin();
         new MainAdminFrame(controller).setVisible(true);

@@ -3,6 +3,8 @@ package Presentacion.Controladores;
 import Negocio.Servicios.ServicioPlaza;
 import Negocio.Servicios.ServicioReserva;
 import Negocio.Servicios.ServicioUsuario;
+import Persistencia.persistenciaExcepciones.ExcepcionFicheroNoEncontrado;
+import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
 import Presentacion.Vistas.LoginPanel;
 
 import javax.swing.*;
@@ -16,7 +18,7 @@ public class ControladorInicioSesion implements ActionListener {
     private final ServicioUsuario servicioUsuario;
     private final ControladorAplicacion app;
 
-    public ControladorInicioSesion(LoginPanel vista, ControladorAplicacion app) {
+    public ControladorInicioSesion(LoginPanel vista, ControladorAplicacion app) throws ExcepcionFicheroNoEncontrado {
         this.vista = vista;
         this.app = app;
         this.servicioUsuario = new ServicioUsuario();
@@ -29,10 +31,14 @@ public class ControladorInicioSesion implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        iniciarSesion();
+        try {
+            iniciarSesion();
+        } catch (ExcepcionFicheroNoEncontrado | ExcepcionGeneralDB ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
-    private void iniciarSesion() {
+    private void iniciarSesion() throws ExcepcionFicheroNoEncontrado, ExcepcionGeneralDB {
         String usuarioCorreo = vista.getUsuarioCorreo();
         String password = vista.getPassword();
 

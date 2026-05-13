@@ -1,6 +1,8 @@
 package Presentacion.Controladores;
 
 import Negocio.Servicios.ServicioReserva;
+import Persistencia.persistenciaExcepciones.ExcepcionFicheroNoEncontrado;
+import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
 import Presentacion.Vistas.Panels.ReservasPlazaPanel;
 
 import javax.swing.*;
@@ -56,17 +58,27 @@ public class ControladorReservasPlaza implements ActionListener {
                 }
 
                 String idPlaza = seleccion.split(" - ")[0];
-                if (!servicioReserva.realizarReservaVeiculo(idPlaza, matricula, nombreUsuario)) {
-                    JOptionPane.showMessageDialog(vista, "No se ha podido realizar la reserva de la plaza.");
-                    vista.limpiarCampos();
-                    return;
+                try {
+                    if (!servicioReserva.realizarReservaVeiculo(idPlaza, matricula, nombreUsuario)) {
+                        JOptionPane.showMessageDialog(vista, "No se ha podido realizar la reserva de la plaza.");
+                        vista.limpiarCampos();
+                        return;
+                    }
+                } catch (ExcepcionGeneralDB ex) {
+                    throw new RuntimeException(ex);
+                } catch (ExcepcionFicheroNoEncontrado ex) {
+                    throw new RuntimeException(ex);
                 }
                 JOptionPane.showMessageDialog(vista, "Reserva realizada con éxito");
                 vista.limpiarCampos();
                 break;
 
             case "BUSCAR":
-                vista.cargarPlazasDisponibles(servicioReserva.buscarPlazasDeParking(vista.getComboTipoVehiculo()));
+                try {
+                    vista.cargarPlazasDisponibles(servicioReserva.buscarPlazasDeParking(vista.getComboTipoVehiculo()));
+                } catch (ExcepcionGeneralDB ex) {
+                    throw new RuntimeException(ex);
+                }
                 break;
 
             default:

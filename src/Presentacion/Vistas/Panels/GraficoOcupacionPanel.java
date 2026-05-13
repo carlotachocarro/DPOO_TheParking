@@ -1,5 +1,7 @@
 package Presentacion.Vistas.Panels;
 
+import Presentacion.Controladores.ControllerMenuPrincipalAdmin;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
@@ -12,7 +14,7 @@ public class GraficoOcupacionPanel extends JPanel {
     private JLabel lblMinimo;
     private List<Integer> datos = new ArrayList<>();
 
-    public GraficoOcupacionPanel() {
+    public GraficoOcupacionPanel(ControllerMenuPrincipalAdmin controller) {
         setLayout(new BorderLayout(16, 16));
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 

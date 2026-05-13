@@ -2,6 +2,8 @@ package Presentacion.Controladores;
 
 import Negocio.Servicios.ServicioPlaza;
 import Negocio.Servicios.ServicioVehiculo;
+import Persistencia.persistenciaExcepciones.ExcepcionFicheroNoEncontrado;
+import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
 import Presentacion.Vistas.Panels.EntradaSalidaPanel;
 
 import javax.swing.*;
@@ -16,7 +18,7 @@ public class ControladorEntradasSalidas implements ActionListener {
     private String nombreUsuario;
     private ServicioPlaza servicioPlaza;
 
-    public ControladorEntradasSalidas(EntradaSalidaPanel entradaSalidaPanel, String nombreUsuario, ServicioPlaza servicioPlaza) {
+    public ControladorEntradasSalidas(EntradaSalidaPanel entradaSalidaPanel, String nombreUsuario, ServicioPlaza servicioPlaza) throws ExcepcionFicheroNoEncontrado {
         this.entradaSalidaPanel = entradaSalidaPanel;
         entradaSalidaPanel.addEntradaSalidaListener(this);
         this.servicioVehiculo = new ServicioVehiculo(servicioPlaza);
@@ -45,14 +47,24 @@ public class ControladorEntradasSalidas implements ActionListener {
                     break;
                 }
 
-               if (servicioVehiculo.registroEntradaVehiculo(matricula,tipoVhiculo,nombreUsuario) == null){
-                   JOptionPane.showMessageDialog(entradaSalidaPanel, "La plaza no existe");
-               }else {
-                   JOptionPane.showMessageDialog(entradaSalidaPanel, "Se ha registrado una entrada correctamente!!!!");
+                try {
+                    if (servicioVehiculo.registroEntradaVehiculo(matricula,tipoVhiculo,nombreUsuario) == null){
+                        JOptionPane.showMessageDialog(entradaSalidaPanel, "La plaza no existe");
+                    }else {
+                        JOptionPane.showMessageDialog(entradaSalidaPanel, "Se ha registrado una entrada correctamente!!!!");
 
-               }
+                    }
+                } catch (ExcepcionGeneralDB ex) {
+                    throw new RuntimeException(ex);
+                } catch (ExcepcionFicheroNoEncontrado ex) {
+                    throw new RuntimeException(ex);
+                }
                 entradaSalidaPanel.limpiarCampos();
-                servicioPlaza.notifyObservers();
+                try {
+                    servicioPlaza.notifyObservers();
+                } catch (ExcepcionGeneralDB ex) {
+                    throw new RuntimeException(ex);
+                }
                 break;
             case "SALIDA":
 
@@ -62,14 +74,24 @@ public class ControladorEntradasSalidas implements ActionListener {
                     break;
                 }
 
-                if (!servicioVehiculo.registrarSalidaVehiculo(matriculaSalida)){
-                    JOptionPane.showMessageDialog(entradaSalidaPanel, "La plaza no existe");
+                try {
+                    if (!servicioVehiculo.registrarSalidaVehiculo(matriculaSalida)){
+                        JOptionPane.showMessageDialog(entradaSalidaPanel, "La plaza no existe");
 
-                }else {
-                    JOptionPane.showMessageDialog(entradaSalidaPanel, "Se ha registrado una salida correctamente!!!!");
+                    }else {
+                        JOptionPane.showMessageDialog(entradaSalidaPanel, "Se ha registrado una salida correctamente!!!!");
+                    }
+                } catch (ExcepcionGeneralDB ex) {
+                    throw new RuntimeException(ex);
+                } catch (ExcepcionFicheroNoEncontrado ex) {
+                    throw new RuntimeException(ex);
                 }
                 entradaSalidaPanel.limpiarCampos();
-                servicioPlaza.notifyObservers();
+                try {
+                    servicioPlaza.notifyObservers();
+                } catch (ExcepcionGeneralDB ex) {
+                    throw new RuntimeException(ex);
+                }
                 break;
 
         }

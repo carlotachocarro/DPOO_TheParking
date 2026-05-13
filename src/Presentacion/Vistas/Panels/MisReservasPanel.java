@@ -3,6 +3,8 @@ package Presentacion.Vistas.Panels;
 import Negocio.Servicios.ParkingObserver;
 import Negocio.Servicios.ServicioPlaza;
 import Negocio.Servicios.ServicioReserva;
+import Persistencia.persistenciaExcepciones.ExcepcionFicheroNoEncontrado;
+import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
 import Presentacion.Controladores.ControladorPOPAP_CancelarReserva;
 import Presentacion.Vistas.Dialogs.CancelarReservaDialog;
 
@@ -33,7 +35,7 @@ public class MisReservasPanel extends JPanel
     // CONSTRUCTOR
     // =========================
 
-    public MisReservasPanel(Consumer<String> navigator, String nombreUsuario, ServicioPlaza servicioPlaza) {
+    public MisReservasPanel(Consumer<String> navigator, String nombreUsuario, ServicioPlaza servicioPlaza, ServicioReserva servicioReserva) throws ExcepcionFicheroNoEncontrado, ExcepcionGeneralDB {
 
         this.navigator = navigator;
         this.nombreUsuario = nombreUsuario;
@@ -124,7 +126,7 @@ public class MisReservasPanel extends JPanel
     // ACTUALIZAR RESERVAS
     // =========================
 
-    public void actualizarReservas() {
+    public void actualizarReservas() throws ExcepcionGeneralDB {
 
         List<String> reserv = servicioReserva.ObtenerReservas(nombreUsuario);
 
@@ -207,7 +209,13 @@ public class MisReservasPanel extends JPanel
             JButton btnCancelar = new JButton("Cancelar");
 
             btnCancelar.addActionListener(
-                    e -> abrirDialogoCancelar(reserva)
+                    e -> {
+                        try {
+                            abrirDialogoCancelar(reserva);
+                        } catch (ExcepcionFicheroNoEncontrado ex) {
+                            throw new RuntimeException(ex);
+                        }
+                    }
             );
 
             derecha.add(btnCancelar);
@@ -223,7 +231,7 @@ public class MisReservasPanel extends JPanel
     // DIALOG CANCELAR
     // =========================
 
-    private void abrirDialogoCancelar(ReservaVista reserva) {
+    private void abrirDialogoCancelar(ReservaVista reserva) throws ExcepcionFicheroNoEncontrado {
         Window padre = SwingUtilities.getWindowAncestor(this);
 
         CancelarReservaDialog dlg = new CancelarReservaDialog(padre, reserva.codigoPlaza(), reserva.planta(), reserva.matricula(), reserva.fechaReserva(), reserva.tipoVehiculo());
@@ -240,7 +248,14 @@ public class MisReservasPanel extends JPanel
     @Override
     public void onParkingChange(String estado, String resumen) {
 
-        SwingUtilities.invokeLater(this::actualizarReservas);
+        SwingUtilities.invokeLater(() -> {
+            try {
+                actualizarReservas();
+            } catch (ExcepcionGeneralDB e) {
+                // Handle or log the exception appropriately
+                e.printStackTrace();
+            }
+        });
     }
 
     // =========================

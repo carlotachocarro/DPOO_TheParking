@@ -2,6 +2,8 @@ package Presentacion.Controladores;
 
 import Negocio.Servicios.ServicioPlaza;
 import Negocio.Servicios.ServicioReserva;
+import Persistencia.persistenciaExcepciones.ExcepcionFicheroNoEncontrado;
+import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
 import Presentacion.Vistas.Dialogs.CancelarReservaDialog;
 
 import javax.swing.*;
@@ -16,7 +18,7 @@ public class ControladorPOPAP_CancelarReserva extends JDialog implements ActionL
     private String nombreUsuario;
     private ServicioPlaza servicioPlaza;
 
-    public  ControladorPOPAP_CancelarReserva(CancelarReservaDialog cancelarReservaDialog ,String nombreUsuario,ServicioPlaza servicioPlaza) {
+    public  ControladorPOPAP_CancelarReserva(CancelarReservaDialog cancelarReservaDialog ,String nombreUsuario,ServicioPlaza servicioPlaza) throws ExcepcionFicheroNoEncontrado {
 
         this.cancelarReservaDialog = cancelarReservaDialog;
         this.nombreUsuario = nombreUsuario;
@@ -36,16 +38,20 @@ public class ControladorPOPAP_CancelarReserva extends JDialog implements ActionL
                 break;
             case "cancelar":
                 if (cancelarReservaDialog.getMatricula().equals(cancelarReservaDialog.getMatricula())){
-                   if(servicioReserva.cancelarReserva(cancelarReservaDialog.getIdPlaza(),nombreUsuario)){
-                       JOptionPane.showMessageDialog(null, "Reserva Cancelada Correctamente");
-                       cancelarReservaDialog.dispose();
-                       break;
-                   }
-                   else {
-                       JOptionPane.showMessageDialog(null, "La reserva no se puede cancelar no se ha encontrado");
-                       cancelarReservaDialog.dispose();
-                       break;
-                   }
+                    try {
+                        if(servicioReserva.cancelarReserva(cancelarReservaDialog.getIdPlaza(),nombreUsuario)){
+                            JOptionPane.showMessageDialog(null, "Reserva Cancelada Correctamente");
+                            cancelarReservaDialog.dispose();
+                            break;
+                        }
+                        else {
+                            JOptionPane.showMessageDialog(null, "La reserva no se puede cancelar no se ha encontrado");
+                            cancelarReservaDialog.dispose();
+                            break;
+                        }
+                    } catch (ExcepcionGeneralDB ex) {
+                        throw new RuntimeException(ex);
+                    }
 
                 }
                 JOptionPane.showMessageDialog(cancelarReservaDialog, "Matricula introducida incorreta !!");

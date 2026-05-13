@@ -226,7 +226,7 @@ public class PlazaDBDAO {
         return null;
     }
 
-    public boolean ocuparPlaza(String id_plaza ,boolean ocupacion, String matricula, String nombreUsuario) throws ExcepcionGeneralDB {
+    public boolean ocuparPlaza(String id_plaza ,boolean ocupacion, String matricula, String nombreUsuario) throws ExcepcionGeneralDB, ExcepcionFicheroNoEncontrado {
         String query = "";
         ArrayList<String> values = new ArrayList<>();
         ArrayList<String> types = new ArrayList<>();

@@ -5,6 +5,8 @@ import Negocio.Servicios.ServicioPlaza;
 import Negocio.Servicios.ServicioReserva;
 import Negocio.Servicios.ServicioUsuario;
 import Persistencia.Daoimpl.ReservaDBDAO;
+import Persistencia.persistenciaExcepciones.ExcepcionFicheroNoEncontrado;
+import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
 import Presentacion.Vistas.Panels.MisReservasPanel;
 
 import java.awt.event.ActionEvent;
@@ -20,14 +22,14 @@ public class ControladorMisReservas implements ActionListener  {
     private MisReservasPanel misReservasPanel;
 
 
-    public ControladorMisReservas(MisReservasPanel misReservasPanel) {
+    public ControladorMisReservas(MisReservasPanel misReservasPanel) throws ExcepcionFicheroNoEncontrado {
         this.misReservasPanel = misReservasPanel;
         reservaDBDAO = new ReservaDBDAO();
         servicioPlaza = new ServicioPlaza();
         sesReserva = new ServicioReserva(servicioPlaza);
     }
 
-    public void getReserva(String nombre) {
+    public void getReserva(String nombre) throws ExcepcionGeneralDB {
         /*
         List<MisReservasPanel.ReservaVista> reserva = List.of(
                 new MisReservasPanel.ReservaVista("A1", "Coche", "1234ABC", "01/05/2026", "Planta 1", true),
