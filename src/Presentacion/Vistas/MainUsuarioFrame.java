@@ -15,9 +15,10 @@ public class MainUsuarioFrame extends MainBaseFrame {
     private final String idUsuarioSesion;
 
     public MainUsuarioFrame(String nombreUsuario, String idUsuarioSesion, ControllerMenuPrincipalAdmin controller) throws ExcepcionFicheroNoEncontrado, ExcepcionGeneralDB {
-        super(controller);  // llama a configurarVentana + inicializarComponentes
+        super(controller);
         this.nombreUsuario = nombreUsuario;
         this.idUsuarioSesion = idUsuarioSesion;
+        inicializarComponentes();
     }
 
     @Override protected String getTitulo()       { return "The Parking - Panel Usuario"; }

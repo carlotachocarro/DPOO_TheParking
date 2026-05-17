@@ -24,6 +24,7 @@ public class MainAdminFrame extends MainBaseFrame {
 
     public MainAdminFrame(ControllerMenuPrincipalAdmin controller) throws ExcepcionGeneralDB, ExcepcionFicheroNoEncontrado {
         super(controller);
+
     }
 
     @Override protected String getTitulo()       { return "The Parking - Panel Administrador"; }

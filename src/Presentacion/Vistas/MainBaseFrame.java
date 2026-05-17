@@ -19,7 +19,7 @@ public abstract class MainBaseFrame extends JFrame {
     public MainBaseFrame(ControllerMenuPrincipalAdmin controller) throws ExcepcionFicheroNoEncontrado, ExcepcionGeneralDB {
         this.controller = controller;
         configurarVentana();
-        inicializarComponentes();
+
     }
 
     // ── Template Method: esqueleto fijo ───────────────────────────────────────
@@ -56,7 +56,7 @@ public abstract class MainBaseFrame extends JFrame {
         return sidebar;  // cada subclase sigue añadiendo sus botones
     }
 
-    private void inicializarComponentes() throws ExcepcionFicheroNoEncontrado, ExcepcionGeneralDB {
+    public void inicializarComponentes() throws ExcepcionFicheroNoEncontrado, ExcepcionGeneralDB {
         setLayout(new BorderLayout());
 
         add(crearSidebar(), BorderLayout.WEST);   // <- cada subclase implementa
