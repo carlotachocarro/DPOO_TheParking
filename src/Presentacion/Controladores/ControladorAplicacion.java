@@ -81,6 +81,7 @@ public class ControladorAplicacion {
      */
     public void abrirMenuUsuario(String nombreUsuario, String idUsuario) throws ExcepcionFicheroNoEncontrado, ExcepcionGeneralDB {
         authFrame.dispose();
+
         ControllerMenuPrincipalAdmin controller = new ControllerMenuPrincipalAdmin();
         new MainUsuarioFrame(nombreUsuario, idUsuario, controller).setVisible(true);
     }

@@ -17,11 +17,7 @@ public final class ControladorPOPAP_Notificaciones {
     }
 
     public static void mostrarSiCorresponde(Window parent, ServicioReserva servicioReserva, String idUsuario) {
-        ArrayList<AvisoCancelacionUsuario> avisos = servicioReserva.obtenerAvisosPendientesLogin(idUsuario);
-        if (avisos.isEmpty()) {
-            return;
-        }
-        new NotificacionesDialog(parent, avisos).setVisible(true);
-        servicioReserva.limpiarAvisosTrasMostrarNotificacion(idUsuario);
+
+
     }
 }

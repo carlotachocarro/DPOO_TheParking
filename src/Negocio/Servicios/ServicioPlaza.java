@@ -5,7 +5,6 @@ import Negocio.Entidades.Reserva;
 import Negocio.Entidades.AvisoCancelacionUsuario;
 import Persistencia.Daoimpl.PlazaDBDAO;
 import Persistencia.Daoimpl.ReservaDBDAO;
-import Persistencia.Daoimpl.AvisoLoginDBDAO;
 import Persistencia.persistenciaExcepciones.ExcepcionFicheroNoEncontrado;
 import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
 
@@ -253,7 +252,7 @@ public class ServicioPlaza {
 
     private void insertarAvisoReasignacionPlaza(String idPlazaVieja, Plaza pVieja, Reserva r, Plaza destino) {
         try {
-            AvisoLoginDBDAO dao = new AvisoLoginDBDAO();
+
             AvisoCancelacionUsuario aviso = new AvisoCancelacionUsuario(
                     idPlazaVieja,
                     String.valueOf(pVieja.getPlanta()),
@@ -262,7 +261,7 @@ public class ServicioPlaza {
                     destino.getCodigoPlaza(),
                     String.valueOf(destino.getPlanta())
             );
-            dao.insertar(r.getIdCliente(), aviso);
+
         } catch (Exception e) {
             System.out.println(e);
         }

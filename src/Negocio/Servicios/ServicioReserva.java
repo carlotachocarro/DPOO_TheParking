@@ -4,7 +4,6 @@ import Negocio.Entidades.Reserva;
 import Persistencia.Daoimpl.PlazaDBDAO;
 import Persistencia.Daoimpl.ReservaDBDAO;
 import Persistencia.Daoimpl.UsuarioDBDAO;
-import Persistencia.Daoimpl.AvisoLoginDBDAO;
 import Persistencia.persistenciaExcepciones.ExcepcionFicheroNoEncontrado;
 import Negocio.Entidades.*;
 import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
@@ -18,7 +17,7 @@ public class ServicioReserva {
     private PlazaDBDAO plazaDBDAO;
     private ServicioPlaza servicioPlaza;
     private ServicioUsuario servicioUsuario;
-    private AvisoLoginDBDAO avisoLoginDAO;
+
 
 
     public ServicioReserva(ServicioPlaza servicioPlaza) throws ExcepcionFicheroNoEncontrado {
@@ -188,7 +187,6 @@ public class ServicioReserva {
                     null,
                     null
             );
-            insertarAvisoSeguro(reserva.getIdCliente(), aviso);
 
             if (reservaDBDAO.borrarReserva(idPlaza, reserva.getIdCliente())) {
                 plazaDBDAO.limpiarPlaza(idPlaza);
@@ -202,53 +200,11 @@ public class ServicioReserva {
         }
     }
 
-    /** Avisos pendientes de mostrar al usuario tras el login (no los borra). */
-    public ArrayList<AvisoCancelacionUsuario> obtenerAvisosPendientesLogin(String idUsuario) {
-        try {
-            AvisoLoginDBDAO dao = getAvisoLoginDAO();
-            if (dao == null) {
-                return new ArrayList<>();
-            }
-            return dao.listarPorUsuario(idUsuario);
-        } catch (Exception e) {
-            System.out.println(e);
-            return new ArrayList<>();
-        }
-    }
 
-    /** Tras cerrar el diálogo de notificaciones, elimina los avisos ya mostrados. */
-    public void limpiarAvisosTrasMostrarNotificacion(String idUsuario) {
-        try {
-            AvisoLoginDBDAO dao = getAvisoLoginDAO();
-            if (dao != null) {
-                dao.eliminarTodosUsuario(idUsuario);
-            }
-        } catch (Exception e) {
-            System.out.println(e);
-        }
-    }
 
-    private AvisoLoginDBDAO getAvisoLoginDAO() {
-        if (avisoLoginDAO == null) {
-            try {
-                avisoLoginDAO = new AvisoLoginDBDAO();
-            } catch (ExcepcionFicheroNoEncontrado e) {
-                return null;
-            }
-        }
-        return avisoLoginDAO;
-    }
 
-    private void insertarAvisoSeguro(String idUsuario, AvisoCancelacionUsuario aviso) {
-        try {
-            AvisoLoginDBDAO dao = getAvisoLoginDAO();
-            if (dao != null) {
-                dao.insertar(idUsuario, aviso);
-            }
-        } catch (Exception e) {
-            System.out.println(e);
-        }
-    }
+
+
 
 
 }

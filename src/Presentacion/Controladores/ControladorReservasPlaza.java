@@ -15,9 +15,7 @@ public class ControladorReservasPlaza implements ActionListener {
     private final ServicioReserva servicioReserva;
     private final String nombreUsuario;
 
-    public ControladorReservasPlaza(ReservasPlazaPanel vista,
-                                   String nombreUsuario,
-                                   ServicioReserva servicioReserva) {
+    public ControladorReservasPlaza(ReservasPlazaPanel vista, String nombreUsuario, ServicioReserva servicioReserva) {
         this.nombreUsuario = nombreUsuario;
         this.vista = vista;
         this.servicioReserva = servicioReserva;

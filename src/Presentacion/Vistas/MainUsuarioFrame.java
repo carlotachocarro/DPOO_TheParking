@@ -78,7 +78,7 @@ public class MainUsuarioFrame extends MainBaseFrame {
         });
         btnCerrarSesion.addActionListener(e  -> {
 
-            cerrarSesion();
+                cerrarSesion();
 
         });
 
