@@ -1,61 +1,29 @@
 package Presentacion.Vistas.Panels;
 
-import Negocio.Servicios.ParkingObserver;
-import Negocio.Servicios.ServicioPlaza;
-import Negocio.Servicios.ServicioReserva;
-import Persistencia.persistenciaExcepciones.ExcepcionFicheroNoEncontrado;
-import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
-import Presentacion.Controladores.ControladorPOPAP_CancelarReserva;
-import Presentacion.Vistas.Dialogs.CancelarReservaDialog;
-
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class MisReservasPanel extends JPanel
-        implements ParkingObserver {
-
-    // =========================
-    // ATRIBUTOS
-    // =========================
+/**
+ * Vista pasiva de "Mis reservas". No conoce servicios ni el patrón Observer.
+ * El controlador la alimenta vía {@link #setReservas} y se suscribe con
+ * {@link #setCancelarReservaListener} para abrir el diálogo de cancelación.
+ */
+public class MisReservasPanel extends JPanel {
 
     private JPanel panelLista;
     private JLabel lblResumen;
 
     private final Consumer<String> navigator;
+    private Consumer<ReservaVista> cancelarReservaListener;
 
-    private final String nombreUsuario;
-
-    private final ServicioReserva servicioReserva;
-    private final ServicioPlaza servicioPlaza;
-
-    // =========================
-    // CONSTRUCTOR
-    // =========================
-
-    public MisReservasPanel(Consumer<String> navigator, String nombreUsuario, ServicioPlaza servicioPlaza, ServicioReserva servicioReserva) throws ExcepcionFicheroNoEncontrado, ExcepcionGeneralDB {
-
+    public MisReservasPanel(Consumer<String> navigator) {
         this.navigator = navigator;
-        this.nombreUsuario = nombreUsuario;
-
-        this.servicioPlaza = servicioPlaza;
-        this.servicioReserva = new ServicioReserva(servicioPlaza);
-
         configurarPanel();
-
-        servicioPlaza.addObserver(this);
-
-        actualizarReservas();
     }
 
-    // =========================
-    // CONFIGURACIÓN
-    // =========================
-
     private void configurarPanel() {
-
         setLayout(new BorderLayout(16, 16));
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         add(crearCabecera(), BorderLayout.NORTH);
@@ -63,22 +31,15 @@ public class MisReservasPanel extends JPanel
         add(crearResumen(), BorderLayout.SOUTH);
     }
 
-    // =========================
-    // CABECERA
-    // =========================
-
     private JPanel crearCabecera() {
-
         JPanel cabecera = new JPanel(new BorderLayout());
 
         JPanel textos = new JPanel();
-
         textos.setLayout(new BoxLayout(textos, BoxLayout.Y_AXIS));
         JLabel titulo = new JLabel("Mis reservas");
         titulo.setFont(new Font("SansSerif", Font.BOLD, 24));
 
         JLabel subtitulo = new JLabel("Consulta y cancela tus reservas activas");
-
         subtitulo.setForeground(Color.GRAY);
 
         textos.add(titulo);
@@ -86,7 +47,6 @@ public class MisReservasPanel extends JPanel
         textos.add(subtitulo);
 
         JButton btnNuevaReserva = new JButton("Nueva reserva");
-
         btnNuevaReserva.addActionListener(e -> navigator.accept("RESERVAR"));
 
         cabecera.add(textos, BorderLayout.WEST);
@@ -95,75 +55,37 @@ public class MisReservasPanel extends JPanel
         return cabecera;
     }
 
-    // =========================
-    // CENTRO
-    // =========================
-
     private JScrollPane crearCentro() {
-
         panelLista = new JPanel();
         panelLista.setLayout(new BoxLayout(panelLista, BoxLayout.Y_AXIS));
-
         return new JScrollPane(panelLista);
     }
 
-    // =========================
-    // RESUMEN
-    // =========================
-
     private JPanel crearResumen() {
-
         JPanel resumen = new JPanel(new FlowLayout(FlowLayout.LEFT));
-
         lblResumen = new JLabel("0 reservas");
-
         resumen.add(lblResumen);
-
         return resumen;
     }
 
-    // =========================
-    // ACTUALIZAR RESERVAS
-    // =========================
-
-    public void actualizarReservas() throws ExcepcionGeneralDB {
-
-        List<String> reserv = servicioReserva.ObtenerReservas(nombreUsuario);
-
-        List<ReservaVista> reservas = new ArrayList<>();
-        for (String r : reserv) {
-
-            String[] partes = r.split("-");
-
-            if (partes.length < 6) {
-                continue;
-            }
-            reservas.add(new ReservaVista(partes[0], partes[1], partes[2], partes[3], partes[4], Boolean.parseBoolean(partes[5])));
-        }
-
-        setReservas(reservas);
+    /** Listener invocado al pulsar "Cancelar" en una reserva activa. */
+    public void setCancelarReservaListener(Consumer<ReservaVista> listener) {
+        this.cancelarReservaListener = listener;
     }
 
-    // =========================
-    // PINTAR RESERVAS
-    // =========================
-
     public void setReservas(List<ReservaVista> reservas) {
-
         panelLista.removeAll();
 
         int activas = 0;
         int canceladas = 0;
 
         for (ReservaVista reserva : reservas) {
-
             if (reserva.activa()) {
                 activas++;
             } else {
                 canceladas++;
             }
             panelLista.add(crearTarjetaReserva(reserva));
-
             panelLista.add(Box.createVerticalStrut(12));
         }
 
@@ -173,29 +95,25 @@ public class MisReservasPanel extends JPanel
         panelLista.repaint();
     }
 
-    // =========================
-    // TARJETA RESERVA
-    // =========================
-
     private JPanel crearTarjetaReserva(ReservaVista reserva) {
-
         JPanel card = new JPanel(new BorderLayout());
-
-        card.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)), BorderFactory.createEmptyBorder(16, 16, 16, 16)));
+        card.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(220, 220, 220)),
+                BorderFactory.createEmptyBorder(16, 16, 16, 16)));
 
         JPanel info = new JPanel();
-
         info.setLayout(new BoxLayout(info, BoxLayout.Y_AXIS));
         JLabel lblPlaza = new JLabel("Plaza " + reserva.codigoPlaza() + " - " + reserva.tipoVehiculo());
-
         lblPlaza.setFont(new Font("SansSerif", Font.BOLD, 16));
         JLabel lblMatricula = new JLabel("Matrícula: " + reserva.matricula());
-
         JLabel lblFecha = new JLabel("Reservada el: " + reserva.fechaReserva());
-
         JLabel lblPiso = new JLabel("Planta " + reserva.planta());
 
-        info.add(lblPlaza);info.add(Box.createVerticalStrut(6));info.add(lblMatricula);info.add(lblFecha);info.add(lblPiso);
+        info.add(lblPlaza);
+        info.add(Box.createVerticalStrut(6));
+        info.add(lblMatricula);
+        info.add(lblFecha);
+        info.add(lblPiso);
 
         JLabel estado = new JLabel(reserva.activa() ? "Activa" : "Cancelada");
         estado.setForeground(reserva.activa() ? new Color(46, 125, 50) : new Color(198, 40, 40));
@@ -205,19 +123,12 @@ public class MisReservasPanel extends JPanel
         derecha.add(estado);
         derecha.add(Box.createVerticalStrut(8));
         if (reserva.activa()) {
-
             JButton btnCancelar = new JButton("Cancelar");
-
-            btnCancelar.addActionListener(
-                    e -> {
-                        try {
-                            abrirDialogoCancelar(reserva);
-                        } catch (ExcepcionFicheroNoEncontrado ex) {
-                            throw new RuntimeException(ex);
-                        }
-                    }
-            );
-
+            btnCancelar.addActionListener(e -> {
+                if (cancelarReservaListener != null) {
+                    cancelarReservaListener.accept(reserva);
+                }
+            });
             derecha.add(btnCancelar);
         }
 
@@ -227,41 +138,5 @@ public class MisReservasPanel extends JPanel
         return card;
     }
 
-    // =========================
-    // DIALOG CANCELAR
-    // =========================
-
-    private void abrirDialogoCancelar(ReservaVista reserva) throws ExcepcionFicheroNoEncontrado {
-        Window padre = SwingUtilities.getWindowAncestor(this);
-
-        CancelarReservaDialog dlg = new CancelarReservaDialog(padre, reserva.codigoPlaza(), reserva.planta(), reserva.matricula(), reserva.fechaReserva(), reserva.tipoVehiculo());
-
-        new ControladorPOPAP_CancelarReserva(dlg, nombreUsuario,servicioPlaza);
-
-        dlg.setVisible(true);
-    }
-
-    // =========================
-    // OBSERVER
-    // =========================
-
-    @Override
-    public void onParkingChange(String estado, String resumen) {
-
-        SwingUtilities.invokeLater(() -> {
-            try {
-                actualizarReservas();
-            } catch (ExcepcionGeneralDB e) {
-                // Handle or log the exception appropriately
-                e.printStackTrace();
-            }
-        });
-    }
-
-    // =========================
-    // RECORD
-    // =========================
-
-    public record ReservaVista(String codigoPlaza, String tipoVehiculo, String matricula, String fechaReserva, String planta, boolean activa) {
-    }
+    public record ReservaVista(String codigoPlaza, String tipoVehiculo, String matricula, String fechaReserva, String planta, boolean activa) {}
 }

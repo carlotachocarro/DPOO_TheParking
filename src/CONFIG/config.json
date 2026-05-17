@@ -10,5 +10,6 @@
   "contrasenaAdmin": "admin",
   "cantidadPlazasDisponibles": 5,
   "tipo":"coche",
-  "tiempoEntradaVehiculos": 5
+  "tiempoEntradaVehiculos": 5,
+  "simuladorActivo": false
 }

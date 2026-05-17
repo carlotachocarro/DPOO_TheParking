@@ -1,11 +1,15 @@
 package Negocio.Servicios;
 
+import Negocio.Entidades.AvisoCancelacionUsuario;
+import Negocio.Entidades.Plaza;
 import Negocio.Entidades.Reserva;
+import Negocio.Excepciones.ExcepcionEntradaSalidaPlaza;
+import Negocio.Excepciones.ExcepcionFicheroConfig;
+import Negocio.Excepciones.ExcepcionReservaPlaza;
 import Persistencia.Daoimpl.PlazaDBDAO;
 import Persistencia.Daoimpl.ReservaDBDAO;
 import Persistencia.Daoimpl.UsuarioDBDAO;
 import Persistencia.persistenciaExcepciones.ExcepcionFicheroNoEncontrado;
-import Negocio.Entidades.*;
 import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
 
 import java.util.ArrayList;
@@ -20,56 +24,54 @@ public class ServicioReserva {
 
 
 
-    public ServicioReserva(ServicioPlaza servicioPlaza) throws ExcepcionFicheroNoEncontrado {
-        this.servicioUsuario= new ServicioUsuario();
-        this.reservaDBDAO = new ReservaDBDAO();
-        this.usuarioDBDAO = new UsuarioDBDAO();
-        this.plazaDBDAO = new PlazaDBDAO();
-        this.servicioPlaza = servicioPlaza;
-
-
+    public ServicioReserva(ServicioPlaza servicioPlaza) throws ExcepcionFicheroConfig {
+        try {
+            this.servicioUsuario = new ServicioUsuario();
+            this.reservaDBDAO = new ReservaDBDAO();
+            this.usuarioDBDAO = new UsuarioDBDAO();
+            this.plazaDBDAO = new PlazaDBDAO();
+            this.servicioPlaza = servicioPlaza;
+        } catch (ExcepcionFicheroNoEncontrado e) {
+            throw new ExcepcionFicheroConfig(e);
+        }
     }
 
 
-    public boolean realizarReservaVeiculo(String id_plaza, String matricula,String usuario) throws ExcepcionGeneralDB, ExcepcionFicheroNoEncontrado {
-        String idUsuario;
+    public boolean realizarReservaVeiculo(String id_plaza, String matricula, String usuario) throws ExcepcionReservaPlaza {
+        try {
+            String idUsuario;
 
-        if (servicioUsuario.validarCorreoElectro(usuario)){
-             idUsuario = usuarioDBDAO.getUsuarioId(null,usuario);
-        }else{
-             idUsuario = usuarioDBDAO.getUsuarioId(usuario,null);
-        }
-
-
-        if (plazaDBDAO.ocuparPlaza(id_plaza,true,matricula,usuario)){
-            if(reservaDBDAO.nuevaReserva( id_plaza,idUsuario,matricula)){
-                // vamos poner que esta ocupada la plaza actualizar el main
-                servicioPlaza.notifyObservers();
-                // Vamos hacer un registro del historial de las plazas
-                //Vamos actualizar las reservas
-
-                return true;
+            if (servicioUsuario.validarCorreoElectro(usuario)) {
+                idUsuario = usuarioDBDAO.getUsuarioId(null, usuario);
+            } else {
+                idUsuario = usuarioDBDAO.getUsuarioId(usuario, null);
             }
+
+            if (plazaDBDAO.ocuparPlaza(id_plaza, true, matricula, usuario)) {
+                if (reservaDBDAO.nuevaReserva(id_plaza, idUsuario, matricula)) {
+                    servicioPlaza.notifyObservers();
+                    return true;
+                }
+            }
+            return false;
+        } catch (ExcepcionGeneralDB | ExcepcionFicheroNoEncontrado e) {
+            throw new ExcepcionReservaPlaza(e);
+        } catch (ExcepcionEntradaSalidaPlaza e) {
+            throw new ExcepcionReservaPlaza(e);
         }
-        return false;
     }
 
-    /*
-    vista.cargarPlazasDisponibles(List.of(
-                                "1 - Planta 1 - Coche - Libre",
-                                "B-02 - Planta 2 - Coche - Libre",
-                                "B-04 - Planta 2 - Coche - Libre",
-                                "C-01 - Planta 3 - Coche - Libre"));
-    * */
-    public List<String> buscarPlazasDeParking (String tipoVehiculo) throws ExcepcionGeneralDB {
-
-        ArrayList<Plaza> plazas = plazaDBDAO.getPlazasLibres(tipoVehiculo);
-        List<String> resultado = new ArrayList<>();
-
-        for( Plaza plaza : plazas){
+    public List<String> buscarPlazasDeParking(String tipoVehiculo) throws ExcepcionReservaPlaza {
+        try {
+            ArrayList<Plaza> plazas = plazaDBDAO.getPlazasLibres(tipoVehiculo);
+            List<String> resultado = new ArrayList<>();
+            for (Plaza plaza : plazas) {
                 resultado.add(formatearPlazaParaVista(plaza));
+            }
+            return resultado;
+        } catch (ExcepcionGeneralDB e) {
+            throw new ExcepcionReservaPlaza(e);
         }
-        return resultado;
     }
 
 
@@ -93,71 +95,64 @@ public class ServicioReserva {
 
 
 
-    public  List<String> ObtenerReservas(String Nombre) throws ExcepcionGeneralDB {
-        String[] mensaje;
-        ArrayList<Reserva> reservas = new ArrayList<>();
-        ArrayList<Plaza> plazas = new ArrayList<>();
-        String idUsuario;
-        if (servicioUsuario.validarCorreoElectro(Nombre)){
-            idUsuario=usuarioDBDAO.getUsuarioId(null,Nombre);
-        }
-        else {
-            idUsuario=usuarioDBDAO.getUsuarioId(Nombre,null);
-        }
-
-        reservas = reservaDBDAO.getReservaByUser(idUsuario);
-        plazas =  plazaDBDAO.getPlazas();
-        List<String> resultado = new ArrayList<>();
-        //"B2", "Moto", "5678DEF", "02/05/2026", "Planta 2", false
-
-        for (Reserva reserva : reservas) {
-            Plaza plazaEncontrada = null;
-
-            for (Plaza plaza : plazas) {
-                String m=plaza.getCodigoPlaza();
-                String rm = reserva.getIdPlaza();
-
-                if (m.equals(rm))
-                {
-                    String estadoPlaza="";
-                    if(plaza.getEstado_ocupado()){
-                        estadoPlaza="Ocupada";
-                    }
-                    resultado.add(reserva.getIdPlaza()+"-"+plaza.getTipoVehiculo()+"-"+reserva.getMatricula()+"-"+reserva.getDate()+"-"+plaza.getPlanta()+"-"+ "True" );
-                }
-
+    public List<String> ObtenerReservas(String Nombre) throws ExcepcionReservaPlaza {
+        try {
+            ArrayList<Reserva> reservas;
+            ArrayList<Plaza> plazas;
+            String idUsuario;
+            if (servicioUsuario.validarCorreoElectro(Nombre)) {
+                idUsuario = usuarioDBDAO.getUsuarioId(null, Nombre);
+            } else {
+                idUsuario = usuarioDBDAO.getUsuarioId(Nombre, null);
             }
 
+            reservas = reservaDBDAO.getReservaByUser(idUsuario);
+            plazas = plazaDBDAO.getPlazas();
+            List<String> resultado = new ArrayList<>();
 
+            for (Reserva reserva : reservas) {
+                for (Plaza plaza : plazas) {
+                    String m = plaza.getCodigoPlaza();
+                    String rm = reserva.getIdPlaza();
+
+                    if (m.equals(rm)) {
+                        resultado.add(reserva.getIdPlaza() + "-" + plaza.getTipoVehiculo() + "-" + reserva.getMatricula() + "-" + reserva.getDate() + "-" + plaza.getPlanta() + "-" + "True");
+                    }
+                }
+            }
+            return resultado;
+        } catch (ExcepcionGeneralDB e) {
+            throw new ExcepcionReservaPlaza(e);
         }
-       return resultado;
-
     }
 
-    public boolean cancelarReserva(String idPlaza,String nombre) throws ExcepcionGeneralDB {
+    public boolean cancelarReserva(String idPlaza, String nombre) throws ExcepcionReservaPlaza {
+        try {
+            String idUsuario;
+            if (servicioUsuario.validarCorreoElectro(nombre)) {
+                idUsuario = usuarioDBDAO.getUsuarioId(null, nombre);
+            } else {
+                idUsuario = usuarioDBDAO.getUsuarioId(nombre, null);
+            }
 
-        String idUsuario;
-        if (servicioUsuario.validarCorreoElectro(nombre)){
-            idUsuario=usuarioDBDAO.getUsuarioId(null,nombre);
-        }
-        else {
-            idUsuario=usuarioDBDAO.getUsuarioId(nombre,null);
-        }
+            if (reservaDBDAO.borrarReserva(idPlaza, idUsuario)) {
+                plazaDBDAO.limpiarPlaza(idPlaza);
+                servicioPlaza.notifyObservers();
+                return true;
+            }
 
-        if (reservaDBDAO.borrarReserva(idPlaza,idUsuario)){
-            plazaDBDAO.limpiarPlaza(idPlaza);
-            // VAMOS A USAR EL OBSERVER PARA ACTUALIZAR LAS PLAZAS RESERVADAS
-            servicioPlaza.notifyObservers();
-            return true;
+            return false;
+        } catch (ExcepcionGeneralDB e) {
+            throw new ExcepcionReservaPlaza(e);
+        } catch (ExcepcionEntradaSalidaPlaza e) {
+            throw new ExcepcionReservaPlaza(e);
         }
-
-        return false;
     }
 
     /**
      * Cancelación desde el panel admin (detalle de plaza). Registra aviso para el próximo login del usuario.
      */
-    public boolean adminCancelarReservaEnPlaza(String idPlaza) {
+    public boolean adminCancelarReservaEnPlaza(String idPlaza) throws ExcepcionReservaPlaza {
         try {
             Reserva reserva = null;
             for (Reserva r : reservaDBDAO.getReservas()) {
@@ -187,6 +182,7 @@ public class ServicioReserva {
                     null,
                     null
             );
+            // TODO: persistir el aviso en BD cuando exista AvisoDBDAO.
 
             if (reservaDBDAO.borrarReserva(idPlaza, reserva.getIdCliente())) {
                 plazaDBDAO.limpiarPlaza(idPlaza);
@@ -194,17 +190,10 @@ public class ServicioReserva {
                 return true;
             }
             return false;
-        } catch (Exception e) {
-            System.out.println(e);
-            return false;
+        } catch (ExcepcionGeneralDB e) {
+            throw new ExcepcionReservaPlaza(e);
+        } catch (ExcepcionEntradaSalidaPlaza e) {
+            throw new ExcepcionReservaPlaza(e);
         }
     }
-
-
-
-
-
-
-
-
 }

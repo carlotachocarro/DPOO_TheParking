@@ -1,9 +1,5 @@
 package Presentacion.Vistas.Panels;
 
-import Negocio.Servicios.ParkingObserver;
-import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
-import Presentacion.Controladores.ControllerMenuPrincipalAdmin;
-
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
@@ -12,8 +8,14 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.EventObject;
+import java.util.List;
 
-public class EstadoParkingPanel extends JPanel implements ParkingObserver {
+/**
+ * Vista pasiva del estado del parking. No conoce servicios ni el patrón Observer:
+ * solo expone {@link #setContadores}, {@link #setFilas} y un {@link AccionFilaListener}.
+ * El controlador (ControladorEstadoParking) se encarga de alimentarla.
+ */
+public class EstadoParkingPanel extends JPanel {
 
     public enum Modo {
         USUARIO,        // Vista usuario: Estado parking (sin acciones)
@@ -21,40 +23,34 @@ public class EstadoParkingPanel extends JPanel implements ParkingObserver {
         ADMIN_GESTION   // Vista admin: Gestión plazas (con columna Acciones Edit/Del)
     }
 
+    /** DTO de fila para que el controlador la pase ya parseada. */
+    public record FilaPlaza(String codigo, String planta, String estado, String reserva, String matricula, String tipoVehiculo) {}
+
+    public interface AccionFilaListener {
+        void onEditar(String codigoPlaza);
+        void onEliminar(String codigoPlaza);
+        void onClickFila(String codigoPlaza); // para abrir DetallePlazaDialog en admin
+    }
+
     private final Modo modo;
-    private final ControllerMenuPrincipalAdmin controller;
 
     private JTable tabla;
     private DefaultTableModel modeloTabla;
     private JLabel lblTituloCabecera;
     private JLabel lblSubtituloCabecera;
 
-    // Stat cards
     private JLabel lblTotal;
     private JLabel lblLibres;
     private JLabel lblOcupadas;
     private JLabel lblReservadas;
 
-    // Listener externo para acciones admin (Edit/Del de una fila)
     private AccionFilaListener accionFilaListener;
 
-    public interface AccionFilaListener {
-        void onEditar(String codigoPlaza) throws ExcepcionGeneralDB;
-        void onEliminar(String codigoPlaza) throws ExcepcionGeneralDB;
-        void onClickFila(String codigoPlaza) throws ExcepcionGeneralDB; // para abrir DetallePlazaDialog en admin
+    public EstadoParkingPanel() {
+        this(Modo.USUARIO);
     }
 
-
-
-    public EstadoParkingPanel(ControllerMenuPrincipalAdmin controller) throws ExcepcionGeneralDB {
-
-        this(controller, Modo.USUARIO);
-       // controller.getServicioPlaza().addObserver(this);
-    }
-
-    public EstadoParkingPanel(ControllerMenuPrincipalAdmin controller, Modo modo) throws ExcepcionGeneralDB {
-
-        this.controller = controller;
+    public EstadoParkingPanel(Modo modo) {
         this.modo = modo;
 
         setLayout(new BorderLayout(15, 15));
@@ -64,14 +60,14 @@ public class EstadoParkingPanel extends JPanel implements ParkingObserver {
         add(crearCabecera(), BorderLayout.NORTH);
         add(crearZonaCentral(), BorderLayout.CENTER);
         add(crearPie(), BorderLayout.SOUTH);
-        controller.getServicioPlaza().addObserver(this);
-        mostrarPlazas();
-
     }
-
 
     public void setAccionFilaListener(AccionFilaListener listener) {
         this.accionFilaListener = listener;
+    }
+
+    public Modo getModo() {
+        return modo;
     }
 
     private JPanel crearCabecera() {
@@ -128,7 +124,6 @@ public class EstadoParkingPanel extends JPanel implements ParkingObserver {
         JPanel stats = new JPanel(new GridLayout(1, 4, 15, 15));
         stats.setOpaque(false);
 
-        // Las cards se crean vacías; los valores se rellenan en mostrarPlazas()
         lblTotal = new JLabel("0");
         lblLibres = new JLabel("0");
         lblOcupadas = new JLabel("0");
@@ -170,7 +165,6 @@ public class EstadoParkingPanel extends JPanel implements ParkingObserver {
         modeloTabla = new DefaultTableModel(columnas, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                // Solo editable la columna Acciones en modo gestión (para que reciba clicks)
                 return modo == Modo.ADMIN_GESTION && column == columnas.length - 1;
             }
         };
@@ -186,22 +180,16 @@ public class EstadoParkingPanel extends JPanel implements ParkingObserver {
             tabla.getColumnModel().getColumn(colAcciones).setPreferredWidth(160);
         }
 
-        // Click en fila → abrir detalle (solo admin)
         if (modo == Modo.ADMIN_ESTADO || modo == Modo.ADMIN_GESTION) {
             tabla.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
                     int fila = tabla.rowAtPoint(e.getPoint());
                     int col = tabla.columnAtPoint(e.getPoint());
-                    // No disparar si han clicado en la columna Acciones
                     if (modo == Modo.ADMIN_GESTION && col == columnas.length - 1) return;
                     if (fila >= 0 && accionFilaListener != null) {
                         String codigo = (String) modeloTabla.getValueAt(fila, 0);
-                        try {
-                            accionFilaListener.onClickFila(codigo);
-                        } catch (ExcepcionGeneralDB ex) {
-                            throw new RuntimeException(ex);
-                        }
+                        accionFilaListener.onClickFila(codigo);
                     }
                 }
             });
@@ -213,11 +201,11 @@ public class EstadoParkingPanel extends JPanel implements ParkingObserver {
     private String[] obtenerColumnas() {
         switch (modo) {
             case ADMIN_GESTION:
-                return new String[]{"Código", "Piso", "Estado", "Reserva", "Acciones"};
+                return new String[]{"Código", "Piso", "Tipo vehículo", "Estado", "Reserva", "Acciones"};
             case ADMIN_ESTADO:
             case USUARIO:
             default:
-                return new String[]{"Código", "Piso", "Estado", "Reserva", "Matrícula"};
+                return new String[]{"Código", "Piso", "Tipo vehículo", "Estado", "Reserva", "Matrícula"};
         }
     }
 
@@ -232,47 +220,27 @@ public class EstadoParkingPanel extends JPanel implements ParkingObserver {
         return pie;
     }
 
-    public void mostrarPlazas() throws ExcepcionGeneralDB {
-        // Stats
-        String infCantidadDePlazas = controller.actualizarPlazasLibres();
-        if (infCantidadDePlazas != null && !infCantidadDePlazas.isEmpty()) {
-            String[] partes = infCantidadDePlazas.split(",");
-            int libres = Integer.parseInt(partes[0]);
-            int reservadas = Integer.parseInt(partes[1]);
-            int ocupadas = Integer.parseInt(partes[2]);
-            int totalPlazas = Integer.parseInt(partes[3]);
+    public void setContadores(int total, int libres, int reservadas, int ocupadas) {
+        lblTotal.setText(String.valueOf(total));
+        lblLibres.setText(String.valueOf(libres));
+        lblReservadas.setText(String.valueOf(reservadas));
+        lblOcupadas.setText(String.valueOf(ocupadas));
+    }
 
-            lblTotal.setText(String.valueOf(totalPlazas));
-            lblLibres.setText(String.valueOf(libres));
-            lblOcupadas.setText(String.valueOf(ocupadas));
-            lblReservadas.setText(String.valueOf(reservadas));
-        }
-
-        // Tabla
-        String info = controller.actualizarEstadoParking();
+    public void setFilas(List<FilaPlaza> filas) {
         modeloTabla.setRowCount(0);
-        if (info == null || info.isEmpty()) return;
-
-        String[] lineas = info.split("\n");
-        for (String linea : lineas) {
-            if (linea.trim().isEmpty()) continue;
-            String[] datos = linea.split("-");
-            // datos[0] = "" (por el "-" inicial)
-            // datos[1] = código, datos[2] = planta, datos[3] = estado ocupado,
-            // datos[4] = reserva, datos[5] = matrícula
-
-            String codigo = datos[1];
-            String planta = datos[2];
-            String estado = datos[3];
-            String reserva = datos[4];
-            String matricula = datos.length > 5 ? datos[5] : "";
-
+        if (filas == null) {
+            modeloTabla.fireTableDataChanged();
+            return;
+        }
+        for (FilaPlaza f : filas) {
             if (modo == Modo.ADMIN_GESTION) {
-                modeloTabla.addRow(new Object[]{codigo, planta, estado, reserva, "ACCIONES"});
+                modeloTabla.addRow(new Object[]{f.codigo(), f.planta(), f.tipoVehiculo(), f.estado(), f.reserva(), "ACCIONES"});
             } else {
-                modeloTabla.addRow(new Object[]{codigo, planta, estado, reserva, matricula});
+                modeloTabla.addRow(new Object[]{f.codigo(), f.planta(), f.tipoVehiculo(), f.estado(), f.reserva(), f.matricula()});
             }
         }
+        modeloTabla.fireTableDataChanged();
     }
 
     // ============================================================
@@ -316,22 +284,14 @@ public class EstadoParkingPanel extends JPanel implements ParkingObserver {
             btnEdit.addActionListener(e -> {
                 fireEditingStopped();
                 if (accionFilaListener != null && codigoFila != null) {
-                    try {
-                        accionFilaListener.onEditar(codigoFila);
-                    } catch (ExcepcionGeneralDB ex) {
-                        throw new RuntimeException(ex);
-                    }
+                    accionFilaListener.onEditar(codigoFila);
                 }
             });
 
             btnDel.addActionListener(e -> {
                 fireEditingStopped();
                 if (accionFilaListener != null && codigoFila != null) {
-                    try {
-                        accionFilaListener.onEliminar(codigoFila);
-                    } catch (ExcepcionGeneralDB ex) {
-                        throw new RuntimeException(ex);
-                    }
+                    accionFilaListener.onEliminar(codigoFila);
                 }
             });
         }
@@ -360,41 +320,5 @@ public class EstadoParkingPanel extends JPanel implements ParkingObserver {
         b.setForeground(Color.WHITE);
         b.setFocusPainted(false);
         b.setBorder(BorderFactory.createEmptyBorder(4, 10, 4, 10));
-    }
-
-    @Override
-    public void onParkingChange(String estado, String resumen) {
-
-        SwingUtilities.invokeLater(() -> {
-
-            // actualizar contadores
-            String[] datos = resumen.split(",");
-            lblLibres.setText(datos[0]);
-            lblReservadas.setText(datos[1]);
-            lblOcupadas.setText(datos[2]);
-            lblTotal.setText(datos[3]);
-
-            modeloTabla.setRowCount(0);
-            if (estado == null || estado.isEmpty()) return;
-
-            String[] lineas = estado.split("\n");
-            for (String linea : lineas) {
-                if (linea.trim().isEmpty()) continue;
-                String[] dato = linea.split("-");
-
-                String codigo = dato[1];
-                String planta = dato[2];
-                String esta = dato[3];
-                String reserva = dato[4];
-                String matricula = dato.length > 5 ? dato[5] : "";
-
-                if (modo == Modo.ADMIN_GESTION) {
-                    modeloTabla.addRow(new Object[]{codigo, planta, esta, reserva, "ACCIONES"});
-                } else {
-                    modeloTabla.addRow(new Object[]{codigo, planta, esta, reserva, matricula});
-                }
-            }
-            modeloTabla.fireTableDataChanged(); //  importante
-        });
     }
 }

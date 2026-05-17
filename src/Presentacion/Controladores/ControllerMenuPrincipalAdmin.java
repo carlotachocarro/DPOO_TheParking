@@ -1,115 +1,86 @@
 package Presentacion.Controladores;
 
 
-import Negocio.Servicios   .ServicioHistorialOcupacion;
+import Negocio.Excepciones.ExcepcionDatosIncorrectos;
+import Negocio.Excepciones.ExcepcionEntradaSalidaPlaza;
+import Negocio.Excepciones.ExcepcionFicheroConfig;
+import Negocio.Excepciones.ExcepcionHistorial;
+import Negocio.Servicios.ServicioHistorialOcupacion;
 import Negocio.Servicios.ServicioPlaza;
 import Negocio.Servicios.ServicioReserva;
 import Negocio.Servicios.ServicioUsuario;
 import Negocio.Servicios.ServicioVehiculo;
+import Negocio.Servicios.Simulador;
+import Persistencia.Config.ConfigJSONDAO;
+import Persistencia.persistenciaExcepciones.ExcepcionFicheroNoEncontrado;
 
 import javax.swing.Timer;
 import java.awt.event.ActionListener;
 import java.util.List;
-import java.util.Random;
-
-import Persistencia.persistenciaExcepciones.ExcepcionFicheroNoEncontrado;
-import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
 
 /**
  * Orquesta servicios de la sesión principal (usuario y administrador).
  * El nombre histórico sugiere solo admin, pero también se usa en {@code MainUsuarioFrame}.
  */
 public class ControllerMenuPrincipalAdmin {
-    private ServicioPlaza servicioPlaza;
-    private ServicioReserva servicioReserva;
-    private ServicioUsuario servicioUsuario;
-    private ServicioVehiculo servicioVehiculo;
-    private ServicioHistorialOcupacion servicioHistorialOcupacion;
-    private Timer timerSimulacionTrafico;
+    private final ServicioPlaza servicioPlaza;
+    private final ServicioReserva servicioReserva;
+    private final ServicioUsuario servicioUsuario;
+    private final ServicioVehiculo servicioVehiculo;
+    private final ServicioHistorialOcupacion servicioHistorialOcupacion;
+    private final Simulador simulador;
     private Timer timerRenovarGraficos;
 
-    private final Random randomSimulacion = new Random();
-    /** Evita encadenar nuevos ticks tras {@link #detenerTimersSecundarios()}. */
-    private volatile boolean simulacionTraficoEncendida;
-
-    public ControllerMenuPrincipalAdmin() throws ExcepcionFicheroNoEncontrado {
+    public ControllerMenuPrincipalAdmin() throws ExcepcionFicheroConfig {
         this.servicioPlaza = new ServicioPlaza();
         this.servicioReserva = new ServicioReserva(servicioPlaza);
         this.servicioUsuario = new ServicioUsuario();
         this.servicioVehiculo = new ServicioVehiculo(servicioPlaza);
         this.servicioHistorialOcupacion = new ServicioHistorialOcupacion();
-        iniciarSimulacionDesdeConfig();
+
+        int maxSegundos = leerMaxSegundosConfig();
+        this.simulador = new Simulador(servicioPlaza, maxSegundos);
+
+        if (leerSimuladorActivoConfig()) {
+            simulador.iniciar();
+        }
     }
 
-    /**
-     * Simulación de tránsito según enunciado: espera aleatoria entre 1 y N segundos (N desde config),
-     * luego entrada con probabilidad (#plazas libres no reservadas / #plazas no reservadas) o sortida.
-     */
-    private void iniciarSimulacionDesdeConfig() {
-        int maxSegundos;
+    private static int leerMaxSegundosConfig() {
         try {
-            Persistencia.Config.ConfigJSONDAO cfg = new Persistencia.Config.ConfigJSONDAO();
-            maxSegundos = cfg.getMaxSegundosEntreEventosSimulacion();
+            return new ConfigJSONDAO().getMaxSegundosEntreEventosSimulacion();
         } catch (ExcepcionFicheroNoEncontrado e) {
-            return;
+            return 0;
         }
-        if (maxSegundos <= 0) {
-            return;
-        }
-        simulacionTraficoEncendida = true;
-        programarSiguienteEventoSimulacion(maxSegundos);
     }
 
-    private void programarSiguienteEventoSimulacion(int maxSegundos) {
-        if (!simulacionTraficoEncendida) {
-            return;
+    private static boolean leerSimuladorActivoConfig() {
+        try {
+            return new ConfigJSONDAO().isSimuladorActivoPorDefecto();
+        } catch (ExcepcionFicheroNoEncontrado e) {
+            return false;
         }
-        int esperaSeg = 1 + randomSimulacion.nextInt(maxSegundos);
-        if (timerSimulacionTrafico != null) {
-            timerSimulacionTrafico.stop();
-        }
-        timerSimulacionTrafico = new Timer(esperaSeg * 1000, e -> {
-            if (!simulacionTraficoEncendida) {
-                return;
-            }
-            double pEntrada = 0;
-            try {
-                pEntrada = servicioVehiculo.probabilidadEntrada();
-            } catch (ExcepcionGeneralDB ex) {
-                throw new RuntimeException(ex);
-            }
-            double r = randomSimulacion.nextDouble();
-            if (r < pEntrada) {
-                try {
-                    servicioVehiculo.simulaEntrada();
-                } catch (ExcepcionGeneralDB ex) {
-                    throw new RuntimeException(ex);
-                }
-            } else {
-                try {
-                    servicioVehiculo.simulaSalida();
-                } catch (ExcepcionGeneralDB ex) {
-                    throw new RuntimeException(ex);
-                }
-            }
-            programarSiguienteEventoSimulacion(maxSegundos);
-        });
-        timerSimulacionTrafico.setRepeats(false);
-        timerSimulacionTrafico.start();
     }
 
-    public boolean eliminarCuenta(String name) throws ExcepcionGeneralDB {
-        if (servicioUsuario.eliminarCuenta(name)){
-            return true;
-        }
-        return false;
-
+    /** Arranca la simulación de tráfico. Disponible para conectar a un botón del admin. */
+    public void iniciarSimulador() {
+        simulador.iniciar();
     }
 
+    /** Detiene la simulación de tráfico. Disponible para conectar a un botón del admin. */
+    public void detenerSimulador() {
+        simulador.detener();
+    }
 
+    public boolean simuladorActivo() {
+        return simulador.estaActivo();
+    }
+
+    public boolean eliminarCuenta(String name) throws ExcepcionDatosIncorrectos {
+        return servicioUsuario.eliminarCuenta(name);
+    }
 
     public ServicioPlaza getServicioPlaza() {
-
         return servicioPlaza;
     }
 
@@ -121,11 +92,11 @@ public class ControllerMenuPrincipalAdmin {
         return servicioVehiculo;
     }
 
-    public List<Integer> getSerieHistorialOcupacionUltimaHora() throws ExcepcionGeneralDB {
+    public List<Integer> getSerieHistorialOcupacionUltimaHora() throws ExcepcionHistorial {
         return servicioHistorialOcupacion.serieUltimaHoraCronologica();
     }
 
-    public int getCapacidadTotalPlazas() throws ExcepcionGeneralDB {
+    public int getCapacidadTotalPlazas() throws ExcepcionEntradaSalidaPlaza {
         return servicioPlaza.getTotalPlazasEnSistema();
     }
 
@@ -140,28 +111,22 @@ public class ControllerMenuPrincipalAdmin {
         timerRenovarGraficos.start();
     }
 
-    /** Antes de dispose del frame principal (opcional): evitar timers repetidos si se cambia de sesión dentro de las mismas clases cargadas. */
+    /** Antes de dispose del frame principal: para el simulador y el refresco del gráfico. */
     public void detenerTimersSecundarios() {
-        simulacionTraficoEncendida = false;
-        if (timerSimulacionTrafico != null) {
-            timerSimulacionTrafico.stop();
-            timerSimulacionTrafico = null;
-        }
+        simulador.detener();
         if (timerRenovarGraficos != null) {
             timerRenovarGraficos.stop();
             timerRenovarGraficos = null;
         }
     }
 
-    public String actualizarPlazasLibres() throws ExcepcionGeneralDB {
-       String Value =servicioPlaza.Actualizar_PlazasMenu();
-
-        return Value;
+    public String actualizarPlazasLibres() throws ExcepcionEntradaSalidaPlaza {
+        return servicioPlaza.Actualizar_PlazasMenu();
     }
 
 
-    public String actualizarEstadoParking() throws ExcepcionGeneralDB {
-         return servicioPlaza.saberTodaslasPlazas();
+    public String actualizarEstadoParking() throws ExcepcionEntradaSalidaPlaza {
+        return servicioPlaza.saberTodaslasPlazas();
     }
 
 

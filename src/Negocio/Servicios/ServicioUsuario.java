@@ -1,104 +1,99 @@
 package Negocio.Servicios;
 
 import Negocio.Entidades.Usuario;
+import Negocio.Excepciones.ExcepcionDatosIncorrectos;
+import Negocio.Excepciones.ExcepcionFicheroConfig;
 import Persistencia.Config.ConfigJSONDAO;
-import Persistencia.Daoimpl.Singleton;
-import Persistencia.Daoimpl.UsuarioDAO;
 import Persistencia.Daoimpl.UsuarioDBDAO;
 import Persistencia.persistenciaExcepciones.ExcepcionFicheroNoEncontrado;
 import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
 
 import java.security.MessageDigest;
 
-import static java.lang.foreign.MemorySegment.NULL;
-
 public class ServicioUsuario {
 
     private UsuarioDBDAO usuariDAO;
     private ConfigJSONDAO configJSONDAO;
-    private  Usuario usuario;
+    private Usuario usuario;
 
-    public  ServicioUsuario() throws ExcepcionFicheroNoEncontrado {
-
-        usuariDAO = new UsuarioDBDAO();
-        configJSONDAO = new ConfigJSONDAO();
-    }
-
-    public int registrarUsua(String nombreUser, String correrElectro, String contra,String repContra) throws ExcepcionGeneralDB {
-        String encryptedPassword ;
-        if (validarCorreoElectro(correrElectro) == true){
-            if (contra.equals(repContra)){
-                if (comprbarMIT(contra)){
-                    encryptedPassword  = encriptarContrasena(contra);// funcion para encriptar la contrasenya
-                    if (!usuariDAO.checkUsuario(nombreUser,correrElectro)) {
-                        if (usuariDAO.registrarUsuario(nombreUser,correrElectro,encryptedPassword)){
-                            return 4;// es valido todo correo, longitud, caracteresm, reg base de datos
-                        }
-                        return 3;
-                    }
-                    return 2;// es Valido correo, longitud , caracteres, no se ha registrado en la base de datps
-                }
-                return  1;// valdio el correo , la longitud, no los caracteres
-            }
-            else {
-                return 0;// es valido el correo pero no la longitud de la contrasenya
-            }
+    public ServicioUsuario() throws ExcepcionFicheroConfig {
+        try {
+            usuariDAO = new UsuarioDBDAO();
+            configJSONDAO = new ConfigJSONDAO();
+        } catch (ExcepcionFicheroNoEncontrado e) {
+            throw new ExcepcionFicheroConfig(e);
         }
-        return -1;// no es valido el corre electronico
+    }
+
+    public int registrarUsua(String nombreUser, String correrElectro, String contra, String repContra) throws ExcepcionDatosIncorrectos {
+        try {
+            String encryptedPassword;
+            if (validarCorreoElectro(correrElectro)) {
+                if (contra.equals(repContra)) {
+                    if (comprbarMIT(contra)) {
+                        encryptedPassword = encriptarContrasena(contra);
+                        if (!usuariDAO.checkUsuario(nombreUser, correrElectro)) {
+                            if (usuariDAO.registrarUsuario(nombreUser, correrElectro, encryptedPassword)) {
+                                return 4; // todo correcto
+                            }
+                            return 3;
+                        }
+                        return 2; // ya existe
+                    }
+                    return 1; // contraseña no cumple política
+                } else {
+                    return 0; // contraseñas no coinciden
+                }
+            }
+            return -1; // correo no válido
+        } catch (ExcepcionGeneralDB e) {
+            throw new ExcepcionDatosIncorrectos(e);
+        }
     }
 
 
-    public boolean comprbarMIT(String contra){
-        if ( contra.length() < 8 || contra.length() > 50){
+    public boolean comprbarMIT(String contra) {
+        if (contra.length() < 8 || contra.length() > 50) {
             return false;
         }
 
-        boolean mayuscula =false;
-        boolean minuscula =false;
+        boolean mayuscula = false;
+        boolean minuscula = false;
         boolean number = false;
-        boolean caracter =false;
+        boolean caracter = false;
 
-        for (int i = 0; i < contra.length(); i++){
-            if (Character.isDigit(contra.charAt(i))){
+        for (int i = 0; i < contra.length(); i++) {
+            if (Character.isDigit(contra.charAt(i))) {
                 number = true;
-            }else if(Character.isLowerCase(contra.charAt(i))){
-                minuscula =  true;
-            }
-           else if (Character.isUpperCase(contra.charAt(i))){
+            } else if (Character.isLowerCase(contra.charAt(i))) {
+                minuscula = true;
+            } else if (Character.isUpperCase(contra.charAt(i))) {
                 mayuscula = true;
+            } else {
+                caracter = true;
             }
-            else{
-                caracter =  true;
-            }
-
         }
 
-        if (number && mayuscula && minuscula && caracter ){
-            return true;
-        }
-        return  false;
+        return number && mayuscula && minuscula && caracter;
     }
 
 
     public String encriptarContrasena(String contrasena) {
         try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");//función que transforma texto en algo irreconocible
-            byte[] hash = md.digest(contrasena.getBytes());//→ convierte el texto a bytes (formato interno del ordenador)
-            //→ aplica SHA-256
-            //→ un array de bytes (byte[])
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] hash = md.digest(contrasena.getBytes());
 
-            StringBuilder hex = new StringBuilder();//Creamos un acumulador de texto
-            for (byte b : hash) {//Recorremos cada byte del hash
-                hex.append(String.format("%02x", b));//Convierte cada byte a hexadecimal
+            StringBuilder hex = new StringBuilder();
+            for (byte b : hash) {
+                hex.append(String.format("%02x", b));
             }
-            return hex.toString();// DEVOOLVEMOS LA STRING HASHEADA.
+            return hex.toString();
 
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
-
 
 
     public boolean validarCorreoElectro(String email) {
@@ -108,59 +103,42 @@ public class ServicioUsuario {
         String regex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
         return email.matches(regex);
     }
-/**
- * Usuario se registra
- *         ↓
- * Validar formato email
- *         ↓
- * ¿Correo ya existe en BD?
- *         ↓
- * Guardar usuario como "NO VERIFICADO"
- *         ↓
- * Enviar email con enlace o código
- *         ↓
- * Usuario confirma
- *         ↓
- * Usuario pasa a "VERIFICADO"
- */
-public boolean inicioSessionAdmin(String contra){
 
-    if (configJSONDAO.getAdminPass().equals(contra)){
-        return true;
+    public boolean inicioSessionAdmin(String contra) {
+        return configJSONDAO.getAdminPass().equals(contra);
     }
 
-    return false;
-}
 
-
-    public boolean inicioSession(String nombre,String contra) throws ExcepcionGeneralDB {
-
-        String correoElectro = null;
-        if (validarCorreoElectro(nombre) == true){
-            correoElectro = nombre;
-            nombre = null;
-        }
-        String encryptedPassword;
-        encryptedPassword= encriptarContrasena(contra);
-        usuario = usuariDAO.getUsuario( nombre,correoElectro);
-
-        if (usuariDAO.checkUsuario(nombre,correoElectro)) {
-            if (usuariDAO.getUsuarioContraseña(nombre,correoElectro).equals(encryptedPassword)){
-                return true;
+    public boolean inicioSession(String nombre, String contra) throws ExcepcionDatosIncorrectos {
+        try {
+            String correoElectro = null;
+            if (validarCorreoElectro(nombre)) {
+                correoElectro = nombre;
+                nombre = null;
             }
+            String encryptedPassword = encriptarContrasena(contra);
+            usuario = usuariDAO.getUsuario(nombre, correoElectro);
+
+            if (usuariDAO.checkUsuario(nombre, correoElectro)) {
+                if (usuariDAO.getUsuarioContraseña(nombre, correoElectro).equals(encryptedPassword)) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (ExcepcionGeneralDB e) {
+            throw new ExcepcionDatosIncorrectos(e);
         }
-        return false;
     }
 
-    public void registrarAdmin() throws ExcepcionGeneralDB {
-        String encryptedPassword  = encriptarContrasena("admin");
-        if (!usuariDAO.checkUsuario("admin","admin")) {
-            if (usuariDAO.registrarUsuario("admin","admin",encryptedPassword)){
-
+    public void registrarAdmin() throws ExcepcionDatosIncorrectos {
+        try {
+            String encryptedPassword = encriptarContrasena("admin");
+            if (!usuariDAO.checkUsuario("admin", "admin")) {
+                usuariDAO.registrarUsuario("admin", "admin", encryptedPassword);
             }
-
+        } catch (ExcepcionGeneralDB e) {
+            throw new ExcepcionDatosIncorrectos(e);
         }
-
     }
 
     /**
@@ -181,26 +159,16 @@ public boolean inicioSessionAdmin(String contra){
         }
     }
 
-    public boolean eliminarCuenta(String name) throws ExcepcionGeneralDB {
-
-        if(validarCorreoElectro(name)){
-            if (usuariDAO.eliminarUsuario(null,name)){
-                return true;
+    public boolean eliminarCuenta(String name) throws ExcepcionDatosIncorrectos {
+        try {
+            if (validarCorreoElectro(name)) {
+                return usuariDAO.eliminarUsuario(null, name);
+            } else {
+                return usuariDAO.eliminarUsuario(name, null);
             }
-            // Si lo hemos podido eliminar de la base de datos , Aqui dentro tendremos que elimnar los datos de la ram
-
-        }else{
-            if (usuariDAO.eliminarUsuario(name,null)){
-                // si entra aqui se borra correctamente el correo
-                return true;
-            }
-
-            // Si lo hemos podido eliminar de la base de datos , Aqui dentro tendremos que elimnar los datos de la ram
+        } catch (ExcepcionGeneralDB e) {
+            throw new ExcepcionDatosIncorrectos(e);
         }
-        return false;
     }
 
 }
-
-
-

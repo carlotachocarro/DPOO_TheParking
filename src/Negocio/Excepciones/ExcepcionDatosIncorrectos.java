@@ -1,10 +1,14 @@
 package Negocio.Excepciones;
 
 public class ExcepcionDatosIncorrectos extends ExcepcionNegocio {
-    private static String mensaje = "Los datos introducidos son incorrectos.";
 
-    public ExcepcionDatosIncorrectos(){
+    private static final String MENSAJE = "Los datos introducidos son incorrectos.";
+
+    public ExcepcionDatosIncorrectos() {
+        super(MENSAJE);
     }
 
-    public String getMensajeExcepcion(){return this.mensaje;}
+    public ExcepcionDatosIncorrectos(Throwable causa) {
+        super(MENSAJE, causa);
+    }
 }

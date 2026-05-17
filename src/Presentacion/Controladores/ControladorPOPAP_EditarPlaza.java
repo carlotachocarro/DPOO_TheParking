@@ -1,8 +1,8 @@
 package Presentacion.Controladores;
 
 import Negocio.Entidades.Plaza;
+import Negocio.Excepciones.ExcepcionEntradaSalidaPlaza;
 import Negocio.Servicios.ServicioPlaza;
-import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
 import Presentacion.Vistas.Dialogs.PlazaFormDialog;
 
 import javax.swing.*;
@@ -30,39 +30,55 @@ public class ControladorPOPAP_EditarPlaza {
      *
      * @return {@code true} si el usuario confirmó y la actualización en BD tuvo éxito
      */
-    public boolean abrirDialogo(String codigoPlaza) throws ExcepcionGeneralDB {
-        Plaza p = servicioPlaza.obtenerPlazaPorCodigo(codigoPlaza);
-        if (p == null) {
+    public boolean abrirDialogo(String codigoPlaza) {
+        try {
+            Plaza p = servicioPlaza.obtenerPlazaPorCodigo(codigoPlaza);
+            if (p == null) {
+                JOptionPane.showMessageDialog(parentWindow,
+                        "No se encontró la plaza seleccionada.",
+                        "Editar plaza",
+                        JOptionPane.WARNING_MESSAGE);
+                return false;
+            }
+
+            if (p.getEstado_ocupado()) {
+                JOptionPane.showMessageDialog(parentWindow,
+                        "No se puede editar una plaza mientras haya un vehículo aparcado.",
+                        "Editar plaza",
+                        JOptionPane.WARNING_MESSAGE);
+                return false;
+            }
+
+            PlazaFormDialog dlg = PlazaFormDialog.paraEditar(parentWindow,
+                    p.getCodigoPlaza(),
+                    String.valueOf(p.getPlanta()),
+                    ServicioPlaza.tipoVehiculoParaCombo(p.getTipoVehiculo()));
+            dlg.setVisible(true);
+
+            if (!dlg.fueConfirmado()) {
+                return false;
+            }
+
+            if (servicioPlaza.adminActualizarPlaza(p.getCodigoPlaza(), dlg.getTipoVehiculo(), dlg.getPiso())) {
+                JOptionPane.showMessageDialog(parentWindow,
+                        "Plaza actualizada correctamente.",
+                        "Editar plaza",
+                        JOptionPane.INFORMATION_MESSAGE);
+                onPlazaActualizada.run();
+                return true;
+            }
+
             JOptionPane.showMessageDialog(parentWindow,
-                    "No se encontró la plaza seleccionada.",
+                    "No se pudieron guardar los cambios.",
                     "Editar plaza",
-                    JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.ERROR_MESSAGE);
+            return false;
+        } catch (ExcepcionEntradaSalidaPlaza ex) {
+            JOptionPane.showMessageDialog(parentWindow,
+                    ex.getMensajeExcepcion(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
             return false;
         }
-
-        PlazaFormDialog dlg = PlazaFormDialog.paraEditar(parentWindow,
-                p.getCodigoPlaza(),
-                String.valueOf(p.getPlanta()),
-                ServicioPlaza.tipoVehiculoParaCombo(p.getTipoVehiculo()));
-        dlg.setVisible(true);
-
-        if (!dlg.fueConfirmado()) {
-            return false;
-        }
-
-        if (servicioPlaza.adminActualizarPlaza(p.getCodigoPlaza(), dlg.getTipoVehiculo(), dlg.getPiso())) {
-            JOptionPane.showMessageDialog(parentWindow,
-                    "Plaza actualizada correctamente.",
-                    "Editar plaza",
-                    JOptionPane.INFORMATION_MESSAGE);
-            onPlazaActualizada.run();
-            return true;
-        }
-
-        JOptionPane.showMessageDialog(parentWindow,
-                "No se pudieron guardar los cambios.",
-                "Editar plaza",
-                JOptionPane.ERROR_MESSAGE);
-        return false;
     }
 }

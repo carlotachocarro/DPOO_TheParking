@@ -1,73 +1,81 @@
 package Presentacion.Controladores;
 
-import Negocio.Entidades.Reserva;
+import Negocio.Excepciones.ExcepcionReservaPlaza;
+import Negocio.Servicios.ParkingObserver;
 import Negocio.Servicios.ServicioPlaza;
 import Negocio.Servicios.ServicioReserva;
-import Negocio.Servicios.ServicioUsuario;
-import Persistencia.Daoimpl.ReservaDBDAO;
-import Persistencia.persistenciaExcepciones.ExcepcionFicheroNoEncontrado;
-import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
+import Presentacion.Vistas.Dialogs.CancelarReservaDialog;
 import Presentacion.Vistas.Panels.MisReservasPanel;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import javax.swing.*;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ControladorMisReservas implements ActionListener  {
+/**
+ * Controlador del panel "Mis reservas". Es quien observa al servicio (no la vista)
+ * y quien orquesta la apertura del diálogo de cancelación.
+ */
+public class ControladorMisReservas implements ParkingObserver {
 
-    private ReservaDBDAO reservaDBDAO;
-    private ServicioReserva sesReserva;
-    private ServicioPlaza servicioPlaza;
-    private MisReservasPanel misReservasPanel;
+    private final MisReservasPanel panel;
+    private final ServicioReserva servicioReserva;
+    private final ServicioPlaza servicioPlaza;
+    private final String nombreUsuario;
 
+    public ControladorMisReservas(MisReservasPanel panel,
+                                  String nombreUsuario,
+                                  ServicioPlaza servicioPlaza,
+                                  ServicioReserva servicioReserva) {
+        this.panel = panel;
+        this.nombreUsuario = nombreUsuario;
+        this.servicioPlaza = servicioPlaza;
+        this.servicioReserva = servicioReserva;
 
-    public ControladorMisReservas(MisReservasPanel misReservasPanel) throws ExcepcionFicheroNoEncontrado {
-        this.misReservasPanel = misReservasPanel;
-        reservaDBDAO = new ReservaDBDAO();
-        servicioPlaza = new ServicioPlaza();
-        sesReserva = new ServicioReserva(servicioPlaza);
+        servicioPlaza.addObserver(this);
+        panel.setCancelarReservaListener(this::abrirDialogoCancelar);
     }
 
-    public void getReserva(String nombre) throws ExcepcionGeneralDB {
-        /*
-        List<MisReservasPanel.ReservaVista> reserva = List.of(
-                new MisReservasPanel.ReservaVista("A1", "Coche", "1234ABC", "01/05/2026", "Planta 1", true),
-                new MisReservasPanel.ReservaVista("B2", "Moto", "5678DEF", "02/05/2026", "Planta 2", false)
-        );*/
-
-        List<String> reserv = sesReserva.ObtenerReservas(nombre);
-
-        List<MisReservasPanel.ReservaVista> reservas = new ArrayList<>();
-
-        for (String r : reserv) {
-
-            String[] partes = r.split("-");
-
-            MisReservasPanel.ReservaVista obj =
-                    new MisReservasPanel.ReservaVista(
-                            partes[0], // idPlaza
-                            partes[1], // tipoVehiculo
-                            partes[2], // matricula
-                            partes[3], // fecha
-                            partes[4], // planta
-                            Boolean.parseBoolean(partes[5]) // estado
-                    );
-
-            reservas.add(obj);
-        }
-        misReservasPanel.setReservas(reservas);
-
+    /** Carga inicial al montar el panel. */
+    public void cargarInicial() {
+        actualizarReservas();
     }
+
     @Override
-    public void actionPerformed(ActionEvent e){
-
-
-
+    public void onParkingChange(String estado, String resumen) {
+        SwingUtilities.invokeLater(this::actualizarReservas);
     }
 
+    private void actualizarReservas() {
+        try {
+            List<String> raw = servicioReserva.ObtenerReservas(nombreUsuario);
+            List<MisReservasPanel.ReservaVista> reservas = new ArrayList<>();
+            for (String r : raw) {
+                String[] partes = r.split("-");
+                if (partes.length < 6) continue;
+                reservas.add(new MisReservasPanel.ReservaVista(
+                        partes[0], partes[1], partes[2], partes[3], partes[4],
+                        Boolean.parseBoolean(partes[5])));
+            }
+            panel.setReservas(reservas);
+        } catch (ExcepcionReservaPlaza e) {
+            JOptionPane.showMessageDialog(panel,
+                    e.getMensajeExcepcion(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
 
-
-
-
+    private void abrirDialogoCancelar(MisReservasPanel.ReservaVista reserva) {
+        Window padre = SwingUtilities.getWindowAncestor(panel);
+        CancelarReservaDialog dlg = new CancelarReservaDialog(
+                padre,
+                reserva.codigoPlaza(),
+                reserva.planta(),
+                reserva.matricula(),
+                reserva.fechaReserva(),
+                reserva.tipoVehiculo());
+        new ControladorPOPAP_CancelarReserva(dlg, nombreUsuario, servicioReserva);
+        dlg.setVisible(true);
+    }
 }

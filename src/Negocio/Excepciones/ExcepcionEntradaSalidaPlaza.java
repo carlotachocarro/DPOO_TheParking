@@ -1,10 +1,14 @@
 package Negocio.Excepciones;
 
 public class ExcepcionEntradaSalidaPlaza extends ExcepcionNegocio {
-    private static String mensaje = "Problema con la base de datos para gestionar la Plaza.";
 
-    public ExcepcionEntradaSalidaPlaza(){
+    private static final String MENSAJE = "Problema al gestionar la plaza.";
+
+    public ExcepcionEntradaSalidaPlaza() {
+        super(MENSAJE);
     }
 
-    public String getMensajeExcepcion(){return this.mensaje;}
+    public ExcepcionEntradaSalidaPlaza(Throwable causa) {
+        super(MENSAJE, causa);
+    }
 }

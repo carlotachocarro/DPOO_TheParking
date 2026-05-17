@@ -1,8 +1,8 @@
 package Presentacion.Controladores;
 
+import Negocio.Excepciones.ExcepcionDatosIncorrectos;
+import Negocio.Excepciones.ExcepcionNegocio;
 import Negocio.Servicios.ServicioUsuario;
-import Persistencia.persistenciaExcepciones.ExcepcionFicheroNoEncontrado;
-import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
 import Presentacion.Vistas.RegistroPanel;
 
 import javax.swing.*;
@@ -15,10 +15,10 @@ public class ControladorRegistroUsuario implements ActionListener {
     private final ServicioUsuario servicioUsuario;
     private final ControladorAplicacion app;
 
-    public ControladorRegistroUsuario(RegistroPanel vista, ControladorAplicacion app) throws ExcepcionFicheroNoEncontrado {
+    public ControladorRegistroUsuario(RegistroPanel vista, ControladorAplicacion app, ServicioUsuario servicioUsuario) {
         this.vista = vista;
         this.app = app;
-        this.servicioUsuario = new ServicioUsuario();
+        this.servicioUsuario = servicioUsuario;
 
         this.vista.addRegistroListener(this);
         this.vista.addIrALoginListener(e -> app.mostrarLogin());
@@ -28,14 +28,15 @@ public class ControladorRegistroUsuario implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         try {
             registrarUsuario();
-        } catch (ExcepcionGeneralDB ex) {
-            throw new RuntimeException(ex);
-        } catch (ExcepcionFicheroNoEncontrado ex) {
-            throw new RuntimeException(ex);
+        } catch (ExcepcionNegocio ex) {
+            JOptionPane.showMessageDialog(vista,
+                    ex.getMensajeExcepcion(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    private void registrarUsuario() throws ExcepcionGeneralDB, ExcepcionFicheroNoEncontrado {
+    private void registrarUsuario() throws ExcepcionNegocio {
         String nombre = vista.getNombreUsuario();
         String correo = vista.getCorreo();
         String password = vista.getPassword();
@@ -51,7 +52,16 @@ public class ControladorRegistroUsuario implements ActionListener {
             return;
         }
 
-        int resultado = servicioUsuario.registrarUsua(nombre, correo, password, repetirPassword);
+        int resultado;
+        try {
+            resultado = servicioUsuario.registrarUsua(nombre, correo, password, repetirPassword);
+        } catch (ExcepcionDatosIncorrectos ex) {
+            JOptionPane.showMessageDialog(vista,
+                    ex.getMensajeExcepcion(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
         switch (resultado) {
             case -1:

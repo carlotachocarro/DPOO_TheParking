@@ -1,10 +1,14 @@
 package Negocio.Excepciones;
 
 public class ExcepcionCrearPlaza extends ExcepcionNegocio {
-    private static String mensaje = "No se ha podido crear la plaza.";
 
-    public ExcepcionCrearPlaza(){
+    private static final String MENSAJE = "No se ha podido crear la plaza.";
+
+    public ExcepcionCrearPlaza() {
+        super(MENSAJE);
     }
 
-    public String getMensajeExcepcion(){return this.mensaje;}
+    public ExcepcionCrearPlaza(Throwable causa) {
+        super(MENSAJE, causa);
+    }
 }

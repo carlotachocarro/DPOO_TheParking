@@ -1,14 +1,11 @@
 package Presentacion.Controladores;
 
-import Negocio.Servicios.ServicioPlaza;
-import Negocio.Servicios.ServicioReserva;
+import Negocio.Excepciones.ExcepcionDatosIncorrectos;
+import Negocio.Excepciones.ExcepcionNegocio;
 import Negocio.Servicios.ServicioUsuario;
-import Persistencia.persistenciaExcepciones.ExcepcionFicheroNoEncontrado;
-import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
 import Presentacion.Vistas.LoginPanel;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -18,71 +15,84 @@ public class ControladorInicioSesion implements ActionListener {
     private final ServicioUsuario servicioUsuario;
     private final ControladorAplicacion app;
 
-    public ControladorInicioSesion(LoginPanel vista, ControladorAplicacion app) throws ExcepcionFicheroNoEncontrado {
+    public ControladorInicioSesion(LoginPanel vista, ControladorAplicacion app, ServicioUsuario servicioUsuario) {
         this.vista = vista;
         this.app = app;
-        this.servicioUsuario = new ServicioUsuario();
+        this.servicioUsuario = servicioUsuario;
 
         this.vista.addLoginListener(this);
         this.vista.addIrARegistroListener(e -> app.mostrarRegistro());
-
-       // servicioUsuario.registrarAdmin();
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         try {
             iniciarSesion();
-        } catch (ExcepcionFicheroNoEncontrado | ExcepcionGeneralDB ex) {
-            throw new RuntimeException(ex);
+        } catch (ExcepcionNegocio ex) {
+            JOptionPane.showMessageDialog(vista,
+                    ex.getMensajeExcepcion(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    private void iniciarSesion() throws ExcepcionFicheroNoEncontrado, ExcepcionGeneralDB {
+    private void iniciarSesion() throws ExcepcionNegocio {
         String usuarioCorreo = vista.getUsuarioCorreo();
         String password = vista.getPassword();
 
         if (usuarioCorreo.isEmpty() || password.isEmpty()) {
-            JOptionPane.showMessageDialog(vista, "Debes rellenar usuario/correo y contraseña", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(vista,
+                    "Debes rellenar usuario/correo y contraseña",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         if (usuarioCorreo.equalsIgnoreCase("admin")) {
-
             if (servicioUsuario.inicioSessionAdmin(password)) {
                 app.abrirMenuAdmin();
             } else {
-                JOptionPane.showMessageDialog(vista, "Contraseña o usuario incorrecto", "Error", JOptionPane.ERROR_MESSAGE);
-                vista.limpiarCampos();
-            }
-
-        }
-        else {
-            boolean loginCorrecto = servicioUsuario.inicioSession(usuarioCorreo, password);
-            if (!loginCorrecto) {
-                JOptionPane.showMessageDialog(vista, "Contraseña o usuario incorrecto", "Error", JOptionPane.ERROR_MESSAGE);
-                vista.limpiarCampos();
-                vista.focoEnUsuarioCorreo();
-                return;
-            }
-
-            String idUsuario = servicioUsuario.idUsuarioParaSesion(usuarioCorreo);
-            if (idUsuario == null) {
                 JOptionPane.showMessageDialog(vista,
-                        "No se pudo obtener tu identificador de usuario para el parking.",
-                        "Error de sesión",
+                        "Las credenciales introducidas son incorrectas.",
+                        "Error",
                         JOptionPane.ERROR_MESSAGE);
-                return;
+                vista.limpiarCampos();
             }
-
-            ServicioPlaza plazaAux = new ServicioPlaza();
-            ServicioReserva reservaAux = new ServicioReserva(plazaAux);
-            Window win = SwingUtilities.getWindowAncestor(vista);
-            ControladorPOPAP_Notificaciones.mostrarSiCorresponde(win, reservaAux, idUsuario);
-
-            app.abrirMenuUsuario(usuarioCorreo.trim(), idUsuario);
+            return;
         }
 
+        boolean loginCorrecto;
+        try {
+            loginCorrecto = servicioUsuario.inicioSession(usuarioCorreo, password);
+        } catch (ExcepcionDatosIncorrectos ex) {
+            JOptionPane.showMessageDialog(vista,
+                    "Las credenciales introducidas son incorrectas.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            vista.limpiarCampos();
+            vista.focoEnUsuarioCorreo();
+            return;
+        }
 
+        if (!loginCorrecto) {
+            JOptionPane.showMessageDialog(vista,
+                    "Las credenciales introducidas son incorrectas.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            vista.limpiarCampos();
+            vista.focoEnUsuarioCorreo();
+            return;
+        }
+
+        String idUsuario = servicioUsuario.idUsuarioParaSesion(usuarioCorreo);
+        if (idUsuario == null) {
+            JOptionPane.showMessageDialog(vista,
+                    "No se pudo obtener tu identificador de usuario para el parking.",
+                    "Error de sesión",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        app.abrirMenuUsuario(usuarioCorreo.trim(), idUsuario);
     }
 }

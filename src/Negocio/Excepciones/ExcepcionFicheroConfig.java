@@ -1,10 +1,14 @@
 package Negocio.Excepciones;
 
 public class ExcepcionFicheroConfig extends ExcepcionNegocio {
-    private static String mensaje = "El fichero no existe.";
 
-    public ExcepcionFicheroConfig(){
+    private static final String MENSAJE = "No se ha encontrado el fichero de configuración.";
+
+    public ExcepcionFicheroConfig() {
+        super(MENSAJE);
     }
 
-    public String getMensajeExcepcion(){return this.mensaje;}
+    public ExcepcionFicheroConfig(Throwable causa) {
+        super(MENSAJE, causa);
+    }
 }

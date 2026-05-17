@@ -2,167 +2,96 @@ package Negocio.Servicios;
 
 import Negocio.Entidades.Plaza;
 import Negocio.Entidades.Reserva;
+import Negocio.Excepciones.ExcepcionEntradaSalidaPlaza;
+import Negocio.Excepciones.ExcepcionFicheroConfig;
 import Persistencia.Daoimpl.PlazaDBDAO;
 import Persistencia.Daoimpl.ReservaDBDAO;
-import Persistencia.Daoimpl.HistorialDBDAO;
 import Persistencia.persistenciaExcepciones.ExcepcionFicheroNoEncontrado;
 import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
 
 import java.util.ArrayList;
-import java.util.Random;
 
+/**
+ * Operaciones reales sobre vehículos: entrada y salida iniciadas por el usuario o el admin.
+ * La simulación automática de tráfico vive en {@link Simulador}.
+ */
 public class ServicioVehiculo {
 
     private PlazaDBDAO plazaDBDAO;
     private ReservaDBDAO reservaDBDAO;
-    private HistorialDBDAO historialDAO;
-    private Random random;
+    @SuppressWarnings("unused")
     private ServicioPlaza servicioPlaza;
 
-    public ServicioVehiculo(ServicioPlaza servicioPlaza) throws ExcepcionFicheroNoEncontrado {
-        this.plazaDBDAO = new PlazaDBDAO();
-        this.reservaDBDAO = new ReservaDBDAO();
-        this.historialDAO = new HistorialDBDAO();
-        this.random = new Random();
-        this.servicioPlaza = servicioPlaza;
+    public ServicioVehiculo(ServicioPlaza servicioPlaza) throws ExcepcionFicheroConfig {
+        try {
+            this.plazaDBDAO = new PlazaDBDAO();
+            this.reservaDBDAO = new ReservaDBDAO();
+            this.servicioPlaza = servicioPlaza;
+        } catch (ExcepcionFicheroNoEncontrado e) {
+            throw new ExcepcionFicheroConfig(e);
+        }
     }
 
-    //Funciones entrada y salida de vehiculos
-    public String registroEntradaVehiculo(String matricula, String tipoVehiculo, String username) throws ExcepcionGeneralDB, ExcepcionFicheroNoEncontrado {
-        ArrayList<Reserva> reservas = reservaDBDAO.getReservas();
-        String IdplazaAsignada = null;
-        //Bucle para ver si esta matricula tiene alguna reserva ya hecha
-        for (Reserva r : reservas) {
-            if (r.getMatricula().equals(matricula)) {
-                IdplazaAsignada = r.getIdPlaza();
-                break;
-            }
-        }
-        //En caso de que no tenga reserva:
-        if (IdplazaAsignada == null) {
-            ArrayList<Plaza> plazasLibres = plazaDBDAO.getPlazasLibres(tipoVehiculo);
-            if (!plazasLibres.isEmpty()) {
-                IdplazaAsignada = plazasLibres.getFirst().getCodigoPlaza(); //Cogemos la primera disponible
-            }
-        }
-        //Si se ha conseguido una plaza, se ocupa
-        if (IdplazaAsignada != null) {
-            if (plazaDBDAO.ocuparPlaza(IdplazaAsignada, true, matricula, username)) {
-
-                return IdplazaAsignada;
-            }
-        }
-
-        //Si no se ha conseguido una plaza, se retorna null
-        return null;
-    }
-
-    public boolean registrarSalidaVehiculo(String matricula) throws ExcepcionGeneralDB, ExcepcionFicheroNoEncontrado {
-        ArrayList<Plaza> plazasTotal = plazaDBDAO.getPlazas();
-        for(Plaza p : plazasTotal){
-            if(p.getEstado_ocupado() && p.getMatricula().equals(matricula)){ //Buscamos la plaza que tenia reservada
-                //Vaciamos plaza
-
-                return plazaDBDAO.ocuparPlaza(p.getCodigoPlaza(), false, "none", null);
-
-            }
-        }
-        //No se ha podido encontrar la matricula
-        return false;
-    }
-
-    //Funciones para la simulacion del transito de vehiculos
-
-
-    public double probabilidadEntrada() throws ExcepcionGeneralDB {
-        ArrayList<Plaza> plazasTotal = plazaDBDAO.getPlazas();
-        int availableNoReservadas = 0;
-        int totalNoReservadas = 0;
-
-        for(Plaza p : plazasTotal){
-            if(!p.getEstado_reserva()){
-                totalNoReservadas++;
-                if(!p.getEstado_ocupado()){
-                    availableNoReservadas++;
+    public String registroEntradaVehiculo(String matricula, String tipoVehiculo, String username) throws ExcepcionEntradaSalidaPlaza {
+        try {
+            ArrayList<Reserva> reservas = reservaDBDAO.getReservas();
+            String IdplazaAsignada = null;
+            for (Reserva r : reservas) {
+                if (r.getMatricula().equals(matricula)) {
+                    IdplazaAsignada = r.getIdPlaza();
+                    break;
                 }
             }
-        }
-        if(totalNoReservadas == 0){ //Si no hay plazas libres de reserva
-            return 0;
-        }
-        else{
-            return (double)availableNoReservadas/totalNoReservadas;
-        }
-    }
-
-    private String generarMatricula(){
-        String matriculaAleatoria = "";
-        //4 numeros
-        for(int i = 0; i<4; i++){
-            matriculaAleatoria += random.nextInt(10);
-        }
-
-        //Creamos array con las letras que pueden contener las matriculas (todas las consonantes)
-        String letras = "BCDFGHJKLMNPQRSTVWXYZ";
-        for(int i = 0; i<3; i++){
-            matriculaAleatoria += letras.charAt(random.nextInt(letras.length())); //Asignamos 3 letras
-        }
-        return matriculaAleatoria;
-    }
-
-    public boolean simulaEntrada() throws ExcepcionGeneralDB {
-        ArrayList<Plaza> plazasTotal = plazaDBDAO.getPlazas();
-        ArrayList<Plaza> plazasDisponibles = new ArrayList<>();
-
-        for (Plaza p : plazasTotal) {
-            if (!p.getEstado_reserva() && !p.getEstado_ocupado()) {
-                plazasDisponibles.add(p);
+            if (IdplazaAsignada == null) {
+                ArrayList<Plaza> plazasLibres = plazaDBDAO.getPlazasLibres(tipoVehiculo);
+                if (!plazasLibres.isEmpty()) {
+                    IdplazaAsignada = plazasLibres.getFirst().getCodigoPlaza();
+                }
             }
-        }
-        if(!plazasDisponibles.isEmpty()){
-            Plaza plazaSeleccionada = plazasDisponibles.get(random.nextInt(plazasDisponibles.size()));
-            String matriculaSimulada = generarMatricula();
-            if(plazaDBDAO.ocuparPlazaSimul(plazaSeleccionada.getCodigoPlaza(), true, matriculaSimulada)){
-                historialDAO.nuevoRegistro();
-                return true;
+            if (IdplazaAsignada != null) {
+                if (plazaDBDAO.ocuparPlaza(IdplazaAsignada, true, matricula, username)) {
+                    return IdplazaAsignada;
+                }
             }
+            return null;
+        } catch (ExcepcionGeneralDB | ExcepcionFicheroNoEncontrado e) {
+            throw new ExcepcionEntradaSalidaPlaza(e);
         }
-        return false;
-
     }
 
-    public boolean simulaSalida() throws ExcepcionGeneralDB {
-        ArrayList<Plaza> plazasTotal = plazaDBDAO.getPlazas();
-        ArrayList<Plaza> ocupadasSimuladas = new ArrayList<>();
-
-        for(Plaza p : plazasTotal){
-            //Si esta ocupado pero sin usuario asignado es simulada
-            if(p.getEstado_ocupado() && p.getUser() == null){
-                ocupadasSimuladas.add(p);
+    public boolean registrarSalidaVehiculo(String matricula) throws ExcepcionEntradaSalidaPlaza {
+        try {
+            ArrayList<Plaza> plazasTotal = plazaDBDAO.getPlazas();
+            for (Plaza p : plazasTotal) {
+                if (p.getEstado_ocupado() && p.getMatricula().equals(matricula)) {
+                    return plazaDBDAO.ocuparPlaza(p.getCodigoPlaza(), false, "none", null);
+                }
             }
+            return false;
+        } catch (ExcepcionGeneralDB | ExcepcionFicheroNoEncontrado e) {
+            throw new ExcepcionEntradaSalidaPlaza(e);
         }
-        if(!ocupadasSimuladas.isEmpty()){
-            Plaza paraLiberar = ocupadasSimuladas.get(random.nextInt(ocupadasSimuladas.size()));
-            if(plazaDBDAO.ocuparPlazaSimul(paraLiberar.getCodigoPlaza(), false, "none")){
-                historialDAO.nuevoRegistro();
-                return true;
-            }
-        }
-        return false;
     }
 
-    public boolean vehiculoEnParking(String matricula) throws ExcepcionGeneralDB {
-        ArrayList<Plaza> plazasTotal = plazaDBDAO.getPlazas();
-        for(Plaza p: plazasTotal){
-            if(p.getEstado_ocupado() && p.getMatricula().equals(matricula)){
-                return true;
+    public boolean vehiculoEnParking(String matricula) throws ExcepcionEntradaSalidaPlaza {
+        try {
+            ArrayList<Plaza> plazasTotal = plazaDBDAO.getPlazas();
+            for (Plaza p : plazasTotal) {
+                if (p.getEstado_ocupado() && p.getMatricula().equals(matricula)) {
+                    return true;
+                }
             }
+            return false;
+        } catch (ExcepcionGeneralDB e) {
+            throw new ExcepcionEntradaSalidaPlaza(e);
         }
-        return false;
     }
 
-    public int disponibilidadPorTipo(String tipo) throws ExcepcionGeneralDB {
-        return plazaDBDAO.getPlazasLibres(tipo).size();
+    public int disponibilidadPorTipo(String tipo) throws ExcepcionEntradaSalidaPlaza {
+        try {
+            return plazaDBDAO.getPlazasLibres(tipo).size();
+        } catch (ExcepcionGeneralDB e) {
+            throw new ExcepcionEntradaSalidaPlaza(e);
+        }
     }
-
 }

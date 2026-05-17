@@ -1,5 +1,7 @@
 package Negocio.Servicios;
 
+import Negocio.Excepciones.ExcepcionFicheroConfig;
+import Negocio.Excepciones.ExcepcionHistorial;
 import Persistencia.Daoimpl.HistorialDBDAO;
 import Persistencia.persistenciaExcepciones.ExcepcionFicheroNoEncontrado;
 import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
@@ -16,16 +18,24 @@ public class ServicioHistorialOcupacion {
 
     private final HistorialDBDAO historialDAO;
 
-    public ServicioHistorialOcupacion() throws ExcepcionFicheroNoEncontrado {
-        this.historialDAO = new HistorialDBDAO();
+    public ServicioHistorialOcupacion() throws ExcepcionFicheroConfig {
+        try {
+            this.historialDAO = new HistorialDBDAO();
+        } catch (ExcepcionFicheroNoEncontrado e) {
+            throw new ExcepcionFicheroConfig(e);
+        }
     }
 
-    public List<Integer> serieUltimaHoraCronologica() throws ExcepcionGeneralDB {
-        ArrayList<Integer> valores = historialDAO.sacaHistorial();
-        if (valores == null || valores.isEmpty()) {
-            return List.of();
+    public List<Integer> serieUltimaHoraCronologica() throws ExcepcionHistorial {
+        try {
+            ArrayList<Integer> valores = historialDAO.sacaHistorial();
+            if (valores == null || valores.isEmpty()) {
+                return List.of();
+            }
+            Collections.reverse(valores);
+            return new ArrayList<>(valores);
+        } catch (ExcepcionGeneralDB e) {
+            throw new ExcepcionHistorial(e);
         }
-        Collections.reverse(valores);
-        return new ArrayList<>(valores);
     }
 }

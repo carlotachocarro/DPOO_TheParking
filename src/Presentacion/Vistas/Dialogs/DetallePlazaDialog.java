@@ -1,14 +1,12 @@
 package Presentacion.Vistas.Dialogs;
 
-import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
-
 import javax.swing.*;
 import java.awt.*;
 
 public class DetallePlazaDialog extends BaseDialog {
 
     public interface CancelarReservaListener {
-        void onCancelarReserva(String codigoPlaza) throws ExcepcionGeneralDB;
+        void onCancelarReserva(String codigoPlaza);
     }
 
     private final String codigoPlaza;
@@ -243,11 +241,7 @@ public class DetallePlazaDialog extends BaseDialog {
                     JOptionPane.WARNING_MESSAGE);
             if (opcion == JOptionPane.YES_OPTION) {
                 if (listener != null) {
-                    try {
-                        listener.onCancelarReserva(codigoPlaza);
-                    } catch (ExcepcionGeneralDB ex) {
-                        throw new RuntimeException(ex);
-                    }
+                    listener.onCancelarReserva(codigoPlaza);
                 }
                 dispose();
             }

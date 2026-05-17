@@ -1,10 +1,14 @@
 package Negocio.Excepciones;
 
 public class ExcepcionReservaPlaza extends ExcepcionNegocio {
-    private static String mensaje = "No se ha podido reservar la plaza.";
 
-    public ExcepcionReservaPlaza(){
+    private static final String MENSAJE = "No se ha podido completar la operación sobre la reserva.";
+
+    public ExcepcionReservaPlaza() {
+        super(MENSAJE);
     }
 
-    public String getMensajeExcepcion(){return this.mensaje;}
+    public ExcepcionReservaPlaza(Throwable causa) {
+        super(MENSAJE, causa);
+    }
 }
