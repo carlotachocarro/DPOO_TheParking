@@ -1,7 +1,7 @@
 package Presentacion.Controladores;
 
 
-import Negocio.Servicios.ServicioHistorialOcupacion;
+import Negocio.Servicios   .ServicioHistorialOcupacion;
 import Negocio.Servicios.ServicioPlaza;
 import Negocio.Servicios.ServicioReserva;
 import Negocio.Servicios.ServicioUsuario;

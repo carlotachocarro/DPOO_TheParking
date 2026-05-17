@@ -1,6 +1,6 @@
 package Presentacion.Controladores;
 
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 
 import Persistencia.persistenciaExcepciones.ExcepcionFicheroNoEncontrado;
 import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
@@ -15,17 +15,35 @@ public class ControladorAplicacion {
     /**
      * Muestra login/registro con los controladores enlazados. Seguro desde el hilo principal o desde el EDT.
      */
-    public static void reiniciarFlujoAutenticacion() throws ExcepcionFicheroNoEncontrado {
+    public static void reiniciarFlujoAutenticacion() throws ExcepcionFicheroNoEncontrado, ExcepcionGeneralDB{
+        Runnable tarea = () -> {
+            try {
+                new ControladorAplicacion().iniciar();
+
+            }  catch (ExcepcionFicheroNoEncontrado e) {
+                JOptionPane.showMessageDialog(
+                        null,
+                        "No se ha encontrado el fichero de configuración.",
+                        "Error de configuración",
+                        JOptionPane.ERROR_MESSAGE
+                );
+
+            } catch (ExcepcionGeneralDB e) {
+                JOptionPane.showMessageDialog(
+                        null,
+                        "No hay conexión con la base de datos.",
+                        "Error de base de datos",
+                        JOptionPane.ERROR_MESSAGE
+                );
+            }
+
+
+        };
+
         if (SwingUtilities.isEventDispatchThread()) {
-            new ControladorAplicacion().iniciar();
+            tarea.run();
         } else {
-            SwingUtilities.invokeLater(() -> {
-                try {
-                    new ControladorAplicacion().iniciar();
-                } catch (ExcepcionFicheroNoEncontrado e) {
-                    throw new RuntimeException(e);
-                }
-            });
+            SwingUtilities.invokeLater(tarea);
         }
     }
 
@@ -33,7 +51,7 @@ public class ControladorAplicacion {
     private LoginPanel loginPanel;
     private RegistroPanel registroPanel;
 
-    public void iniciar() throws ExcepcionFicheroNoEncontrado {
+    public void iniciar() throws ExcepcionFicheroNoEncontrado ,ExcepcionGeneralDB{
         authFrame = new AuthFrame();
 
         loginPanel = new LoginPanel();

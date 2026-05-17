@@ -85,10 +85,7 @@ public class EntradaSalidaPanel extends JPanel {
         panel.add(comboTipoVehiculo);
         panel.add(Box.createVerticalStrut(12));
 
-        panel.add(crearCajaInfo(
-                "Si tienes una reserva, se asignará automáticamente tu plaza.\n" +
-                        "Si no, se buscará plaza libre."
-        ));
+        panel.add(crearCajaInfo("Si tienes una reserva, se asignará automáticamente tu plaza.\n" + "Si no, se buscará plaza libre."));
         panel.add(Box.createVerticalStrut(12));
         panel.add(btnRegistrarEntrada);
         panel.add(Box.createVerticalStrut(12));

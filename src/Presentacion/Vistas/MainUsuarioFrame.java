@@ -1,4 +1,4 @@
-package Presentacion.Vistas;
+ package Presentacion.Vistas;
 
 import Persistencia.persistenciaExcepciones.ExcepcionFicheroNoEncontrado;
 import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
@@ -77,11 +77,9 @@ public class MainUsuarioFrame extends MainBaseFrame {
             }
         });
         btnCerrarSesion.addActionListener(e  -> {
-            try {
-                cerrarSesion();
-            } catch (ExcepcionFicheroNoEncontrado ex) {
-                throw new RuntimeException(ex);
-            }
+
+            cerrarSesion();
+
         });
 
         sidebar.add(lblSeccionApp);

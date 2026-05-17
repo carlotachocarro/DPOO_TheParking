@@ -1,4 +1,5 @@
 import Persistencia.persistenciaExcepciones.ExcepcionFicheroNoEncontrado;
+import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
 import Presentacion.Controladores.ControladorAplicacion;
 
 /**
@@ -9,7 +10,7 @@ import Presentacion.Controladores.ControladorAplicacion;
  */
 public class Main {
 
-    public static void main(String[] args) throws ExcepcionFicheroNoEncontrado {
+    public static void main(String[] args) throws ExcepcionFicheroNoEncontrado, ExcepcionGeneralDB {
         ControladorAplicacion.reiniciarFlujoAutenticacion();
     }
 }

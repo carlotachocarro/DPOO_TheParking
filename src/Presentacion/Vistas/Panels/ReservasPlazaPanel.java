@@ -92,6 +92,7 @@
 
             modeloLista = new DefaultListModel<>();
             listaPlazas = new JList<>(modeloLista);
+
             listaPlazas.addListSelectionListener(e ->
                     btnConfirmarReserva.setEnabled(listaPlazas.getSelectedIndex() != -1));
 

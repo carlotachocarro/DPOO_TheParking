@@ -96,7 +96,7 @@ public abstract class MainBaseFrame extends JFrame {
         cardLayout.show(contentPanel, nombreVista);
     }
 
-    protected void cerrarSesion() throws ExcepcionFicheroNoEncontrado {
+    protected void cerrarSesion()  {
         int opcion = JOptionPane.showConfirmDialog(
                 this,
                 "¿Seguro que quieres cerrar sesión?",
@@ -106,10 +106,27 @@ public abstract class MainBaseFrame extends JFrame {
         if (opcion == JOptionPane.YES_OPTION) {
             controller.detenerTimersSecundarios();
             dispose();
-            ControladorAplicacion.reiniciarFlujoAutenticacion();
+            reiniciarFlujoAutenticacion();
+            //ControladorAplicacion.reiniciarFlujoAutenticacion();
         }
     }
 
+    public static void reiniciarFlujoAutenticacion() {
+        try {
+            new ControladorAplicacion().iniciar();
+        } catch (ExcepcionFicheroNoEncontrado e) {
+            JOptionPane.showMessageDialog(null,
+                    "No se ha encontrado el fichero de configuración.",
+                    "Error de configuración",
+                    JOptionPane.ERROR_MESSAGE);
+
+        } catch (ExcepcionGeneralDB e) {
+            JOptionPane.showMessageDialog(null,
+                    "No hay conexión con la base de datos.",
+                    "Error de base de datos",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
     protected JLabel crearEtiquetaSeccion(String texto) {
         JLabel lbl = new JLabel(texto);
         lbl.setForeground(new Color(140, 150, 160));

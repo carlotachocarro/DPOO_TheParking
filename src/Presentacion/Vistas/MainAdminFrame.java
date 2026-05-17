@@ -96,11 +96,9 @@ public class MainAdminFrame extends MainBaseFrame {
         });
         btnGrafico.addActionListener(e      -> mostrarVista(GRAFICO));
         btnCerrarSesion.addActionListener(e -> {
-            try {
+
                 cerrarSesion();
-            } catch (ExcepcionFicheroNoEncontrado ex) {
-                throw new RuntimeException(ex);
-            }
+
         });
 
         sidebar.add(lblSeccionGestion);

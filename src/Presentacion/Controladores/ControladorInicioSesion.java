@@ -43,9 +43,7 @@ public class ControladorInicioSesion implements ActionListener {
         String password = vista.getPassword();
 
         if (usuarioCorreo.isEmpty() || password.isEmpty()) {
-            JOptionPane.showMessageDialog(
-                    vista, "Debes rellenar usuario/correo y contraseña", "Error", JOptionPane.ERROR_MESSAGE
-            );
+            JOptionPane.showMessageDialog(vista, "Debes rellenar usuario/correo y contraseña", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
