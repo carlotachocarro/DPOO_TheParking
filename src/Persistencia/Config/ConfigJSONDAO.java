@@ -118,7 +118,23 @@ public class ConfigJSONDAO {
     /**
      * @deprecated Usar {@link #getMaxSegundosEntreEventosSimulacion()} (incluye {@code tiempoEntradaVehiculos}).
      */
+    @Deprecated
     public int getIntervaloSimulacionSegundos() {
         return getMaxSegundosEntreEventosSimulacion();
+    }
+
+    /**
+     * Si {@code true} se arranca el simulador automáticamente al iniciar la sesión.
+     * Si la clave no existe en el JSON, devolvemos {@code false} (apagado por defecto).
+     */
+    public boolean isSimuladorActivoPorDefecto() {
+        try {
+            if (config != null && config.has("simuladorActivo")) {
+                return config.get("simuladorActivo").getAsBoolean();
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        return false;
     }
 }

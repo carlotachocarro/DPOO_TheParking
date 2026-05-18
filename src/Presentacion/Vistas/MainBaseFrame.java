@@ -1,31 +1,31 @@
 package Presentacion.Vistas;
 
-import Persistencia.persistenciaExcepciones.ExcepcionFicheroNoEncontrado;
-import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
+import Negocio.Excepciones.ExcepcionFicheroConfig;
+import Negocio.Excepciones.ExcepcionNegocio;
 import Presentacion.Controladores.ControladorAplicacion;
 import Presentacion.Controladores.ControllerMenuPrincipalAdmin;
 
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * Plantilla base de los frames principales (usuario / admin).
+ * Las subclases solo implementan los métodos abstractos; este frame no conoce servicios.
+ */
+
 public abstract class MainBaseFrame extends JFrame {
 
-    // ── Campos compartidos ────────────────────────────────────────────────────
     protected CardLayout cardLayout;
     protected JPanel contentPanel;
     protected final ControllerMenuPrincipalAdmin controller;
 
-    // ── Constructor ───────────────────────────────────────────────────────────
-    public MainBaseFrame(ControllerMenuPrincipalAdmin controller) throws ExcepcionFicheroNoEncontrado, ExcepcionGeneralDB {
+    public MainBaseFrame(ControllerMenuPrincipalAdmin controller) {
         this.controller = controller;
         configurarVentana();
-        inicializarComponentes();
     }
 
-    // ── Template Method: esqueleto fijo ───────────────────────────────────────
-
     private void configurarVentana() {
-        setTitle(getTitulo());           // <- cada subclase da su título
+        setTitle(getTitulo());
         setSize(1280, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -43,7 +43,7 @@ public abstract class MainBaseFrame extends JFrame {
         lblLogo.setFont(new Font("SpaceGrotesk", Font.BOLD, 20));
         lblLogo.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JLabel lblBadge = new JLabel(badge);  // "USUARIO" o "ADMINISTRADOR"
+        JLabel lblBadge = new JLabel(badge);
         lblBadge.setForeground(new Color(52, 152, 219));
         lblBadge.setFont(new Font("Inter", Font.BOLD, 12));
         lblBadge.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -53,35 +53,39 @@ public abstract class MainBaseFrame extends JFrame {
         sidebar.add(lblBadge);
         sidebar.add(Box.createVerticalStrut(25));
 
-        return sidebar;  // cada subclase sigue añadiendo sus botones
+        return sidebar;
     }
 
-    private void inicializarComponentes() throws ExcepcionFicheroNoEncontrado, ExcepcionGeneralDB {
+    public void inicializarComponentes() {
         setLayout(new BorderLayout());
 
-        add(crearSidebar(), BorderLayout.WEST);   // <- cada subclase implementa
-        add(crearTopbar(), BorderLayout.NORTH);   // <- base + hook
+        add(crearSidebar(), BorderLayout.WEST);
+        add(crearTopbar(), BorderLayout.NORTH);
 
-        cardLayout   = new CardLayout();
+        cardLayout = new CardLayout();
         contentPanel = new JPanel(cardLayout);
 
-        crearPaneles();                           // <- cada subclase añade sus panels
+        try {
+            crearPaneles();
+        } catch (ExcepcionNegocio e) {
+            JOptionPane.showMessageDialog(this,
+                    e.getMensajeExcepcion(),
+                    "Error al cargar la aplicación",
+                    JOptionPane.ERROR_MESSAGE);
+        }
 
         add(contentPanel, BorderLayout.CENTER);
     }
-
-    // ── Topbar: base común + hook para componente derecho ─────────────────────
 
     protected JPanel crearTopbar() {
         JPanel topbar = new JPanel(new BorderLayout());
         topbar.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
         topbar.setBackground(Color.WHITE);
 
-        JLabel lblTitulo = new JLabel(getTituloTopbar());  // <- subclase da el texto
+        JLabel lblTitulo = new JLabel(getTituloTopbar());
         lblTitulo.setFont(new Font("Inter", Font.BOLD, 22));
         topbar.add(lblTitulo, BorderLayout.WEST);
 
-        // Hook: si la subclase añade algo a la derecha (ej: botón "+ Nueva Plaza")
         JComponent componenteDerecho = crearComponenteDerechoTopbar();
         if (componenteDerecho != null) {
             topbar.add(componenteDerecho, BorderLayout.EAST);
@@ -90,13 +94,11 @@ public abstract class MainBaseFrame extends JFrame {
         return topbar;
     }
 
-    // ── Métodos compartidos al 100% ───────────────────────────────────────────
-
     public void mostrarVista(String nombreVista) {
         cardLayout.show(contentPanel, nombreVista);
     }
 
-    protected void cerrarSesion()  {
+    protected void cerrarSesion() {
         int opcion = JOptionPane.showConfirmDialog(
                 this,
                 "¿Seguro que quieres cerrar sesión?",
@@ -106,27 +108,17 @@ public abstract class MainBaseFrame extends JFrame {
         if (opcion == JOptionPane.YES_OPTION) {
             controller.detenerTimersSecundarios();
             dispose();
-            reiniciarFlujoAutenticacion();
-            //ControladorAplicacion.reiniciarFlujoAutenticacion();
+            try {
+                ControladorAplicacion.reiniciarFlujoAutenticacion();
+            } catch (ExcepcionFicheroConfig e) {
+                JOptionPane.showMessageDialog(null,
+                        e.getMensajeExcepcion(),
+                        "Error de configuración",
+                        JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 
-    public static void reiniciarFlujoAutenticacion() {
-        try {
-            new ControladorAplicacion().iniciar();
-        } catch (ExcepcionFicheroNoEncontrado e) {
-            JOptionPane.showMessageDialog(null,
-                    "No se ha encontrado el fichero de configuración.",
-                    "Error de configuración",
-                    JOptionPane.ERROR_MESSAGE);
-
-        } catch (ExcepcionGeneralDB e) {
-            JOptionPane.showMessageDialog(null,
-                    "No hay conexión con la base de datos.",
-                    "Error de base de datos",
-                    JOptionPane.ERROR_MESSAGE);
-        }
-    }
     protected JLabel crearEtiquetaSeccion(String texto) {
         JLabel lbl = new JLabel(texto);
         lbl.setForeground(new Color(140, 150, 160));
@@ -158,8 +150,6 @@ public abstract class MainBaseFrame extends JFrame {
         return boton;
     }
 
-    // ── Métodos abstractos que CADA subclase debe implementar ─────────────────
-
     /** Título de la ventana (JFrame title bar) */
     protected abstract String getTitulo();
 
@@ -170,7 +160,7 @@ public abstract class MainBaseFrame extends JFrame {
     protected abstract JPanel crearSidebar();
 
     /** Añade los JPanels al contentPanel con cardLayout */
-    protected abstract void crearPaneles() throws ExcepcionFicheroNoEncontrado, ExcepcionGeneralDB;
+    protected abstract void crearPaneles() throws ExcepcionNegocio;
 
     /**
      * Componente opcional a la derecha de la topbar.

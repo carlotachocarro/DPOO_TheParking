@@ -1,13 +1,8 @@
 package Presentacion.Vistas;
 
-import Negocio.Servicios.ServicioPlaza;
-import Persistencia.persistenciaExcepciones.ExcepcionFicheroNoEncontrado;
-import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
+import Negocio.Excepciones.ExcepcionNegocio;
 import Presentacion.Controladores.*;
-import Presentacion.Vistas.Dialogs.*;
 import Presentacion.Vistas.Panels.*;
-import Negocio.Entidades.Plaza;
-import Negocio.Entidades.Usuario;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,19 +12,23 @@ public class MainAdminFrame extends MainBaseFrame {
     private EstadoParkingPanel panelGestionPlazas;
     private EstadoParkingPanel panelEstadoAdmin;
 
-    private static final String GESTION_PLAZAS   = "GESTION_PLAZAS";
-    private static final String GESTION_RESERVAS  = "GESTION_RESERVAS";
-    private static final String ESTADO            = "ESTADO";
-    private static final String GRAFICO           = "GRAFICO";
+    private ControladorEstadoParking ctrlGestion;
+    private ControladorEstadoParking ctrlEstado;
+    private ControladorPOPAP_DetallePlaza ctrlDetalle;
 
-    public MainAdminFrame(ControllerMenuPrincipalAdmin controller) throws ExcepcionGeneralDB, ExcepcionFicheroNoEncontrado {
+    private static final String GESTION_PLAZAS   = "GESTION_PLAZAS";
+    private static final String GESTION_RESERVAS = "GESTION_RESERVAS";
+    private static final String ESTADO           = "ESTADO";
+    private static final String GRAFICO          = "GRAFICO";
+
+    public MainAdminFrame(ControllerMenuPrincipalAdmin controller) {
         super(controller);
+        inicializarComponentes();
     }
 
     @Override protected String getTitulo()       { return "The Parking - Panel Administrador"; }
     @Override protected String getTituloTopbar() { return "Panel Administrador"; }
 
-    // Admin SÍ tiene un botón a la derecha de la topbar
     @Override
     protected JComponent crearComponenteDerechoTopbar() {
         JButton btnNuevaPlaza = new JButton("+ Nueva Plaza");
@@ -37,31 +36,35 @@ public class MainAdminFrame extends MainBaseFrame {
         btnNuevaPlaza.setForeground(Color.WHITE);
         btnNuevaPlaza.setFocusPainted(false);
         btnNuevaPlaza.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
-        btnNuevaPlaza.addActionListener(e -> {
-            try {
-                abrirNuevaPlaza();
-            } catch (ExcepcionGeneralDB ex) {
-                throw new RuntimeException(ex);
-            }
-        });
+        btnNuevaPlaza.addActionListener(e -> abrirNuevaPlaza());
         return btnNuevaPlaza;
     }
 
     @Override
-    protected void crearPaneles() throws ExcepcionGeneralDB {
-        panelGestionPlazas = new EstadoParkingPanel(controller, EstadoParkingPanel.Modo.ADMIN_GESTION);
-        panelGestionPlazas.setAccionFilaListener(new EstadoParkingPanel.AccionFilaListener() {
-            @Override public void onEditar(String codigo) throws ExcepcionGeneralDB { abrirEditarPlaza(codigo); }
-            @Override public void onEliminar(String codigo) throws ExcepcionGeneralDB { confirmarEliminarPlaza(codigo); }
-            @Override public void onClickFila(String codigo) throws ExcepcionGeneralDB { abrirDetallePlaza(codigo); }
-        });
+    protected void crearPaneles() throws ExcepcionNegocio {
+        ctrlDetalle = new ControladorPOPAP_DetallePlaza(
+                this,
+                controller.getServicioPlaza(),
+                controller.getServicioReserva(),
+                this::recargarPanelesEstado);
 
-        panelEstadoAdmin = new EstadoParkingPanel(controller, EstadoParkingPanel.Modo.ADMIN_ESTADO);
+        panelGestionPlazas = new EstadoParkingPanel(EstadoParkingPanel.Modo.ADMIN_GESTION);
+        panelGestionPlazas.setAccionFilaListener(new EstadoParkingPanel.AccionFilaListener() {
+            @Override public void onEditar(String codigo)   { abrirEditarPlaza(codigo); }
+            @Override public void onEliminar(String codigo) { confirmarEliminarPlaza(codigo); }
+            @Override public void onClickFila(String codigo) { ctrlDetalle.abrirDialogo(codigo); }
+        });
+        ctrlGestion = new ControladorEstadoParking(panelGestionPlazas, controller.getServicioPlaza());
+        ctrlGestion.cargarInicial();
+
+        panelEstadoAdmin = new EstadoParkingPanel(EstadoParkingPanel.Modo.ADMIN_ESTADO);
         panelEstadoAdmin.setAccionFilaListener(new EstadoParkingPanel.AccionFilaListener() {
             @Override public void onEditar(String codigo)   {}
             @Override public void onEliminar(String codigo) {}
-            @Override public void onClickFila(String codigo) throws ExcepcionGeneralDB { abrirDetallePlaza(codigo); }
+            @Override public void onClickFila(String codigo) { ctrlDetalle.abrirDialogo(codigo); }
         });
+        ctrlEstado = new ControladorEstadoParking(panelEstadoAdmin, controller.getServicioPlaza());
+        ctrlEstado.cargarInicial();
 
         contentPanel.add(panelGestionPlazas, GESTION_PLAZAS);
         contentPanel.add(crearPanelPlaceholder("Gestión de reservas"), GESTION_RESERVAS);
@@ -82,24 +85,18 @@ public class MainAdminFrame extends MainBaseFrame {
         JLabel lblSeccionVisualizacion = crearEtiquetaSeccion("VISUALIZACIÓN");
         JButton btnEstado              = crearBotonMenu("Estado Parking");
         JButton btnGrafico             = crearBotonMenu("Gráfico");
+
+        JLabel lblSeccionSimulacion    = crearEtiquetaSeccion("SIMULACIÓN");
+        JButton btnSimulacion          = crearBotonMenu(textoBotonSimulacion());
+
         JButton btnCerrarSesion        = crearBotonMenu("Cerrar Sesión");
 
         btnGestionPlazas.addActionListener(e   -> mostrarVista(GESTION_PLAZAS));
         btnGestionReservas.addActionListener(e -> mostrarVista(GESTION_RESERVAS));
-        btnEstado.addActionListener(e -> {
-            try {
-                panelEstadoAdmin.mostrarPlazas();
-            } catch (ExcepcionGeneralDB ex) {
-                throw new RuntimeException(ex);
-            }
-            mostrarVista(ESTADO);
-        });
-        btnGrafico.addActionListener(e      -> mostrarVista(GRAFICO));
-        btnCerrarSesion.addActionListener(e -> {
-
-                cerrarSesion();
-
-        });
+        btnEstado.addActionListener(e          -> mostrarVista(ESTADO));
+        btnGrafico.addActionListener(e         -> mostrarVista(GRAFICO));
+        btnSimulacion.addActionListener(e      -> alternarSimulacion(btnSimulacion));
+        btnCerrarSesion.addActionListener(e    -> cerrarSesion());
 
         sidebar.add(lblSeccionGestion);
         sidebar.add(Box.createVerticalStrut(8));
@@ -112,10 +109,27 @@ public class MainAdminFrame extends MainBaseFrame {
         sidebar.add(btnEstado);
         sidebar.add(Box.createVerticalStrut(8));
         sidebar.add(btnGrafico);
+        sidebar.add(Box.createVerticalStrut(20));
+        sidebar.add(lblSeccionSimulacion);
+        sidebar.add(Box.createVerticalStrut(8));
+        sidebar.add(btnSimulacion);
         sidebar.add(Box.createVerticalGlue());
         sidebar.add(btnCerrarSesion);
 
         return sidebar;
+    }
+
+    private String textoBotonSimulacion() {
+        return controller.simuladorActivo() ? "Detener simulación" : "Iniciar simulación";
+    }
+
+    private void alternarSimulacion(JButton boton) {
+        if (controller.simuladorActivo()) {
+            controller.detenerSimulador();
+        } else {
+            controller.iniciarSimulador();
+        }
+        boton.setText(textoBotonSimulacion());
     }
 
 
@@ -129,96 +143,44 @@ public class MainAdminFrame extends MainBaseFrame {
         return p;
     }
 
-    private void abrirNuevaPlaza() throws ExcepcionGeneralDB {
-        ControladorPOPAP_NuevaPlaza controlador = new ControladorPOPAP_NuevaPlaza(
+    private void abrirNuevaPlaza() {
+        new ControladorPOPAP_NuevaPlaza(
                 this,
                 controller.getServicioPlaza(),
-                () -> {
-                    try {
-                        panelGestionPlazas.mostrarPlazas();
-                    } catch (ExcepcionGeneralDB e) {
-                        throw new RuntimeException(e);
-                    }
-                }  // callback de refresco
-        );
-        controlador.abrirDialogo();
+                this::recargarPanelesEstado
+        ).abrirDialogo();
     }
 
-    private void abrirEditarPlaza(String codigoPlaza) throws ExcepcionGeneralDB {
+    private void abrirEditarPlaza(String codigoPlaza) {
         new ControladorPOPAP_EditarPlaza(
                 this,
                 controller.getServicioPlaza(),
-                () -> {
-                    try {
-                        panelGestionPlazas.mostrarPlazas();
-                    } catch (ExcepcionGeneralDB e) {
-                        throw new RuntimeException(e);
-                    }
-                }
+                this::recargarPanelesEstado
         ).abrirDialogo(codigoPlaza);
     }
 
-    private void confirmarEliminarPlaza(String codigoPlaza) throws ExcepcionGeneralDB {
+    private void confirmarEliminarPlaza(String codigoPlaza) {
         new ControladorPOPAP_EliminarPlaza(
                 this,
                 controller.getServicioPlaza(),
-                () -> {
-                    try {
-                        panelGestionPlazas.mostrarPlazas();
-                    } catch (ExcepcionGeneralDB e) {
-                        throw new RuntimeException(e);
-                    }
-                    try {
-                        panelEstadoAdmin.mostrarPlazas();
-                    } catch (ExcepcionGeneralDB e) {
-                        throw new RuntimeException(e);
-                    }
-                }
+                this::recargarPanelesEstado
         ).confirmarYEliminar(codigoPlaza);
     }
 
-    private void abrirDetallePlaza(String codigoPlaza) throws ExcepcionGeneralDB {
-        Plaza p = controller.getServicioPlaza().obtenerPlazaPorCodigo(codigoPlaza);
-        if (p == null) {
+    /**
+     * Tras una operación de admin sobre plazas (crear/editar/eliminar/cancelar reserva) refrescamos
+     * los paneles. Aunque el servicio también notifica observers en muchos flujos, ejecutar la
+     * carga inicial garantiza coherencia inmediata.
+     */
+    private void recargarPanelesEstado() {
+        try {
+            ctrlGestion.cargarInicial();
+            ctrlEstado.cargarInicial();
+        } catch (ExcepcionNegocio e) {
             JOptionPane.showMessageDialog(this,
-                    "No se encontró la plaza.",
-                    "Detalle de plaza",
-                    JOptionPane.WARNING_MESSAGE);
-            return;
+                    e.getMensajeExcepcion(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
-        String estado = p.getEstado_ocupado() ? "Ocupada" : "Libre";
-        String reservaTxt = p.getEstado_reserva() ? "Reservada" : "Disponible";
-        String mat = p.getMatricula();
-        if (mat == null || mat.isBlank() || "none".equalsIgnoreCase(mat)) {
-            mat = null;
-        }
-        Usuario u = p.getUser();
-        String nombre = u != null ? u.getNombre() : null;
-        String correo = u != null ? u.getCorreoElectronico() : null;
-
-        DetallePlazaDialog dlg = new DetallePlazaDialog(this,
-                p.getCodigoPlaza(),
-                String.valueOf(p.getPlanta()),
-                ServicioPlaza.tipoVehiculoParaCombo(p.getTipoVehiculo()),
-                estado,
-                reservaTxt,
-                mat,
-                nombre,
-                correo);
-        if ("Reservada".equalsIgnoreCase(reservaTxt)) {
-            dlg.setCancelarReservaListener(plazaId -> {
-                if (controller.getServicioReserva().adminCancelarReservaEnPlaza(plazaId)) {
-                    JOptionPane.showMessageDialog(this, "Reserva cancelada.");
-                    panelGestionPlazas.mostrarPlazas();
-                    panelEstadoAdmin.mostrarPlazas();
-                } else {
-                    JOptionPane.showMessageDialog(this,
-                            "No se pudo cancelar la reserva.",
-                            "Detalle de plaza",
-                            JOptionPane.ERROR_MESSAGE);
-                }
-            });
-        }
-        dlg.setVisible(true);
     }
 }
