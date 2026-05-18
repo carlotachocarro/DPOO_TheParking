@@ -243,7 +243,7 @@ public class ServicioPlaza {
                 RESERVA_DAO.eliminarReservasDePlaza(id);
             }
 
-            if (PLAZA_DAO.eliminarPlazaFisica(id)) {
+            if (PLAZA_DAO.eliminarPlaza(id)) {
                 notifyObservers();
                 return true;
             }

@@ -10,7 +10,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+/**
+ * Clase que permite interactuar con la tabla de Plaza_Parking de la BBDD
+ */
 public class PlazaDBDAO {
+    /**
+     * Constructor de la clase PlazaDBDAO
+     * @throws ExcepcionFicheroNoEncontrado
+     */
     public PlazaDBDAO() throws ExcepcionFicheroNoEncontrado {
         try{
             Singleton.getInstance().getConn();
@@ -19,6 +26,13 @@ public class PlazaDBDAO {
         }
     }
 
+    /**
+     * Esta función crea una nueva plaza de parking en la BBDD.
+     * @param tipoPlaza Tipo de plaza de parking.
+     * @param planta Planta en la que se situa la plaza.
+     * @return Devuelve un boolean en función de si la operación ha tenido éxito o no.
+     * @throws ExcepcionGeneralDB
+     */
     public boolean crearPlaza(String tipoPlaza, String planta) throws ExcepcionGeneralDB {
         String query = "INSERT INTO plaza_parking (tipo_vehiculo, planta, estado_actual, estado_reserva, matricula, simulado, id_usuario) VALUES (?, ?, 0,0,'none',0, NULL)";
         ArrayList<String> values = new ArrayList<>();
@@ -37,25 +51,38 @@ public class PlazaDBDAO {
     }
 
     /**
-     * Elimina la fila de plaza. Las reservas asociadas deben haberse movido o borrado antes si hay FK.
+     * Esta función elimina una plaza de parking y todos sus registros asociados.
+     * @param idPlaza Identificador de la plaza a eliminar.
+     * @return Devuelve un boolean en función de si la operación ha tenido éxito o no.
      */
-    public boolean eliminarPlazaFisica(String idPlaza) {
+    public boolean eliminarPlaza(String idPlaza) throws ExcepcionGeneralDB{
+        String query1 = "DELETE FROM reserva WHERE id_plaza = ?";
         String query = "DELETE FROM plaza_parking WHERE id_plaza = ?";
         ArrayList<String> values = new ArrayList<>();
         ArrayList<String> types = new ArrayList<>();
         values.add(idPlaza);
         types.add("int");
         try {
-            int res = SQL_CRUD.CUD(query, values, types);
-            return res > 0;
+            int res = SQL_CRUD.CUD(query1, values, types);
+            if( res > 0){
+                int res2 = SQL_CRUD.CUD(query, values, types);
+                return res > 0;
+            } else {
+                return false;
+            }
         } catch (Exception e) {
             System.out.println(e);
-            return false;
+            throw new ExcepcionGeneralDB();
         }
     }
 
+
     /**
-     * Deja la plaza en estado reservada sin ocupación (vehículo aún no aparca), con usuario y matrícula de la reserva.
+     * Esta función modifica el estado de una plaza de parking para indicar que está reservada.
+     * @param idPlaza Identificador de la plaza.
+     * @param idUsuario Identificador del usuario que ha reservado la plaza.
+     * @param matricula Matricula del vehiculo que reserva la plaza.
+     * @return Devuelve un boolean en función de si la operación ha tenido éxito o no.
      */
     public boolean aplicarReservaEnPlaza(String idPlaza, String idUsuario, String matricula) {
         String query = """
@@ -80,8 +107,13 @@ public class PlazaDBDAO {
         }
     }
 
+
     /**
-     * Actualiza tipo de vehículo y planta de una plaza (metadatos de la instalación).
+     * Esta función permite modificar la planta y tipo de vehículo de una plaza.
+     * @param idPlaza Identificador de la plaza.
+     * @param tipoVehiculo Tipo de vehículo que soporta la plaza
+     * @param planta Planta a la que cambiaremos la plaza.
+     * @return Devuelve un boolean en función de si la operación ha tenido éxito o no.
      */
     public boolean actualizarDatosPlaza(String idPlaza, String tipoVehiculo, int planta) {
         String query = "UPDATE plaza_parking SET tipo_vehiculo = ?, planta = ? WHERE id_plaza = ?";
@@ -103,6 +135,11 @@ public class PlazaDBDAO {
     }
 
 
+    /**
+     * Esta función devuelve todas las plazas del parking.
+     * @return Devuelve un ArrayList con todas las plazas.
+     * @throws ExcepcionGeneralDB
+     */
     public ArrayList<Plaza> getPlazas() throws ExcepcionGeneralDB {
         String query = "SELECT * FROM plaza_parking";
         ArrayList<String> values = new ArrayList<>();
@@ -148,6 +185,12 @@ public class PlazaDBDAO {
         return plazas;
     }
 
+    /**
+     * Esta función devuelve todas las plazas libres de un tipo de vehículo en específico.
+     * @param tipo Tipo de vehículo.
+     * @return Devuelve un ArrayList con las plazas encontradas.
+     * @throws ExcepcionGeneralDB
+     */
     public ArrayList<Plaza> getPlazasLibres(String tipo) throws ExcepcionGeneralDB {
         String query = "SELECT * FROM plaza_parking WHERE estado_actual = 0 AND estado_reserva = 0 AND simulado = 0 AND tipo_vehiculo = ?";
         ArrayList<String> values = new ArrayList<>();
@@ -196,10 +239,12 @@ public class PlazaDBDAO {
         return plazas;
     }
 
+
     /**
      * Devuelve el usuario que ocupa una plaza de parking.
-     * @param id
-     * @return
+     * @param id Identificador de la plaza de parking.
+     * @return Instancia del usuario que ocupa la plaza.
+     * @throws ExcepcionGeneralDB
      */
     public Usuario getPlazaUsuario(String id) throws ExcepcionGeneralDB {
         String query = "SELECT * FROM plaza_parking WHERE id_plaza = ?";
@@ -226,6 +271,16 @@ public class PlazaDBDAO {
         return null;
     }
 
+    /**
+     * Esta función ocupa una plaza de parking.
+     * @param id_plaza Identificador de la plaza.
+     * @param ocupacion Booleano que nos dice si se ocupa o desocupa.
+     * @param matricula Matricula a poner en caso de ocupar.
+     * @param nombreUsuario Nombre del usuario que ocupa.
+     * @return Devuelve un boolean en función de si la operación ha tenido éxito o no.
+     * @throws ExcepcionGeneralDB
+     * @throws ExcepcionFicheroNoEncontrado
+     */
     public boolean ocuparPlaza(String id_plaza ,boolean ocupacion, String matricula, String nombreUsuario) throws ExcepcionGeneralDB, ExcepcionFicheroNoEncontrado {
         String query = "";
         ArrayList<String> values = new ArrayList<>();
@@ -253,6 +308,14 @@ public class PlazaDBDAO {
         }
     }
 
+    /**
+     * Esta función ocupa una plaza de parking para la simulación.
+     * @param id_plaza Identificador de la plaza.
+     * @param ocupacion Estado de la ocupación.
+     * @param matricula Matricula que ocupará la plaza.
+     * @return Devuelve un boolean en función de si la operación ha tenido éxito o no.
+     * @throws ExcepcionGeneralDB
+     */
     public boolean ocuparPlazaSimul(String id_plaza ,boolean ocupacion, String matricula) throws ExcepcionGeneralDB {
         String query = "";
         ArrayList<String> values = new ArrayList<>();
@@ -278,6 +341,13 @@ public class PlazaDBDAO {
 
     }
 
+    /**
+     * Esta función reserva una plaza.
+     * @param id_plaza Identificador de la plaza.
+     * @param reserva Boolean que define si reservamos o no.
+     * @return Devuelve un boolean en función de si la operación ha tenido éxito o no.
+     * @throws ExcepcionGeneralDB
+     */
     public boolean reservarPlaza(String id_plaza ,boolean reserva) throws ExcepcionGeneralDB{
         String query = "";
         ArrayList<String> values = new ArrayList<>();
@@ -299,6 +369,13 @@ public class PlazaDBDAO {
 
     }
 
+    /**
+     * Esta función define que una plaza se usará para la simulación.
+     * @param id_plaza Identificador de la plaza.
+     * @param simul Boolean que define si se simula o deja de simular.
+     * @return Devuelve un boolean en función de si la operación ha tenido éxito o no.
+     * @throws ExcepcionGeneralDB
+     */
     public boolean simularPlaza(String id_plaza ,boolean simul) throws ExcepcionGeneralDB{
         String query = "";
         ArrayList<String> values = new ArrayList<>();
@@ -320,6 +397,13 @@ public class PlazaDBDAO {
         }
 
     }
+
+    /**
+     * Función que "limpia" el registro de una plaza que pasa a estar libre.
+     * @param idPlaza Identificador de la plaza.
+     * @return Devuelve un boolean en función de si la operación ha tenido éxito o no.
+     * @throws ExcepcionGeneralDB
+     */
     public boolean limpiarPlaza(String idPlaza) throws ExcepcionGeneralDB{
 
         String query = """

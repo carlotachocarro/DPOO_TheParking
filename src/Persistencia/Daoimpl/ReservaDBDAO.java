@@ -10,8 +10,15 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
+/**
+ * Clase que permite interactuar con la tabla de Reserva de la BBDD.
+ */
 public class ReservaDBDAO {
 
+    /**
+     * Constructor de la clase ReservaDBDAO.
+     * @throws ExcepcionFicheroNoEncontrado
+     */
     public ReservaDBDAO() throws ExcepcionFicheroNoEncontrado {
         try{
             Singleton.getInstance().getConn();
@@ -20,6 +27,14 @@ public class ReservaDBDAO {
         }
     }
 
+    /**
+     * Este metodo genera una nueva reserva en la BBDD.
+     * @param id_plaza Identificador de la plaza a reservar.
+     * @param id_usuario Identificador del usuario que ha hecho la reserva.
+     * @param matricula Matrícula del vehículo registrado en la reserva.
+     * @return Devuelve un boolean en funcion de si se ha creado el registro con exito o no.
+     * @throws ExcepcionGeneralDB
+     */
     public boolean nuevaReserva(String id_plaza, String id_usuario, String matricula) throws ExcepcionGeneralDB {
         String query = "INSERT INTO reserva(id_plaza, id_usuario, matricula, fecha) VALUES (?, ?, ?, Now())";
         ArrayList<String> values = new ArrayList<>();
@@ -41,6 +56,11 @@ public class ReservaDBDAO {
         }
     }
 
+    /**
+     * Este metodo devuelve una lista con todas las reservas que hay en el sistema registrados.
+     * @return Devuelve un ArrayList de reservas, con todas las reservas del sistema.
+     * @throws ExcepcionGeneralDB
+     */
     public ArrayList<Reserva> getReservas() throws ExcepcionGeneralDB {
         String query = "SELECT * FROM reserva";
         ArrayList<String> values = new ArrayList<>();
@@ -65,6 +85,12 @@ public class ReservaDBDAO {
         return reservas;
     }
 
+    /**
+     * Este metodo devuelve las reservas hechas por un usuario en específico.
+     * @param id_usuario Identificador del usuario del cual estamos buscando sus reservas.
+     * @return Devuelve un ArrayList de reservas con las reservas del usuario (solo las activas, el resto se eliminan).
+     * @throws ExcepcionGeneralDB
+     */
     public ArrayList<Reserva> getReservaByUser(String id_usuario) throws ExcepcionGeneralDB{
         String query = "SELECT * FROM reserva WHERE id_usuario = ?";
         ArrayList<String> values = new ArrayList<>();
@@ -92,9 +118,10 @@ public class ReservaDBDAO {
     }
 
     /**
-     * Borra todas las reservas de un usuario
+     * Borra todas las reservas de un usuario.
      * @param id_usuario Id del usuario
-     * @return
+     * @return Devuelve un boolean en función de si se ha conseguido borrar los registros.
+     * @throws ExcepcionGeneralDB
      */
     public boolean borrarReservasUser(String id_usuario) throws ExcepcionGeneralDB{
         String query = "DELETE FROM reserva WHERE id_usuario=?";
@@ -112,10 +139,13 @@ public class ReservaDBDAO {
         }
     }
 
+
     /**
-     * Borra todas las reservas de un usuario
-     * @param id_usuario Id del usuario
-     * @return
+     * Borra una reserva en específico de un usuario.
+     * @param id_plaza Identificador de la plaza de la reserva.
+     * @param id_usuario Identificador del usuario de la reserva.
+     * @return Devuelve un booleano en función de si la operación se ha completado con exito o no.
+     * @throws ExcepcionGeneralDB
      */
     public boolean borrarReserva(String id_plaza, String id_usuario) throws ExcepcionGeneralDB{
         String query = "DELETE FROM reserva WHERE id_plaza=? AND id_usuario=?";
@@ -135,7 +165,11 @@ public class ReservaDBDAO {
     }
 
     /**
-     * Reasigna todas las reservas apuntando a una plaza a otra (mismo registro, nuevo {@code id_plaza}).
+     * Cambia la plaza de una reserva.
+     * @param idPlazaAnterior Identificador de la plaza original de la reserva.
+     * @param idPlazaNuevo Identificador de la nueva plaza de la reserva.
+     * @return Devuelve un boolean en función de si la operación ha tenido éxito o no.
+     * @throws ExcepcionGeneralDB
      */
     public boolean actualizarIdPlazaReserva(String idPlazaAnterior, String idPlazaNuevo) throws ExcepcionGeneralDB {
         String query = "UPDATE reserva SET id_plaza = ? WHERE id_plaza = ?";
@@ -154,6 +188,12 @@ public class ReservaDBDAO {
         }
     }
 
+    /**
+     * Elimina la reserva de una plaza de parking específica.
+     * @param idPlaza Identificador de la plaza de parking.
+     * @return Devuelve un boolean en función de si la operación ha tenido éxito o no.
+     * @throws ExcepcionGeneralDB
+     */
     public boolean eliminarReservasDePlaza(String idPlaza) throws ExcepcionGeneralDB {
         String query = "DELETE FROM reserva WHERE id_plaza = ?";
         ArrayList<String> values = new ArrayList<>();

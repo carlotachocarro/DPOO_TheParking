@@ -6,21 +6,20 @@ import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
 import java.sql.*;
 
 /**
- * This class makes impossible to make more than one connection instance to the database.
+ * Esta clase nos permite crear una única conexión con la BBDD.
  */
 public final class Singleton {
     /**
-     * Instance of the class that will be given any time is needed.
+     * Instancia única de la clase.
      */
     private static volatile Singleton instance;
     /**
-     * Connection to the database, only one will be posible to be made.
+     * Conexión con la BBDD.
      */
     private Connection conn;
 
     /**
-     * Constructor of the class, it will use the ConfigJSONDAO class to get the information to make the connection to the database.
-
+     * Constructor de la clase.
      */
     private Singleton() throws ExcepcionFicheroNoEncontrado, ExcepcionGeneralDB {
         ConfigJSONDAO config = new ConfigJSONDAO();
@@ -40,9 +39,8 @@ public final class Singleton {
     }
 
     /**
-     * This method is the one used in any other class to get an instance of the Singleton class.
-     * @return Returns an instance of the class Singleton.
-
+     * Función usada para sacar la instancia del Singleton.
+     * @return Devuelve una instancia del Singleton.
      */
     public static Singleton getInstance() throws ExcepcionFicheroNoEncontrado, ExcepcionGeneralDB{
 
@@ -59,8 +57,8 @@ public final class Singleton {
     }
 
     /**
-     * Getter for the database connection.
-     * @return Returns an instance of the connection to the database.
+     * Getter para la conexión a la BBDD.
+     * @return Devuelve una instancia de la conexión a la BBDD.
      */
     public Connection getConn(){
 
