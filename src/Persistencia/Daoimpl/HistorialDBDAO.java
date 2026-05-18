@@ -7,8 +7,15 @@ import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 
+/**
+ * Clase que permite interactuar con la tabla de Historial de la BBDD
+ */
 public class HistorialDBDAO {
 
+    /**
+     * Constructor de la clase HistorialDBDAO.
+     * @throws ExcepcionFicheroNoEncontrado
+     */
     public HistorialDBDAO() throws ExcepcionFicheroNoEncontrado {
         try{
             Singleton.getInstance().getConn();
@@ -17,6 +24,11 @@ public class HistorialDBDAO {
         }
     }
 
+    /**
+     * Esta función genera un nuevo registro del historial.
+     * @return Devuelve un boolean en función de si la operación ha tenido éxito o no.
+     * @throws ExcepcionGeneralDB
+     */
     public boolean nuevoRegistro() throws ExcepcionGeneralDB {
         String query1 = "SELECT COUNT(*) FROM plaza_parking WHERE estado_actual = 1;";
         String query2 = "INSERT INTO historial (plazasOcupadas, fecha) VALUES (?, Now())";
@@ -38,6 +50,11 @@ public class HistorialDBDAO {
         }
     }
 
+    /**
+     * Esta función devuelve los registros de historial de los últimos 60 minutos.
+     * @return Devuelve un ArrayList de integer con la cantidad de plazas ocupadas.
+     * @throws ExcepcionGeneralDB
+     */
     public ArrayList<Integer> sacaHistorial() throws ExcepcionGeneralDB {
         String query = "SELECT * FROM historial WHERE fecha >= NOW() - INTERVAL 60 MINUTE ORDER BY fecha DESC LIMIT 60;";
         ArrayList<String> values = new ArrayList<>();

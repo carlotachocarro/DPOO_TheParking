@@ -10,20 +10,20 @@ import Persistencia.persistenciaExcepciones.ExcepcionFicheroNoEncontrado;
 import Persistencia.persistenciaExcepciones.ExcepcionGeneralDB;
 
 /**
- * This class will let the developers to have a set of instruccions to make CRUD petitions to the database.
+ * Esta clase le permite a los devs tener un set de instrucciones para hacer peticiones CRUD contra la BBDD.
  */
 public class SQL_CRUD {
     /**
-     * Constructor of the class.
+     * Constructor de la clase.
      */
     public SQL_CRUD() {}
 
     /**
-     * This method will let the developer to make a Read petition to search any information from the database.
-     * @param query String with the query that will be executed.
-     * @param values ArrayList with strings of the values used in the query.
-     * @param tipos ArrayList with the data types of the values.
-     * @return Returns a ResultSet object that lets the user retrive the information that the query gave.
+     * Esta función permite hacer preguntas a la BBDD del tipo Select.
+     * @param query String con la query a ejecutar.
+     * @param values ArrayList con los Strings de los valores a poner en la query.
+     * @param tipos ArrayList con los tipode de dato de los valores.
+     * @return Devuelve un objeto ResultSet que nos permite sacar la información de la query.
      */
     public static ResultSet Select(String query, ArrayList<String> values, ArrayList<String> tipos) throws ExcepcionFicheroNoEncontrado, ExcepcionGeneralDB {
         PreparedStatement pst;
@@ -58,12 +58,12 @@ public class SQL_CRUD {
     }
 
     /**
-     * This method will let the developer to do any Create, Update or Delete petition to the database.
-     * @param query String with the query that will create, update or delete something in the DDBB.
-     * @param values ArrayList with strings of the values used in the query.
-     * @param tipos ArrayList with the data types of the values.
-     * @param isInsert Boolean that lets the user know if the petition is an insert.
-     * @return Returns a PreparedStatement object.
+     * Esta función permite hacer peticiones del tipo Create, Update or Delete a la BBDD.
+     * @param query String con la query a ejecutar.
+     * @param values ArrayList con los Strings de los valores a poner en la query.
+     * @param tipos ArrayList con los tipode de dato de los valores.
+     * @param isInsert Booleano que define si la petición es un insert o no.
+     * @return Devuelve un objeto PreparedStatement.
      */
     private static PreparedStatement CUDpreparedStament(String query, ArrayList<String> values, ArrayList<String> tipos, boolean isInsert) throws ExcepcionFicheroNoEncontrado, ExcepcionGeneralDB {
         PreparedStatement pst;
@@ -104,11 +104,11 @@ public class SQL_CRUD {
     }
 
     /**
-     * This method uses the CUDpreparedStament method.
-     * @param query String with the query that will create, update or delete something in the DDBB.
-     * @param values ArrayList with strings of the values used in the query.
-     * @param tipos ArrayList with the data types of the values.
-     * @return Returns a number with the status of the petition.
+     * Esta función permite hacer peticiones del tipo Create, Update or Delete a la BBDD usando la función CUDpreparedStament.
+     * @param query String con la query a ejecutar.
+     * @param values ArrayList con los Strings de los valores a poner en la query.
+     * @param tipos ArrayList con los tipode de dato de los valores.
+     * @return Devuelve un número con el estado de la petición.
      */
     public static int CUD(String query, ArrayList<String> values, ArrayList<String> tipos) throws ExcepcionFicheroNoEncontrado, ExcepcionGeneralDB {
         int res = 0;
@@ -123,28 +123,5 @@ public class SQL_CRUD {
         return res;
     }
 
-    /**
-     * This method uses the CUDpreparedStament method to call the database.
-     * @param query String with the query that will create, update or delete something in the DDBB.
-     * @param values ArrayList with strings of the values used in the query.
-     * @param tipos ArrayList with the data types of the values.
-     * @return Returns a number with the id of the new register generated.
-     */
-    public static int CUDReturningNextval(String query, ArrayList<String> values, ArrayList<String> tipos) throws ExcepcionFicheroNoEncontrado, ExcepcionGeneralDB {
-        try {
-            PreparedStatement pst = CUDpreparedStament(query, values, tipos, true);
-            int res = pst.executeUpdate();
-            if (res > 0) {
-                ResultSet rs = pst.getGeneratedKeys();
-                if (rs.next()) {
-                    return rs.getInt(1);
-                }
-            }
-        } catch (SQLIntegrityConstraintViolationException e) {
-            throw new ExcepcionGeneralDB();
-        } catch (SQLException e) {
-            throw new RuntimeException();
-        }
-        throw new RuntimeException("Error inserting the DataBase");
-    }
+
 }
